@@ -1,26 +1,55 @@
-Peergroup
-======
+Project Peergroup
+=================
 
 Introduction
 ------------
-Peergroup is a file- syncing/backup/sharing tool. In the style of Dropbox the user can drop files in a specified directory to sync, backup or share them. The underlying technique follows a serverless peer-to-peer approach. There is not even a server for managing meta data and connections between peers.
-While the data is always in the users Peergroup directory, it also gets locally encrypted and then transferred to the participating nodes of the network. Each participant can limit the amount of space he wants to share with the network.
+Peergroup is a tool able to create a XMPP managed P2P net. An arbitrary XMPP-Server can be used to create a channel where Peergroup users can join. With this channel each peer can see who's online, ask for content, post backup- or syncrequests, etc... Nevertheless, all eventual file traffic is done P2P.
+The major purpose of Peergroup is to create a community-net where peers can sync/backup/share data profiting by other peers shared space.
 
-Some words
+Ideas
 ----------
-I admit this sounds a little bit like Wuala, but it is indeed different. Peergroup is meant to create small community networks (nowadays one might call it clouds) which serve the possibility to backup, sync and share private data. By default all data is directly encrypted with the users encryption key on the users machine. The user can be sure that his data is only stored on nodes participating in the network, and his local PC is the only point where his data is unencrypted. This however raises some degree of responsibility of each user towards his data/password. As the password is used to _directly_ encrypt the data, a lost password means lost data.
+* Make XMPP-communication senseless to third partys (Hashes)
+* The user:
+	* XMPP identity (e.g. nicolas.inden@rwth-aachen.de)
+	* Host identity (e.g. MacBook, Homeserver, etc...)
+	* -> Peergroup identity (e.g. nicolas.inden@rwth-aachen.de:MacBook)
+* General XMPP-communication:
+	* messagetype#ID#type_corresponding_data_0#type_corresponding_data_1#...
+	* The messagetype consists of two parts seperated by a colon
+		* req/res : type
+		* req -> request
+		* res -> response
+		* type = {backup,sync,share}
+* Backup:
+	* On how many nodes? (How many copies? Redundancy?)
+	* Node reliability? (Uptime?)
+	* Complete data or fragments?
+	* XMPP-communication: 
+		* req:backup#ID#HASH#Size_in_bytes (Nodes answer with: res:backup#ID#HASH#Free_space_in_bytes#AVG_UPTIME)
+* Sync:
+	* /* TODO */
+* Share:
+	* XMPP-communication:
+		* req:share#ID#HASH (Nodes answer with: res:share#ID#HASH)
+	* P2P-comunication:
+		* Establish connection to nodes who sent a response
+		* send "res:share#ID#HASH" referring to their XMPP-response
+		* receive file
+		* still have to figure out how to download one file from serveral nodes at the same time
+* Timeout for unanswered requests?
+
 
 Peergroup is actually at the very beginning of its life, so some (or nearly all) of the above mentioned features are not implemented yet.
 If you have questions, hints, ideas or anything else you want to get out of your brain, don't hesitate to write me an email.
 
 License
 -------
-This tool features functions which require that they are verifiable by the enduser. The only way to ensure this is to keep Peergroup open source. Thus, Peergroup is published under the
+This project is not yet released, so no matter how you got the sourcecode, DELETE EVERYTHING!! There is NO permission to see/use/change this code or the compiled result of it in any matter.
 
-_GNU General Public License v3_
-
-See license.txt for further information
-
-Author
+Contact
 ------
-Nicolas Inden - nico@smashnet.de
+nicolas.inden@rwth-aachen.de
+
+See nico.asc for my gpg public key.
+
+Fingerprint: A757 5741 FD1E 63E8 357D  48E2 3C68 AE70 B2F8 AA17
