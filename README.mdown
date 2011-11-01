@@ -42,9 +42,16 @@ Ideas
 Peergroup is actually at the very beginning of its life, so some (or nearly all) of the above mentioned features are not implemented yet.
 If you have questions, hints, ideas or anything else you want to get out of your brain, don't hesitate to write me an email.
 
+Build & Install
+---------------
+This is simple :-)
+	* cd into the peergroup directory
+	* ant
+	* java -jar export/peergroup.jar
+
 License
 -------
-This project is not yet released, so no matter how you got the sourcecode, DELETE EVERYTHING!! There is NO permission to see/use/change this code or the compiled result of it in any matter.
+This project is not officially released yet. It is not meant for public distribution.
 
 Contact
 ------
