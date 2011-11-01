@@ -1,0 +1,26 @@
+Peergroup
+======
+
+Introduction
+------------
+Peergroup is a file- syncing/backup/sharing tool. In the style of Dropbox the user can drop files in a specified directory to sync, backup or share them. The underlying technique follows a serverless peer-to-peer approach. There is not even a server for managing meta data and connections between peers.
+While the data is always in the users Peergroup directory, it also gets locally encrypted and then transferred to the participating nodes of the network. Each participant can limit the amount of space he wants to share with the network.
+
+Some words
+----------
+I admit this sounds a little bit like Wuala, but it is indeed different. Peergroup is meant to create small community networks (nowadays one might call it clouds) which serve the possibility to backup, sync and share private data. By default all data is directly encrypted with the users encryption key on the users machine. The user can be sure that his data is only stored on nodes participating in the network, and his local PC is the only point where his data is unencrypted. This however raises some degree of responsibility of each user towards his data/password. As the password is used to _directly_ encrypt the data, a lost password means lost data.
+
+Peergroup is actually at the very beginning of its life, so some (or nearly all) of the above mentioned features are not implemented yet.
+If you have questions, hints, ideas or anything else you want to get out of your brain, don't hesitate to write me an email.
+
+License
+-------
+This tool features functions which require that they are verifiable by the enduser. The only way to ensure this is to keep Peergroup open source. Thus, Peergroup is published under the
+
+_GNU General Public License v3_
+
+See license.txt for further information
+
+Author
+------
+Nicolas Inden - nico@smashnet.de
