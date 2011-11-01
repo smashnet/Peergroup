@@ -45,9 +45,10 @@ If you have questions, hints, ideas or anything else you want to get out of your
 Build & Install
 ---------------
 This is simple :-)
-	* cd into the peergroup directory
-	* ant
-	* java -jar export/peergroup.jar
+
+* cd into the peergroup directory
+* ant
+* java -jar export/peergroup.jar
 
 License
 -------
