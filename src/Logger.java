@@ -1,22 +1,3 @@
-/*
-*    Logger.java - A tiny lib for log messages
-*    Copyright (C) 2011  Nicolas Inden
-*    Contact: nico@smashnet.de
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU General Public License as published by
-*    the Free Software Foundation, either version 3 of the License, or
-*    (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU General Public License for more details.
-*
-*    You should have received a copy of the GNU General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
 package peergroup;
 
 import java.io.*;
@@ -24,6 +5,8 @@ import java.util.Calendar;
 
 /**
 * This class supplies console- and fileouput logging abilities
+*
+* @author Nicolas Inden
 */
 public class Logger {
 
@@ -33,6 +16,9 @@ public class Logger {
 	private Calendar cal;
 	private boolean color;
 	
+	/**
+	* Default constructor
+	*/
 	public Logger(){
 		try{
 			this.color = true;
@@ -44,6 +30,11 @@ public class Logger {
 		}
 	}
 	
+	/**
+	* Constructor
+	*
+	* @param filename is the name of the logfile as string
+	*/
 	public Logger(String filename){
 		try{
 			this.color = true;
@@ -55,6 +46,12 @@ public class Logger {
 		}
 	}
 	
+	/**
+	* Returns a string representing the current date and time 
+	* in the following syle: "[YYYY/MM/DD HH:MM::SS] - "
+	*
+	* @return tmp the string
+	*/
 	private String getTimeString(){
 		this.cal = Calendar.getInstance();
 		String tmp = "[" + cal.get(Calendar.YEAR) + "/" + (cal.get(Calendar.MONTH)+1) + "/" + cal.get(Calendar.DAY_OF_MONTH)
@@ -63,6 +60,12 @@ public class Logger {
 		return tmp;
 	}
 	
+	/**
+	* Adds a message to the current log, this message displays 
+	* on the console and is written into the logfile
+	*
+	* @param txt the logged string
+	*/
 	public void addMsg(String txt){
 		try{
 			String log = this.getTimeString() + txt;
@@ -73,6 +76,13 @@ public class Logger {
 		}
 	}
 	
+	/**
+	* Adds a message to the current log, this message displays 
+	* on the console (colored) and is written into the logfile
+	*
+	* @param txt the logged string
+	* @param color 1(red),2(green),3(blue),4(yellow)
+	*/
 	public void addMsg(String txt, int color){
 		try{
 			String time = this.getTimeString();
@@ -107,6 +117,9 @@ public class Logger {
 		}
 	}
 	
+	/**
+	* Adds a line seperator to the log
+	*/
 	public void addSeperator(){
 		try{
 			this.bw.write("-------------------------\n");
@@ -116,6 +129,9 @@ public class Logger {
 		}
 	}
 	
+	/**
+	* Closes the log and the FileWriter
+	*/
 	public void closeLog(){
 		try{
 			this.bw.write("-------------------------\nEnd of log...");
