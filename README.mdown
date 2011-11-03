@@ -56,8 +56,5 @@ This project is not officially released yet. It is not meant for public distribu
 
 Contact
 ------
-nicolas.inden@rwth-aachen.de
-
-See nico.asc for my gpg public key.
-
-Fingerprint: A757 5741 FD1E 63E8 357D  48E2 3C68 AE70 B2F8 AA17
+Mail: nicolas.inden@rwth-aachen.de
+XMPP: nicolas.inden@jabber.rwth-aachen.de
