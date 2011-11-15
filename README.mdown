@@ -3,40 +3,11 @@ Project Peergroup
 
 Introduction
 ------------
-Peergroup is a tool able to create a XMPP managed P2P net. An arbitrary XMPP-Server can be used to create a channel where Peergroup users can join. With this channel each peer can see who's online, ask for content, post backup- or syncrequests, etc... Nevertheless, all eventual file traffic is done P2P.
-The major purpose of Peergroup is to create a community-net where peers can sync/backup/share data profiting by other peers shared space.
+Peergroup is an approach of using BitTorrent to share data within XMPP usergroups. For each group in your XMPP roster, a BitTorrent swarm is created, which lets you share data with the users in this group. Actually every user has all published data of a usergroup on his own local storage, leading to a good redundancy and availability, even if no node is currently online. File updates are propagated via XMPP to the users in a group, this update is simply sending the new torrent information to all participating users.
 
 Ideas
 ----------
-* Make XMPP-communication senseless to third partys (Hashes)
-* The user:
-	* XMPP identity (e.g. nicolas.inden@rwth-aachen.de)
-	* Host identity (e.g. MacBook, Homeserver, etc...)
-	* -> Peergroup identity (e.g. nicolas.inden@rwth-aachen.de:MacBook)
-* General XMPP-communication:
-	* messagetype#ID#type_corresponding_data_0#type_corresponding_data_1#...
-	* The messagetype consists of two parts seperated by a colon
-		* req/res : type
-		* req -> request
-		* res -> response
-		* type = {backup,sync,share}
-* Backup:
-	* On how many nodes? (How many copies? Redundancy?)
-	* Node reliability? (Uptime?)
-	* Complete data or fragments?
-	* XMPP-communication: 
-		* req:backup#ID#HASH#Size_in_bytes (Nodes answer with: res:backup#ID#HASH#Free_space_in_bytes#AVG_UPTIME)
-* Sync:
-	* /* TODO */
-* Share:
-	* XMPP-communication:
-		* req:share#ID#HASH (Nodes answer with: res:share#ID#HASH)
-	* P2P-comunication:
-		* Establish connection to nodes who sent a response
-		* send "res:share#ID#HASH" referring to their XMPP-response
-		* receive file
-		* still have to figure out how to download one file from serveral nodes at the same time
-* Timeout for unanswered requests?
+* Users I have in a group x, don't neccessarily list me in group x in their roster
 
 
 Peergroup is actually at the very beginning of its life, so some (or nearly all) of the above mentioned features are not implemented yet.
@@ -56,5 +27,5 @@ This project is not officially released yet. It is not meant for public distribu
 
 Contact
 ------
-Mail: nicolas.inden@rwth-aachen.de
-XMPP: nicolas.inden@jabber.rwth-aachen.de
+* Mail: nicolas.inden@rwth-aachen.de
+* XMPP: nicolas.inden@jabber.rwth-aachen.de
