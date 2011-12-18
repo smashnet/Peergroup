@@ -15,7 +15,9 @@ public class Peergroup {
      */
     public static void main(String[] args) {
         Logger log = new Logger();
-        log.addMsg("Starting Peergroup...",2);
+        Constants.log.addMsg("Starting " + Constants.PROGNAME + " "
+                    + Constants.VERSION + "...",2);
         log.closeLog();
     }
+    
 }
