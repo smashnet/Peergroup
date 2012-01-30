@@ -5,7 +5,7 @@
 package peergroup;
 
 import java.io.*;
-import java.util.*;
+import java.util.LinkedList;
 import java.security.MessageDigest;
 
 /**

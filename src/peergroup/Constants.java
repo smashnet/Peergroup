@@ -19,6 +19,10 @@ public class Constants {
     public final static Storage myStorage = new Storage();
     public final static Network myNetwork = new Network();
     
+    public final static String rootDirectory = "./share/";
+    public final static String tmpDirectory = "./tmp/";
+    public static long shareLimit = 2097152;                //2GB in Bytes
+    
     public String username;
     public String password;
     public String server;

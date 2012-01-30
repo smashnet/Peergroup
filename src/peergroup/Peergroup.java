@@ -14,10 +14,18 @@ public class Peergroup {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        Logger log = new Logger();
         Constants.log.addMsg("Starting " + Constants.PROGNAME + " "
                     + Constants.VERSION + "...",2);
-        log.closeLog();
+        
+        getCmdArgs(args);
+        
+        Constants.log.closeLog();
+    }
+    
+    private static void getCmdArgs(String[] args){
+        for(String s: args){
+            
+        }
     }
     
 }

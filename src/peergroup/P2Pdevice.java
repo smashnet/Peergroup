@@ -4,15 +4,10 @@
  */
 package peergroup;
 
-import java.util.*;
-
 /**
  *
  * @author Nicolas Inden
  */
-public class Storage {
-    
-    private LinkedList<FileHandle> files;
-    private long shareLimit;
+public class P2Pdevice {
     
 }

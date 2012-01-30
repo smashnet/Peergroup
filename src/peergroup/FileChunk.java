@@ -4,6 +4,8 @@
  */
 package peergroup;
 
+import java.util.LinkedList;
+
 /**
  *
  * @author Nicolas Inden
@@ -11,8 +13,9 @@ package peergroup;
 public class FileChunk {
     
     private int id;
-    private String path;
     private byte[] hash;
+    private String path;
+    private LinkedList<P2Pdevice> peers;
     
     public FileChunk(){
         
