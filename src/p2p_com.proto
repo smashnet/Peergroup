@@ -1,0 +1,18 @@
+// See README.txt for information and build instructions.
+
+package peergroup;
+
+option java_package = "peergroup";
+option java_outer_classname = "p2pProtos";
+
+message RequestBlock {
+	required bytes fileHash = 1;
+	required bytes blockHash = 2;
+	optional int32 blockID = 3;
+}
+
+message BlockTransfer {
+	required bytes blockHash = 1;
+	required bytes data = 2;
+	optional int32 blockID = 3;
+}

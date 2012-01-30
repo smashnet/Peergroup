@@ -1,0 +1,5 @@
+austausch, wer hat welchen block
+
+lamport clock für blocks
+
+Distributed Systems - Tanenbaum

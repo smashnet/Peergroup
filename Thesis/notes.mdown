@@ -1,0 +1,56 @@
+Conference Access Management
+============================
+
+Roles
+-----
+* Visitor
+	* std rights (see, write, change presence/nick)
+* Participant
+	* write in moderated channels, change subject
+* Moderator
+
+Participant Affiliation
+-----------------------
+* banned
+* no affiliation (default)
+* member (can join members-only channels)
+* admin
+* owner
+
+Rooms
+-----
+* can be marked as "just for members"
+* hidden rooms possible
+* password-protection
+* max users can be defined (otherwise CPU/RAM limits usage)
+
+Data Fragmentation
+==================
+
+* No fragmentation for files < 100kB
+* Usual block length:
+	* ?
+
+Data Access (Basic Operations)
+==============================
+* Use Lamport-Clock for:
+	* each operation
+	* each file (as revision no)
+* Class "File" has:
+	* filename
+	* filesize
+	* hash (sha256?)
+	* no. of blocks
+	* hashes for blocks
+
+Add new file
+------------
+push(file,timestamp)
+
+Remove file
+-----------
+remove(file,timestamp);
+
+Update file
+-----------
+update(file,list\_of\_blocks,timestamp)
