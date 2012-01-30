@@ -4,3 +4,4 @@ export/
 doc/
 dist/
 build/
+tmp/

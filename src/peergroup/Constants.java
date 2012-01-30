@@ -13,9 +13,11 @@ package peergroup;
 public class Constants {
     
     public final static String PROGNAME    = "peergroup";
-    public final static String VERSION     = "0.1";
+    public final static String VERSION     = "0.01 (development version)";
     
     public final static Logger log = new Logger();
+    public final static Storage myStorage = new Storage();
+    public final static Network myNetwork = new Network();
     
     public String username;
     public String password;
