@@ -4,7 +4,7 @@
  */
 package peergroup;
 
-import java.util.*;
+import java.util.LinkedList;
 
 /**
  *
@@ -12,6 +12,7 @@ import java.util.*;
  */
 public class Storage {
     
+    private int version;
     private LinkedList<FileHandle> files;
     private long shareLimit;
     
