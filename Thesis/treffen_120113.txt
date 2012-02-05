@@ -1,6 +1,0 @@
-getDeviceList
-client schnittstelle thrift?
-
-bis nächstes Mal: software architektur
-
-file callback

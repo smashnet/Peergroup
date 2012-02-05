@@ -1,0 +1,12 @@
+Treffen mit Elias vom 13.01.2012
+================================
+Wichtige Stichpunkte:
+
+* Wo wird getDeviceList() aufgerufen?
+* Schnittstelle für direkten Datenaustausch: Apache Thrift
+
+Bis nächstes Mal:
+
+* Softwarearchitektur
+
+File-Callback - aka Verzeichnisüberwachung: java.nio

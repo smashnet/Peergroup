@@ -3,11 +3,11 @@ Project Peergroup
 
 Introduction
 ------------
-Peergroup is an approach of using BitTorrent to share data within XMPP usergroups. For each group in your XMPP roster, a BitTorrent swarm is created, which lets you share data with the users in this group. Actually every user has all published data of a usergroup on his own local storage, leading to a good redundancy and availability, even if no node is currently online. File updates are propagated via XMPP to the users in a group, this update is simply sending the new torrent information to all participating users.
+Peergroup is an approach of using BitTorrent to share data within XMPP user-groups. For each group in your XMPP roster, a BitTorrent swarm is created, which lets you share data with the users in this group. Actually every user has all published data of a user-group on his own local storage, leading to a good redundancy and availability, even if no node is currently online. File updates are propagated via XMPP to the users in a group, this update is simply sending the new torrent information to all participating users.
 
 Ideas
 ----------
-* Users I have in a group x, don't neccessarily list me in group x in their roster
+* Users I have in a group x, don't necessarily list me in group x in their roster
 
 
 Peergroup is actually at the very beginning of its life, so some (or nearly all) of the above mentioned features are not implemented yet.

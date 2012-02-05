@@ -1,0 +1,9 @@
+Treffen mit Elias vom 31.01.2012
+================================
+
+Bleiben erstmal in Mailkontakt, da ich Klausuren schreibe.
+
+Aufgaben:
+
+* Mit Thrift auseinandersetzen, da Thrift >> Protocol Buffers ;-)
+* Namen für die Bachelorarbeit überlegen
