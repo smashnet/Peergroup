@@ -18,14 +18,16 @@
 		<delete dir="${exportdir}" />
 		<delete dir="${docdir}" />
 		
-		<!-- <delete>
+		<!-- 
+		<delete>
 			<fileset dir="${thesisdir}">
 	    		<exclude name="*.tex"/>
 				<exclude name="*.png"/>
 				<exclude name="*.mdown"/>
 				<exclude name="*.grpahml"/>
 			</fileset>
-		</delete> -->
+		</delete> 
+		-->
 		
 	</target>
 	
