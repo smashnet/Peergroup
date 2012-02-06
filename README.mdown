@@ -1,17 +1,11 @@
-Project Peergroup
-=================
+Peergroup
+=========
 
 Introduction
 ------------
-Peergroup is an approach of using BitTorrent to share data within XMPP user-groups. For each group in your XMPP roster, a BitTorrent swarm is created, which lets you share data with the users in this group. Actually every user has all published data of a user-group on his own local storage, leading to a good redundancy and availability, even if no node is currently online. File updates are propagated via XMPP to the users in a group, this update is simply sending the new torrent information to all participating users.
+In the last time more and more companies offer free cloud storage, which users can use to backup and share their data. Unfortunately many of these companies are seated in the USA, which arises questions concerning data security and privacy (aka Patriot Act). In any case, even if the data is stored somewhere else in the world, the user has to ask himself to what degree he trusts the company which is offering the storage, especially in regard of sensitive data.
 
-Ideas
-----------
-* Users I have in a group x, don't necessarily list me in group x in their roster
-
-
-Peergroup is actually at the very beginning of its life, so some (or nearly all) of the above mentioned features are not implemented yet.
-If you have questions, hints, ideas or anything else you want to get out of your brain, don't hesitate to write me an email.
+Peergroup proposes a simple possibility to share und synchronize files in a peer to peer fashion with other users. Peergroups design principle is that data is stored on the devices of participating users. Uploaded files get seperated into blocks which are then transferred to other users who store them. The data management is done via XMPP stanza exchange, whereas the real data is transferred directly between the users over Apache Thrift. Managing participating users and shared data via XMPP lets you easily limit the circle of people storing your data. There is no central point with stored data.
 
 Build & Install
 ---------------
