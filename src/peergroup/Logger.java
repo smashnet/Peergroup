@@ -138,7 +138,7 @@ public class Logger {
 	*/
 	public void closeLog(){
 		try{
-			this.bw.write("-------------------------\nEnd of log...");
+			this.bw.write("-------------------------\nEnd of log...\n");
 			System.out.println("-------------------------\nEnd of log...");
 			this.bw.close();
 		}catch(IOException ioe){
