@@ -13,7 +13,7 @@
 	<target name="all" depends="jar, javadoc, clean"/>
 	
 	<!-- upload target, will delete all unnecessary data as tmp dirs reports and javadoc so we only commit pure source-code into GIT -->
-	<target name="wipe_out">
+	<target name="wipeout">
 		<delete dir="${tmp}" />
 		<delete dir="${exportdir}" />
 		<delete dir="${docdir}" />
