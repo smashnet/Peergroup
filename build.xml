@@ -6,7 +6,6 @@
 	<property name="exportdir" location="export" />
 	<property name="docdir" location="doc" />
 	<property name="clientpkg" value="peergroup" />
-	<property name="thesisdir" value="thesis" />
 	<!-- targets to run-->
 	
 	<!-- default target, will export the client and the java doc -->

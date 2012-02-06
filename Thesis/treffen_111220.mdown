@@ -1,8 +1,0 @@
-Treffen mit Elias vom 20.12.2011
-================================
-Gedanken machen über:
-
-* Informationsaustausch: Wer hat welchen block?
-* Lamportclock für Blocks
-
-* Ausgeliehen: Distributed Systems - Tanenbaum
