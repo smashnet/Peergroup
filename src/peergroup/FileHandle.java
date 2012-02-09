@@ -1,7 +1,16 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+* Peergroup - FileHandle.java
+* 
+* Peergroup is a file synching tool using XMPP for data- and 
+* participantmanagement and Apache Thrift for direct data-
+* exchange between users.
+*
+* Author : Nicolas Inden
+* Contact: nicolas.inden@rwth-aachen.de
+*
+* License: Not for public distribution!
+*/
+
 package peergroup;
 
 import java.io.*;
@@ -31,7 +40,8 @@ public class FileHandle {
         this.file = new File(filename);
         this.hash = this.calcHash(this.file);
         this.size = this.file.length();
-        Constants.log.addMsg("FileHandle: Opening " + filename + " (Size: " + this.size + ")", 3);
+        Constants.log.addMsg("FileHandle: Opening " + filename + " (Size: " 
+                              + this.size + ")", 3);
         if(this.size <= 512000){
             this.createChunks(102400);
         }else if((this.size > 512000) && (this.size <= 10485760)){
@@ -41,19 +51,23 @@ public class FileHandle {
         }
     }
     
-    public FileHandle(String filename, byte[] fileHash, long fileSize) throws Exception{ 
+    public FileHandle(String filename, byte[] fileHash, long fileSize) 
+    throws Exception{ 
         this.file = new File(filename);
         this.hash = fileHash;
         this.size = fileSize;
-        Constants.log.addMsg("FileHandle: Opening " + filename + " (Size: " + this.size + ")", 3);
+        Constants.log.addMsg("FileHandle: Opening " + filename + " (Size: " 
+                              + this.size + ")", 3);
     }
     
     private void createChunks(int size) throws Exception{
         if(!(this.chunks == null)){
-            Constants.log.addMsg("("+this.file.getName()+") Chunklist not empty!", 4);
+            Constants.log.addMsg("(" + this.file.getName() 
+                                  + ") Chunklist not empty!", 4);
             return;
         }
-        Constants.log.addMsg("FileHandle: Creating chunks for " + this.file.getName(), 3);
+        Constants.log.addMsg("FileHandle: Creating chunks for " 
+                              + this.file.getName(), 3);
         FileInputStream stream = new FileInputStream(this.file);
         this.chunks = new LinkedList<FileChunk>();
         int bytesRead = 0;
