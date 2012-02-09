@@ -7,6 +7,12 @@ In the last time more and more companies offer free cloud storage, which users c
 
 Peergroup proposes a simple possibility to share und synchronize files in a peer to peer fashion with other users. Peergroups design principle is that data is stored on the devices of participating users. Uploaded files get seperated into blocks which are then transferred to other users who store them. The data management is done via XMPP stanza exchange, whereas the real data is transferred directly between the users over Apache Thrift. Managing participating users and shared data via XMPP lets you easily limit the circle of people storing your data. There is no central point with stored data.
 
+This is awesome! Where can I get it?
+------------------------------------
+Simply clone this git-repository and procees with the "Build & Install" section.
+
+<pre>git clone git@github.com:/smashnet/Peergroup.git Peergroup</pre>
+
 Build & Install
 ---------------
 This is simple :-)
