@@ -62,7 +62,7 @@ public class Storage {
 	*
 	* @param filename the filename
 	*/
-	public void addFileFromLocal(String filename){
+	public void addFileFromLocal(String filename) throws Exception{
 		FileHandle newFile = new FileHandle(this.rootDirectory + filename);
 		this.files.add(newFile);
 		this.fileListVersion++;
@@ -77,7 +77,7 @@ public class Storage {
 	* @param fileSize the size of the file in bytes
 	* @param chunks the list of chunks for this file
 	*/
-	public void addFileFromXMPP(String filename, int vers, byte[] fileHash, long fileSize, LinkedList<FileChunk> chunks){
+	public void addFileFromXMPP(String filename, int vers, byte[] fileHash, long fileSize, LinkedList<FileChunk> chunks) throws Exception{
 		FileHandle newFile = new FileHandle(this.rootDirectory + filename,vers,fileHash,fileSize,chunks);
 		this.files.add(newFile);
 		this.fileListVersion++;
@@ -94,9 +94,8 @@ public class Storage {
 	}
 	
 	/**
-	* Adds a local file to the storage list
+	* Applies a change to a file in the file list
 	*
-	* @param filename the filename
 	*/
 	public void modifyFile(){
 		
@@ -108,7 +107,7 @@ public class Storage {
 	}
 	
 	public void setVersion(int v){
-		this.version = v;
+		this.fileListVersion = v;
 	}
 	
 	public long getShareLimit(){

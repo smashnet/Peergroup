@@ -1,11 +1,20 @@
 Peergroup
 =========
+A P2P Shared Storage System based on XMPP
 
-Introduction
-------------
-In the last time more and more companies offer free cloud storage, which users can use to backup and share their data. Unfortunately many of these companies are seated in the USA, which arises questions concerning data security and privacy (aka Patriot Act). In any case, even if the data is stored somewhere else in the world, the user has to ask himself to what degree he trusts the company which is offering the storage, especially in regard of sensitive data.
+-Status:- _Development version, function not yet complete_
 
-Peergroup proposes a simple possibility to share und synchronize files in a peer to peer fashion with other users. Peergroups design principle is that data is stored on the devices of participating users. Uploaded files get seperated into blocks which are then transferred to other users who store them. The data management is done via XMPP stanza exchange, whereas the real data is transferred directly between the users over Apache Thrift. Managing participating users and shared data via XMPP lets you easily limit the circle of people storing your data. There is no central point with stored data.
+(Paper)Introduction
+-------------------
+Todays understanding of the term _storage_ has only few things in common with that term of _storage_ we knew several years ago. Storage is more than just a harddrive in a computer now. The time of cloud services lets users think of huge amounts of space and the possibility of sharing data and collaborative working. As the speed of end-user-internet-lines increases rapidly, which also includes upload bandwith, it seems feasable to make the sky of collaboration a little less cloudy and use a transparent shared storage system based on P2P.
+
+This paper proposes an approach of a P2P shared storage system based on XMPP. XMPP is used as a reliable protocol to manage groups of users to share storage with each other. We use Apache Thrift to have a clean interface for the direct data transfer between users. We do in-depth tests of the system, showing how it scales with a large number of users, and using different block sizes for file segmentation.
+
+Design Principle
+----------------
+Basically Peergroup empowers you to share a directory on your computer with other users. You might use it to simply share data (be it a file based calendar, pictures, music or whatever comes to your mind), or you might use it as a redundant storage to upload your (encrypted) backups.
+
+Whatever your intention is, the first thing you need to do is to determine the circle of users you want to use Peergroup with. One princilple of Peergroup is, that you always know where your data is stored. Every user needs an XMPP (also known as Jabber) account at his/her favourite server. At last, start Peergroup providing it with your desired folder and a XMPP conference channel. Of course all users that want to share a folder need to join the same conference channel.
 
 This is awesome! Where can I get it?
 ------------------------------------
