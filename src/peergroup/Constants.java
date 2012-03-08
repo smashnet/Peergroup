@@ -25,16 +25,23 @@ public class Constants {
     public final static String VERSION     = "0.01 (development version)";
     
     public final static Logger log = new Logger();
-    public final static Storage myStorage = new Storage();
-    public final static Network myNetwork = new Network();
+	
+	/*
+	* Request queue for thread communication
+	*/
+    public static ConcurrentLinkedQueue<Request> requestQueue = new ConcurrentLinkedQueue<Request>();
+	
+	/*
+	* Running threads
+	*/
+	public static MainWorker main;
+	public static StorageWorker storage;
+	public static NetworkWorker network;
     
-    public final static String rootDirectory = "./share/";
-    public final static String tmpDirectory = "./tmp/";
+	/*
+	* Storage constants
+	*/
+	public static String rootDirectory = "./share/";
+    public static String tmpDirectory = "./tmp/";
     public static long shareLimit = 2097152;                //2GB in Bytes
-    
-    public String username;
-    public String password;
-    public String server;
-    public String resource;
-    
 }

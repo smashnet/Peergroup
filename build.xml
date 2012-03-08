@@ -13,34 +13,69 @@
 
 <project name="Peergroup" default="all" basedir=".">
 	
-	<property name="src" location="src" />
-	<property name="tmp" location="temp" />
+	<property name="src" location="./src" />
+	<property name="lib" location="./lib" />
+	<property name="tmp" location="./temp" />
+	<property name="junit" location="./junit" />
+	<property name="tests" location="./tests" />
+	<property name="test.output" location="./test-output" />
+	<property name="test.classes" location="${tmp}/testclasses" />
 	<property name="tmpclasses" location="${tmp}/classes" />
-	<property name="exportdir" location="export" />
-	<property name="docdir" location="doc" />
+	<property name="exportdir" location="./export" />
+	<property name="docdir" location="./doc" />
 	<property name="clientpkg" value="peergroup" />
+	<property name="test.class.name" value="peergroup.FileHandleTest" />
+	
+	<!-- set pathes-->
+	<path id="build.classpath">
+		<fileset dir="${lib}">
+			<include name="*.jar"/>
+		</fileset>
+    </path>
+	<path id="test.classpath">
+	  <pathelement location="${junit}/junit.jar" />
+	  <pathelement location="${test.classes}" />
+	  <pathelement location="${tmpclasses}" />
+	  <fileset dir="${lib}">
+	    <include name="**/*.jar"/>
+	  </fileset>
+	</path>
+	
 	<!-- targets to run-->
 	
 	<!-- default target, will export the client and the java doc -->
 	<target name="all" depends="jar, javadoc, clean"/>
 	
-	<!-- upload target, will delete all unnecessary data as tmp dirs reports and javadoc so we only commit pure source-code into GIT -->
+	<!-- JUnit-Test  target -->
+	<target name="test" depends="compile-tests">
+	  <junit fork="yes" haltonfailure="yes" printsummary="true">
+	    <classpath refid="test.classpath" />
+		<batchtest todir="${test.output}">
+		        <fileset dir="${test.classes}"/>
+				<formatter type="plain" usefile="false"/>
+        </batchtest>
+	  </junit>
+	  <!--<delete dir="${tmp}" />-->
+	</target>
+	
+	<target name="compile-tests" depends="compile">
+		<mkdir dir="${test.classes}" />
+		<mkdir dir="${test.output}" />
+		<javac srcdir="${tests}" destdir="${test.classes}" compiler="extJavac" source="1.6" target="1.6" debug="on"
+			includeantruntime="false">
+			<classpath refid="test.classpath"/>
+		</javac>
+	</target>
+	
+	<!-- wipeout target, will delete all unnecessary data as tmp dirs reports and javadoc so we only commit pure source-code into GIT -->
 	<target name="wipeout">
 		<delete dir="${tmp}" />
 		<delete dir="${exportdir}" />
 		<delete dir="${docdir}" />
-		
-		<!-- 
-		<delete>
-			<fileset dir="${thesisdir}">
-	    		<exclude name="*.tex"/>
-				<exclude name="*.png"/>
-				<exclude name="*.mdown"/>
-				<exclude name="*.grpahml"/>
-			</fileset>
-		</delete> 
-		-->
-		
+		<delete dir="${test.classes}" />
+		<delete dir="${test.output}" />
+		<delete dir="./tmp" />
+		<delete file="std.log" />		
 	</target>
 	
 	<!-- explicit targets should not be (but can be) run alone -->
@@ -49,23 +84,27 @@
 	<target name="init">
 			<mkdir dir="${tmp}" />
 			<mkdir dir="${tmpclasses}" />
-			<mkdir dir="${exportdir}" />
 	</target>
 	
 	<!-- compile the source code -->
 	<target name="compile" depends="init">
-		<javac srcdir="${src}" destdir="${tmpclasses}" compiler="extJavac" source="1.6" target="1.6" debug="on">
+		<javac srcdir="${src}" destdir="${tmpclasses}" compiler="extJavac" source="1.6" target="1.6" debug="on"
+			includeantruntime="false">
+			<classpath refid="build.classpath"/>
 		</javac>
 	</target>
 	
 	<!-- export compiled code as a jar file -->
 	<target name="jar" depends="compile">
+			<mkdir dir="${exportdir}" />
 			<jar jarfile="${exportdir}/peergroup.jar">
 				<fileset dir="${tmpclasses}">
 					<include name="${clientpkg}/**/*.class" />
 				</fileset>
+				<zipgroupfileset dir="${lib}" includes="*.jar" excludes=""/>
 				<manifest>
 					<attribute name="Main-Class" value="peergroup/Peergroup"/>
+					<attribute name="Class-Path" value="name/Pachler"/>
 				</manifest>
 			</jar>
 	</target>
@@ -73,7 +112,7 @@
 	<!-- generate javadoc out of Source-Code comments -->
 	<target name="javadoc" depends="init">
 		<mkdir dir="${docdir}" />
-		<javadoc destdir="${docdir}" author="true" version="true" use="true" source="1.6" windowtitle="Peergroup API">
+		<javadoc classpathref="build.classpath" destdir="${docdir}" author="true" version="true" use="true" source="1.6" windowtitle="Peergroup API">
 			<fileset dir="${src}">
 				<include name="*/**/*.java" />
 			</fileset>
