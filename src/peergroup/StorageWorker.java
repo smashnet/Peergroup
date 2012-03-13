@@ -18,13 +18,14 @@ import java.io.*;
 import name.pachler.nio.file.*;
 
 /**
- * This is the thread running all local storage related things.
+ * This thread is listening for file system activities and
+ * enqueues events in the global queue.
  *
  * @author Nicolas Inden
  */
 public class StorageWorker extends Thread {
 	
-	private volatile Storage myStorage;
+	private WatchService watcher;
 	
 	/**
 	* Creates a StorageWorker.
@@ -34,7 +35,7 @@ public class StorageWorker extends Thread {
 	
 	public void stopStorageWorker(){
 		try{
-			this.myStorage.getWatcher().close();
+			this.watcher.close();
 			this.interrupt();
 			}catch(IOException ioe){
 				this.interrupt();
@@ -47,13 +48,29 @@ public class StorageWorker extends Thread {
 	*/
 	public void run(){
 		Constants.log.addMsg("Storage thread started...",2);
-		this.myStorage = new Storage();
+		
+		//Init WatchService
+		this.watcher = FileSystems.getDefault().newWatchService();
+		Path path = Paths.get(Constants.rootDirectory);
+		
+		WatchKey key = null;
+		try {
+		    key = path.register(this.watcher, StandardWatchEventKind.ENTRY_CREATE, 
+				StandardWatchEventKind.ENTRY_DELETE, StandardWatchEventKind.ENTRY_MODIFY);
+		} catch (UnsupportedOperationException uox){
+		    System.err.println("file watching not supported!");
+		    // handle this error here
+		}catch (IOException iox){
+		    System.err.println("I/O errors");
+		    // handle this error here
+		}
+		
 		
 		while(!isInterrupted()){
 		    // take() will block until a file has been created/deleted
 		    WatchKey signalledKey;
 		    try {
-		        signalledKey = this.myStorage.getWatcher().take();
+		        signalledKey = this.watcher.take();
 		    } catch (InterruptedException ix){
 		        interrupt();
 		        break;
@@ -72,22 +89,37 @@ public class StorageWorker extends Thread {
 		    // we'll simply print what has happened; real applications
 		    // will do something more sensible here
 		    for(WatchEvent e : list){
-		        String message = "";
-		        if(e.kind() == StandardWatchEventKind.ENTRY_CREATE){
-		            Path context = (Path)e.context();
-		            message = context.toString() + " created";
-		        } else if(e.kind() == StandardWatchEventKind.ENTRY_DELETE){
-		            Path context = (Path)e.context();
-		            message = context.toString() + " deleted";
-		        } else if(e.kind() == StandardWatchEventKind.ENTRY_MODIFY){
-		            Path context = (Path)e.context();
-		            message = context.toString() + " modified";
-		        } else if(e.kind() == StandardWatchEventKind.OVERFLOW){
-		            message = "OVERFLOW: more changes happened than we could retreive";
-		        }
-		        System.out.println(message);
-		    }
+				String message = "";
+				if(e.kind() == StandardWatchEventKind.ENTRY_CREATE){
+					Path context = (Path)e.context();
+					Constants.requestQueue.offer(new Request(Constants.LOCAL_ENTRY_CREATE,context.toString()));
+				} else if(e.kind() == StandardWatchEventKind.ENTRY_DELETE){
+					Path context = (Path)e.context();
+					Constants.requestQueue.offer(new Request(Constants.LOCAL_ENTRY_DELETE,context.toString()));
+				} else if(e.kind() == StandardWatchEventKind.ENTRY_MODIFY){
+					Path context = (Path)e.context();
+					Constants.requestQueue.offer(new Request(Constants.LOCAL_ENTRY_MODIFY,context.toString()));
+				} else if(e.kind() == StandardWatchEventKind.OVERFLOW){
+					Constants.log.addMsg("OVERFLOW: more changes happened than we could retreive",4);
+				}
+			}
 		}
 		Constants.log.addMsg("Storage thread interrupted. Closing...",4);
+	}
+	
+	private void registerNewPath(String newPath){
+		Path path = Paths.get(newPath);
+		
+		WatchKey key = null;
+		try {
+		    key = path.register(this.watcher, StandardWatchEventKind.ENTRY_CREATE, 
+				StandardWatchEventKind.ENTRY_DELETE, StandardWatchEventKind.ENTRY_MODIFY);
+		} catch (UnsupportedOperationException uox){
+		    System.err.println("file watching not supported!");
+		    // handle this error here
+		}catch (IOException iox){
+		    System.err.println("I/O errors");
+		    // handle this error here
+		}
 	}
 }

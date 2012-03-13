@@ -29,9 +29,10 @@ public class Constants {
     public final static Logger log = new Logger();
 	
 	/*
-	* Request queue for thread communication
+	* Request queue where StorageWorker and NetworkWorker push their
+	* requests to, which are then processed by the MainWorker.
 	*/
-    public static ConcurrentLinkedQueue<Request> requestQueue = new ConcurrentLinkedQueue<Request>();
+    public static LinkedBlockingQueue<Request> requestQueue = new LinkedBlockingQueue<Request>();
 	
 	/*
 	* Running threads
@@ -45,5 +46,21 @@ public class Constants {
 	*/
 	public static String rootDirectory = "./share/";
     public static String tmpDirectory = "./tmp/";
-    public static long shareLimit = 2097152;                //2GB in Bytes
+    public static long shareLimit = 2048;                //MegaBytes
+	
+	/*
+	* XMPP information
+	*/
+	public static String user = "";
+	public static String server = "";
+	public static int port = 5222;
+	public static String conference_channel = "";
+	public static String conference_server = "";
+	
+	/*
+	* Constants defining request-types
+	*/
+	public final static int LOCAL_ENTRY_CREATE = 10;
+	public final static int LOCAL_ENTRY_DELETE = 11;
+	public final static int LOCAL_ENTRY_MODIFY = 12;
 }

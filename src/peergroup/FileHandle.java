@@ -17,6 +17,7 @@ import java.io.*;
 import java.util.LinkedList;
 import java.util.Arrays;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * A FileHandle includes all information needed to work with
@@ -26,10 +27,6 @@ import java.security.MessageDigest;
  */
 public class FileHandle {
     
-	/**
-	* The file id
-	*/
-	private int id;
 	/**
 	* The Java File object 
 	*/
@@ -51,6 +48,10 @@ public class FileHandle {
 	*/
     private LinkedList<FileChunk> chunks;
 	/**
+	* The size of the filechunks in bytes
+	*/
+    private int chunkSize;
+	/**
 	* An indicator if the file is completely available on the local storage
 	*/
     private boolean complete;
@@ -68,18 +69,19 @@ public class FileHandle {
         this.hash = this.calcHash(this.file);
         this.size = this.file.length();
         this.complete = true;
-		Constants.log.addMsg("FileHandle: New file from storage: " + filename 
+		Constants.log.addMsg("FileHandle: New file from storage: " + this.getPath() 
 								+ " (Size: " + this.size + ", Hash: " + this.getHexHash() + ")", 3);
 		
         if(this.size <= 512000){								// size <= 500kByte 				-> 100kByte Chunks
-			this.createChunks(102400);
+			this.chunkSize = 102400;
 		}else if(this.size > 512000 && this.size <= 5120000){	// 500kByte < size <= 5000kByte 	-> 200kByte Chunks
-			this.createChunks(204800);
+			this.chunkSize = 204800;
 		}else if(this.size > 5120000 && this.size <= 51200000){	// 5000kByte < size <= 50000kByte 	-> 1000kByte Chunks
-			this.createChunks(1024000);
+			this.chunkSize = 1024000;
 		}else if(this.size > 51200000){							// 50000kByte < size 				-> 2000kByte Chunks
-			this.createChunks(2048000);
+			this.chunkSize = 2048000;
 		}
+		this.createChunks(this.chunkSize);
     }
 	
     /**
@@ -91,30 +93,32 @@ public class FileHandle {
         this.hash = this.calcHash(this.file);
         this.size = this.file.length();
         this.complete = true;
-		Constants.log.addMsg("FileHandle: New file from storage: " + this.file.getName() 
+		Constants.log.addMsg("FileHandle: New file from storage: " + this.getPath() 
 								+ " (Size: " + this.size + ", Hash: " + this.getHexHash() + ")", 3);
 		
         if(this.size <= 512000){								// size <= 500kByte 				-> 100kByte Chunks
-			this.createChunks(102400);
+			this.chunkSize = 102400;
 		}else if(this.size > 512000 && this.size <= 5120000){	// 500kByte < size <= 5000kByte 	-> 200kByte Chunks
-			this.createChunks(204800);
+			this.chunkSize = 204800;
 		}else if(this.size > 5120000 && this.size <= 51200000){	// 5000kByte < size <= 50000kByte 	-> 1000kByte Chunks
-			this.createChunks(1024000);
+			this.chunkSize = 1024000;
 		}else if(this.size > 51200000){							// 50000kByte < size 				-> 2000kByte Chunks
-			this.createChunks(2048000);
+			this.chunkSize = 2048000;
 		}
+		this.createChunks(this.chunkSize);
     }
     
 	/**
 	* Use this constructor for files to be received via network
 	*/
-    public FileHandle(String filename, int vers, byte[] fileHash, long fileSize, LinkedList<FileChunk> chunks) 
+    public FileHandle(String filename, int vers, byte[] fileHash, long fileSize, LinkedList<FileChunk> chunks, int chunkSize) 
     throws Exception{ 
         this.file = new File(Constants.rootDirectory + filename);
 		this.fileVersion = vers;
         this.hash = fileHash;
         this.size = fileSize;
 		this.chunks = chunks;
+		this.chunkSize = chunkSize;
 		this.complete = false;
         Constants.log.addMsg("FileHandle: New file via network: " + filename
 								+ " (Size: " + this.size + ", Hash: " + this.getHexHash() + ")", 3);
@@ -134,23 +138,35 @@ public class FileHandle {
 	* 
 	* @param size the size of a chunk (last one might be smaller)
 	*/
-    private void createChunks(int size) throws Exception{
+    private void createChunks(int size){
         if(!(this.chunks == null)){
             Constants.log.addMsg("(" + this.file.getName() + ") Chunklist not empty!", 4);
             return;
         }
         Constants.log.addMsg("FileHandle: Creating chunks for " + this.file.getName(), 3);
-        FileInputStream stream = new FileInputStream(this.file);
-        this.chunks = new LinkedList<FileChunk>();
-        int bytesRead = 0;
-        int id = 0;
-        byte[] buffer = new byte[size];
+		try{
+	        FileInputStream stream = new FileInputStream(this.file);
+	        this.chunks = new LinkedList<FileChunk>();
+	        int bytesRead = 0;
+	        int id = 0;
+	        byte[] buffer = new byte[size];
         
-        while((bytesRead = stream.read(buffer)) != -1){
-            FileChunk next = new FileChunk(id,calcHash(buffer),bytesRead,id*size,true);
-            this.chunks.add(next);
-            id++;
-        }
+	        while((bytesRead = stream.read(buffer)) != -1){
+	            FileChunk next = new FileChunk(id,calcHash(buffer),bytesRead,id*size,true);
+	            this.chunks.add(next);
+	            id++;
+	        }
+			
+			//On empty file, also create one empty chunk
+			if(bytesRead == -1 && id == 0){
+	            FileChunk next = new FileChunk(id,calcHash(buffer),0,id*size,true);
+	            this.chunks.add(next);
+			}
+			
+			Constants.log.addMsg("FileHandle: Successfully created chunks for " + this.getPath(),2);
+		}catch(IOException ioe){
+			Constants.log.addMsg("createChunks: IOException: " + ioe,1);
+		}
     }
     
 	/**
@@ -178,11 +194,17 @@ public class FileHandle {
 	* @param in the byte array
 	* @return hash as byte array
 	*/
-    private byte[] calcHash(byte[] in) throws Exception{
-        MessageDigest sha = MessageDigest.getInstance("SHA-256");
-        sha.update(in);
+    private byte[] calcHash(byte[] in){
+		try{
+	        MessageDigest sha = MessageDigest.getInstance("SHA-256");
+	        sha.update(in);
         
-        return sha.digest();
+	        return sha.digest();
+		}catch(NoSuchAlgorithmException na){
+			Constants.log.addMsg("calcHash Error: " + na,1);
+			System.exit(1);
+		}
+        return null;
     }
 	
 	/**
@@ -195,7 +217,6 @@ public class FileHandle {
 		FileInputStream stream = new FileInputStream(this.file);
         int bytesRead = 0;
         int id = 0;
-		int chunkSize = (int)this.chunks.get(0).getSize();
         byte[] buffer = new byte[chunkSize];
 		this.fileVersion += 1;
 		this.hash = calcHash(this.file);
@@ -291,7 +312,9 @@ public class FileHandle {
 	}
 	
 	/**
-	* Returns the hash of this file as readable hex string
+	* Converts a hash in a byte array into a readable hex string
+	*
+	* @param in the byte array
 	* @return the hex string
 	*/
     public String toHexHash(byte[] in){
@@ -316,6 +339,15 @@ public class FileHandle {
         return hexString.toString();
     }
 	
+	/**
+	* Returns a relative path to this file/directory (e.g. /subdir/file.txt)
+	*
+	* @return a path to the file/directory relative to the document root (e.g. /subdir/file.txt)
+	*/
+	public String getPath(){
+		return this.file.getPath().substring(Constants.rootDirectory.length());
+	}
+	
 	public LinkedList<FileChunk> getChunkList(){
 		return this.chunks;
 	}
@@ -334,16 +366,16 @@ public class FileHandle {
     
     @Override
     public String toString(){
-        String out = "---------- FileHandle toString ----------\n";
-        out += "Filename: " + this.file.toString() + "\n";
-        out += "Size: " + this.size + " Byte\n";
-        out += "Chunks: " + this.chunks.size() + " pieces\n";
+        String out = "\n---------- FileHandle toString ----------\n";
+        out += "Filename: \t" + this.getPath() + "\n";
+        out += "Size: \t\t" + this.size + " Byte\n";
+        out += "Chunks: \t" + this.chunks.size() + " pieces\n";
 		for(int i = 0; i < this.chunks.size(); i++){
-			out += "\t" + i + ": " + toHexHash(this.chunks.get(i).getHash()) + ", " + this.chunks.get(i).getSize() + " Bytes\n";
+			out += "\t" + i + ": \t" + toHexHash(this.chunks.get(i).getHash()) + ", " + this.chunks.get(i).getSize() + " Bytes\n";
 		}
-        out += "SHA-256: " + this.getHexHash() + "\n";
-		out += "Complete: " + this.isComplete() + "\n";
-		out += "------------ End toString -------------\n";
+        out += "SHA-256: \t" + this.getHexHash() + "\n";
+		out += "Complete: \t" + this.isComplete() + "\n";
+		out += "------------ End toString -------------";
         return out;
     }
 }

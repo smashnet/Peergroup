@@ -14,6 +14,7 @@
 package peergroup;
 
 import java.util.List;
+import java.io.*;
 import name.pachler.nio.file.*;
 
 /**
@@ -23,10 +24,15 @@ import name.pachler.nio.file.*;
  */
 public class MainWorker extends Thread {
 	
+	private Storage myStorage;
+	private Network myNetwork;
+	
 	/**
 	* Creates a MainWorker.
 	*/
 	public MainWorker(){
+		this.myStorage = new Storage();
+		this.myNetwork = new Network();
 	}
 	
 	/**
@@ -34,14 +40,49 @@ public class MainWorker extends Thread {
 	*/
 	public void run(){
 		Constants.log.addMsg("Main thread started...",2);
+		
+		//Do initial scan of shared directory
+		Constants.log.addMsg("Doing initial scan of share directory...",2);
+		File test = this.myStorage.getDirHandle();
+		for(File newFile:test.listFiles()){
+			if(newFile.isFile()){
+				Constants.log.addMsg("Found: " + newFile.getName(),2);
+				Constants.requestQueue.offer(new Request(Constants.LOCAL_ENTRY_CREATE,newFile.getName()));
+			}
+		}
+		
 		while(!isInterrupted()){
 			try{
-				Thread.sleep(5000);
+				Request nextRequest = Constants.requestQueue.take();
+				switch(nextRequest.getID()){
+					case Constants.LOCAL_ENTRY_CREATE:
+						handleLocalEntryCreate(nextRequest);
+						break;
+					case Constants.LOCAL_ENTRY_DELETE:
+						handleLocalEntryDelete(nextRequest);
+						break;
+					case Constants.LOCAL_ENTRY_MODIFY:
+						handleLocalEntryModify(nextRequest);
+						break;
+					default:
+				}
 			}catch(InterruptedException ie){
 				interrupt();
 			}			
 		}
 		Constants.log.addMsg("Main thread interrupted. Closing...",4);
+	}
+	
+	private void handleLocalEntryCreate(Request request){
+		this.myStorage.addFileFromLocal(request.getContent());
+	}
+	
+	private void handleLocalEntryDelete(Request request){
+		this.myStorage.removeFile(request.getContent());
+	}
+	
+	private void handleLocalEntryModify(Request request){
+		this.myStorage.modifyFileFromLocal(request.getContent());
 	}
     
 }

@@ -16,7 +16,6 @@ package peergroup;
 import java.util.LinkedList;
 import java.util.List;
 import java.io.*;
-import name.pachler.nio.file.*;
 
 /**
  *
@@ -24,37 +23,15 @@ import name.pachler.nio.file.*;
  */
 public class Storage {
     
-    private long shareLimit;
-	private String rootDirectory;
-	private String tmpDirectory;
-	private WatchService watcher;
+	private File sharedDir;
 	private int fileListVersion;
 	private LinkedList<FileHandle> files;
 	
 	public Storage(){
 		this.fileListVersion = 0;
-		this.shareLimit = Constants.shareLimit;
-		this.rootDirectory = Constants.rootDirectory;
-		this.tmpDirectory = Constants.tmpDirectory;
 		this.files = new LinkedList<FileHandle>();
-		
-		File root = new File(this.rootDirectory);
-		root.mkdirs();
-		
-		this.watcher = FileSystems.getDefault().newWatchService();
-		Path path = Paths.get(this.rootDirectory);
-		
-		WatchKey key = null;
-		try {
-		    key = path.register(this.watcher, StandardWatchEventKind.ENTRY_CREATE, 
-				StandardWatchEventKind.ENTRY_DELETE, StandardWatchEventKind.ENTRY_MODIFY);
-		} catch (UnsupportedOperationException uox){
-		    System.err.println("file watching not supported!");
-		    // handle this error here
-		}catch (IOException iox){
-		    System.err.println("I/O errors");
-		    // handle this error here
-		}
+		this.sharedDir = new File(Constants.rootDirectory);
+		this.sharedDir.mkdirs();
 	}
 	
 	/**
@@ -62,23 +39,29 @@ public class Storage {
 	*
 	* @param filename the filename
 	*/
-	public void addFileFromLocal(String filename) throws Exception{
-		FileHandle newFile = new FileHandle(this.rootDirectory + filename);
-		this.files.add(newFile);
-		this.fileListVersion++;
+	public void addFileFromLocal(String filename){
+		try{
+			FileHandle newFile = new FileHandle(Constants.rootDirectory + filename);
+			this.files.add(newFile);
+			Constants.log.addMsg("Adding " + newFile.toString(),4);
+			this.fileListVersion++;
+		}catch(Exception ioe){
+			Constants.log.addMsg("Local file does not exist anymore: " + ioe,4);
+		}	
+		Constants.log.addMsg(this.toString(),4);
 	}
 	
 	/**
 	* Adds a remote file to the storage list
 	*
-	* @param filename the filename
+	* @param filename the filename+path (e.g. subdir/file.txt)
 	* @param vers the fileversion
 	* @param fileHash the SHA-256 value of the file
 	* @param fileSize the size of the file in bytes
 	* @param chunks the list of chunks for this file
 	*/
-	public void addFileFromXMPP(String filename, int vers, byte[] fileHash, long fileSize, LinkedList<FileChunk> chunks) throws Exception{
-		FileHandle newFile = new FileHandle(this.rootDirectory + filename,vers,fileHash,fileSize,chunks);
+	public void addFileFromXMPP(String filename, int vers, byte[] fileHash, long fileSize, LinkedList<FileChunk> chunks, int cSize) throws Exception{
+		FileHandle newFile = new FileHandle(Constants.rootDirectory + filename,vers,fileHash,fileSize,chunks,cSize);
 		this.files.add(newFile);
 		this.fileListVersion++;
 	}
@@ -86,20 +69,50 @@ public class Storage {
 	/**
 	* Removes a file from the storage list
 	*
-	* @param filename the filename
+	* @param file the filename+path (e.g. subdir/file.txt)
 	*/
-	public void removeFile(String filename){
-		
+	public void removeFile(String file){
+		FileHandle tmp;
+		int i = 0;
+		while(i < this.files.size()){
+			if(this.files.get(i).getPath().equals(file)){
+				this.files.remove(i);
+				Constants.log.addMsg("Deleted " + file,4);
+				break;
+			}
+			i++;
+		}
 		this.fileListVersion++;
+		Constants.log.addMsg(this.toString(),4);
 	}
 	
 	/**
 	* Applies a change to a file in the file list
 	*
 	*/
-	public void modifyFile(){
-		
+	public void modifyFileFromLocal(String file){
+		FileHandle tmp;
+		int i = 0;
+		while(i < this.files.size()){
+			if(this.files.get(i).getPath().equals(file)){
+				try{
+					this.files.get(i).localUpdate();
+					Constants.log.addMsg("Updating: " + this.files.get(i).toString(),4);
+				}catch(Exception ioe){
+					Constants.log.addMsg("Error updating file: " + ioe,1);
+					break;
+				}
+				Constants.log.addMsg("Updated " + this.files.get(i).getPath(),4);
+				break;
+			}
+			i++;
+		}
 		this.fileListVersion++;
+		Constants.log.addMsg(this.toString(),4);
+	}
+	
+	public File getDirHandle(){
+		return this.sharedDir;
 	}
 	
 	public int getVersion(){
@@ -110,27 +123,24 @@ public class Storage {
 		this.fileListVersion = v;
 	}
 	
-	public long getShareLimit(){
-		return this.shareLimit;
-	}
-	
-	public void setShareLimit(long s){
-		this.shareLimit = s;
-	}
-    
-	public String getDocumentRootDirectory(){
-		return this.rootDirectory;
-	}
-	
-	public WatchService getWatcher(){
-		return this.watcher;
-	}
-	
 	public LinkedList<FileHandle> getFileList(){
 		return this.files;
 	}
 	
 	public void setFileList(LinkedList<FileHandle> newList){
 		this.files = newList;
+	}
+	
+	public String toString(){
+		int i = 0;
+		String out = "\n--- Storage ---\n";
+		out += "Version:\t" + this.fileListVersion + "\n";
+		while(i < this.files.size()){
+			FileHandle tmp = this.files.get(i);
+			out += "- " + tmp.getPath() + "\t-\t" + tmp.getHexHash() + "\n";
+			i++;
+		}
+		out += "--- End ---";
+		return out;
 	}
 }
