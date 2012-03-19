@@ -36,14 +36,21 @@ public class Peergroup {
 				Constants.log.addMsg("Caught signal: " + signal + ". Gracefully shutting down!",1);
 				Constants.main.interrupt();
 				Constants.storage.stopStorageWorker();
-				//Constants.network.interrupt();
+				Constants.network.interrupt();
+				if(System.getProperty("os.name").equals("Linux") 
+					|| System.getProperty("os.name").equals("Windows")){
+					
+					Constants.modQueue.interrupt();
+				}
 			}
 		};
 		Signal.handle(new Signal("TERM"), signalHandler);
 		Signal.handle(new Signal("INT"), signalHandler);
 		
 		// -- Here we go
-        Constants.log.addMsg("Starting " + Constants.PROGNAME + " " + Constants.VERSION + "...",2);
+		String os = System.getProperty("os.name");
+        Constants.log.addMsg("Starting " + Constants.PROGNAME + " " 
+			+ Constants.VERSION + " on " + os + " " + System.getProperty("os.version"),2);
         
         getCmdArgs(args);
 		
@@ -54,13 +61,18 @@ public class Peergroup {
 		// -- Start Threads
 		Constants.main.start();
 		Constants.storage.start();
-		//Constants.network.start();
+		Constants.network.start();
+		
+		if(os.equals("Linux") || os.equals("Windows")){
+			Constants.modQueue = new ModifyQueueWorker();
+			Constants.modQueue.start();
+		}
 		
 		// -- Wait for threads to terminate (only happens through SIGINT/SIGTERM see handler above)
 		try{
 			Constants.main.join();
 			Constants.storage.join();
-			//Constants.network.join();
+			Constants.network.join();
 		}catch(InterruptedException ie){
 			Constants.log.addMsg("Couldn't wait for all threads to cleanly shut down! Oh what a mess... Bye!",1);
 		}

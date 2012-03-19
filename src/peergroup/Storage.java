@@ -97,7 +97,7 @@ public class Storage {
 			if(this.files.get(i).getPath().equals(file)){
 				try{
 					this.files.get(i).localUpdate();
-					Constants.log.addMsg("Updating: " + this.files.get(i).toString(),4);
+					//Constants.log.addMsg("Updating: " + this.files.get(i).toString(),4);
 				}catch(Exception ioe){
 					Constants.log.addMsg("Error updating file: " + ioe,1);
 					break;

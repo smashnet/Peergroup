@@ -35,12 +35,19 @@ public class Constants {
     public static LinkedBlockingQueue<Request> requestQueue = new LinkedBlockingQueue<Request>();
 	
 	/*
+	* Use extra queue for modify events to prevent modify-flooding on large files
+	* under Windows and Linux
+	*/
+	public static ConcurrentLinkedQueue<ModifyEvent> modifyQueue = new ConcurrentLinkedQueue<ModifyEvent>();
+	
+	/*
 	* Running threads
 	*/
 	public static MainWorker main;
 	public static StorageWorker storage;
 	public static NetworkWorker network;
-    
+	public static ModifyQueueWorker modQueue;
+	    
 	/*
 	* Storage constants
 	*/

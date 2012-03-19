@@ -54,6 +54,7 @@ public class MainWorker extends Thread {
 		while(!isInterrupted()){
 			try{
 				Request nextRequest = Constants.requestQueue.take();
+				System.out.println("Items on queue: " + Constants.requestQueue.size());
 				switch(nextRequest.getID()){
 					case Constants.LOCAL_ENTRY_CREATE:
 						handleLocalEntryCreate(nextRequest);

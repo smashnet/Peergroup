@@ -13,7 +13,8 @@
 
 package peergroup;
 
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.*;
 import java.io.*;
 import name.pachler.nio.file.*;
 
@@ -44,10 +45,14 @@ public class StorageWorker extends Thread {
 	}
 	
 	/**
-	* The run() method
+	* The run() method uses the WatchService to monitor our share
+	* directory for changes. Any kind of changes (create/delete/modify)
+	* are packed into a request and are enqueued to be processed by
+	* the main thread.
 	*/
 	public void run(){
 		Constants.log.addMsg("Storage thread started...",2);
+		String os = System.getProperty("os.name");
 		
 		//Init WatchService
 		this.watcher = FileSystems.getDefault().newWatchService();
@@ -57,24 +62,25 @@ public class StorageWorker extends Thread {
 		try {
 		    key = path.register(this.watcher, StandardWatchEventKind.ENTRY_CREATE, 
 				StandardWatchEventKind.ENTRY_DELETE, StandardWatchEventKind.ENTRY_MODIFY);
-		} catch (UnsupportedOperationException uox){
-		    System.err.println("file watching not supported!");
-		    // handle this error here
-		}catch (IOException iox){
-		    System.err.println("I/O errors");
-		    // handle this error here
+		}catch(UnsupportedOperationException uox){
+		    Constants.log.addMsg("No file-watching supported! Exiting...",1);
+			System.exit(2);
+		}catch(IOException iox){
+			Constants.log.addMsg("Error accessing device for file-watching! Exiting...",1);
+			System.exit(2);
 		}
 		
+		long timeA = System.currentTimeMillis();
 		
 		while(!isInterrupted()){
-		    // take() will block until a file has been created/deleted
 		    WatchKey signalledKey;
 		    try {
-		        signalledKey = this.watcher.take();
-		    } catch (InterruptedException ix){
+				//here we are waiting for fs activities
+		        signalledKey = this.watcher.take(); 
+		    }catch(InterruptedException ix){
 		        interrupt();
 		        break;
-		    } catch (ClosedWatchServiceException cwse){
+		    }catch(ClosedWatchServiceException cwse){
 		        interrupt();
 		        break;
 		    }
@@ -86,10 +92,7 @@ public class StorageWorker extends Thread {
 		    // key to be reported again by the watch service
 		    signalledKey.reset();
 
-		    // we'll simply print what has happened; real applications
-		    // will do something more sensible here
 		    for(WatchEvent e : list){
-				String message = "";
 				if(e.kind() == StandardWatchEventKind.ENTRY_CREATE){
 					Path context = (Path)e.context();
 					Constants.requestQueue.offer(new Request(Constants.LOCAL_ENTRY_CREATE,context.toString()));
@@ -98,7 +101,16 @@ public class StorageWorker extends Thread {
 					Constants.requestQueue.offer(new Request(Constants.LOCAL_ENTRY_DELETE,context.toString()));
 				} else if(e.kind() == StandardWatchEventKind.ENTRY_MODIFY){
 					Path context = (Path)e.context();
-					Constants.requestQueue.offer(new Request(Constants.LOCAL_ENTRY_MODIFY,context.toString()));
+					/*
+					* Linux and Windows support instant events on file changes. Copying a big file into the share folder
+					* will result in one "create" event and loooots of "modify" events. So we will handle this here to
+					* reduce update events to one per two seconds.
+					*/
+					if(os.equals("Linux") || os.equals("Windows")){
+						insertElement(Constants.modifyQueue,new ModifyEvent(context.toString()));						
+					}else{
+						Constants.requestQueue.offer(new Request(Constants.LOCAL_ENTRY_MODIFY,context.toString()));
+					}
 				} else if(e.kind() == StandardWatchEventKind.OVERFLOW){
 					Constants.log.addMsg("OVERFLOW: more changes happened than we could retreive",4);
 				}
@@ -107,8 +119,24 @@ public class StorageWorker extends Thread {
 		Constants.log.addMsg("Storage thread interrupted. Closing...",4);
 	}
 	
+	private void insertElement(ConcurrentLinkedQueue<ModifyEvent> list, ModifyEvent me){
+		for(ModifyEvent e : list){
+			if(e.getName().equals(me.getName())){
+				e.setTime(me.getTime());
+				return;
+			}
+		}
+		list.add(me);
+	}
+	
+	/**
+	* Registers a new (additional) path at the WatchService
+	* (Not in use yet)
+	*
+	* @param newPath the new path relative to the share directory to be registered for watching changes
+	*/
 	private void registerNewPath(String newPath){
-		Path path = Paths.get(newPath);
+		Path path = Paths.get(Constants.rootDirectory + newPath);
 		
 		WatchKey key = null;
 		try {

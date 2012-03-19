@@ -17,7 +17,8 @@ import java.util.List;
 
 
 /**
- * This is the thread running all network related things.
+ * This thread listens for new information on the XMPP side
+ * and enqueues actions in the request queue.
  *
  * @author Nicolas Inden
  */
@@ -34,7 +35,14 @@ public class NetworkWorker extends Thread {
 	*/
 	public void run(){
 		Constants.log.addMsg("Networking thread started...",2);
-		
+		while(true){
+			try{
+				Thread.sleep(1000);
+			}catch(InterruptedException ie){
+				interrupt();
+				break;
+			}
+		}
 		Constants.log.addMsg("Networking thread interrupted. Closing...",4);
 	}
     
