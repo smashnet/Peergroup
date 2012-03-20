@@ -18,7 +18,8 @@ import java.io.*;
 import name.pachler.nio.file.*;
 
 /**
- * This is the main thread.
+ * The MainWorker processes the requests enqueued by the StorageWorker
+ * and the NetworkWorker in the requestQueue.
  *
  * @author Nicolas Inden
  */
@@ -32,7 +33,7 @@ public class MainWorker extends Thread {
 	*/
 	public MainWorker(){
 		this.myStorage = new Storage();
-		this.myNetwork = new Network();
+		this.myNetwork = Network.getInstance();
 	}
 	
 	/**
@@ -41,20 +42,22 @@ public class MainWorker extends Thread {
 	public void run(){
 		Constants.log.addMsg("Main thread started...",2);
 		
-		//Do initial scan of shared directory
+		//Do initial scan of share directory
 		Constants.log.addMsg("Doing initial scan of share directory...",2);
 		File test = this.myStorage.getDirHandle();
-		for(File newFile:test.listFiles()){
+		for(File newFile : test.listFiles() ){
 			if(newFile.isFile()){
 				Constants.log.addMsg("Found: " + newFile.getName(),2);
 				Constants.requestQueue.offer(new Request(Constants.LOCAL_ENTRY_CREATE,newFile.getName()));
 			}
 		}
 		
+		myNetwork.XMPPconnect();
+		myNetwork.XMPPlogin();
+		
 		while(!isInterrupted()){
 			try{
 				Request nextRequest = Constants.requestQueue.take();
-				System.out.println("Items on queue: " + Constants.requestQueue.size());
 				switch(nextRequest.getID()){
 					case Constants.LOCAL_ENTRY_CREATE:
 						handleLocalEntryCreate(nextRequest);

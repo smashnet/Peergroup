@@ -70,8 +70,6 @@ public class StorageWorker extends Thread {
 			System.exit(2);
 		}
 		
-		long timeA = System.currentTimeMillis();
-		
 		while(!isInterrupted()){
 		    WatchKey signalledKey;
 		    try {
@@ -104,7 +102,9 @@ public class StorageWorker extends Thread {
 					/*
 					* Linux and Windows support instant events on file changes. Copying a big file into the share folder
 					* will result in one "create" event and loooots of "modify" events. So we will handle this here to
-					* reduce update events to one per two seconds.
+					* reduce update events to one per file. The ModifyQueueWorker checks the modifyQueue regularily
+					* if there are files that haven't got modified in the last second, these are then enqueued in the
+					* request queue.
 					*/
 					if(os.equals("Linux") || os.equals("Windows")){
 						insertElement(Constants.modifyQueue,new ModifyEvent(context.toString()));						

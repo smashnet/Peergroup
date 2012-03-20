@@ -13,8 +13,7 @@
 
 package peergroup;
 
-import java.util.List;
-
+import org.jivesoftware.smack.*;
 
 /**
  * This thread listens for new information on the XMPP side
@@ -23,6 +22,8 @@ import java.util.List;
  * @author Nicolas Inden
  */
 public class NetworkWorker extends Thread {
+	
+	
 	
 	/**
 	* Creates a NetworkWorker.

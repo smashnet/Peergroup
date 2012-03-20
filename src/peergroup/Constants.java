@@ -58,8 +58,10 @@ public class Constants {
 	/*
 	* XMPP information
 	*/
-	public static String user = "";
-	public static String server = "";
+	public static String user = "test1";
+	public static String pass = "test1";
+	public static String resource = "hackbox";
+	public static String server = "vmhost1";
 	public static int port = 5222;
 	public static String conference_channel = "";
 	public static String conference_server = "";
