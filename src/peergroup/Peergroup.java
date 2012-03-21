@@ -34,14 +34,13 @@ public class Peergroup {
 		SignalHandler signalHandler = new SignalHandler() {
 			public void handle(Signal signal) {
 				Constants.log.addMsg("Caught signal: " + signal + ". Gracefully shutting down!",1);
-				Constants.main.interrupt();
 				Constants.storage.stopStorageWorker();
-				Constants.network.interrupt();
+				Constants.network.stopNetworkWorker();
 				if(System.getProperty("os.name").equals("Linux") 
 					|| System.getProperty("os.name").equals("Windows")){
-					
 					Constants.modQueue.interrupt();
 				}
+				Constants.main.interrupt();
 			}
 		};
 		Signal.handle(new Signal("TERM"), signalHandler);
@@ -59,9 +58,9 @@ public class Peergroup {
 		Constants.storage = new StorageWorker();
 		Constants.network = new NetworkWorker();
 		// -- Start Threads
-		Constants.main.start();
 		Constants.storage.start();
 		Constants.network.start();
+		Constants.main.start();
 		
 		if(os.equals("Linux") || os.equals("Windows")){
 			Constants.modQueue = new ModifyQueueWorker();
@@ -73,6 +72,9 @@ public class Peergroup {
 			Constants.main.join();
 			Constants.storage.join();
 			Constants.network.join();
+			if(os.equals("Linux") || os.equals("Windows")){
+				Constants.modQueue.join();
+			}
 		}catch(InterruptedException ie){
 			Constants.log.addMsg("Couldn't wait for all threads to cleanly shut down! Oh what a mess... Bye!",1);
 		}

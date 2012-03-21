@@ -32,16 +32,17 @@ public class StorageWorker extends Thread {
 	* Creates a StorageWorker.
 	*/
 	public StorageWorker(){
+		this.watcher = FileSystems.getDefault().newWatchService();
 	}
 	
 	public void stopStorageWorker(){
 		try{
 			this.watcher.close();
 			this.interrupt();
-			}catch(IOException ioe){
-				this.interrupt();
-				Constants.log.addMsg("Error: " + ioe,4);
-			}
+		}catch(IOException ioe){
+			this.interrupt();
+			Constants.log.addMsg("Error: " + ioe,4);
+		}
 	}
 	
 	/**
@@ -51,11 +52,12 @@ public class StorageWorker extends Thread {
 	* the main thread.
 	*/
 	public void run(){
+		this.setName("Storage Thread");
 		Constants.log.addMsg("Storage thread started...",2);
 		String os = System.getProperty("os.name");
 		
 		//Init WatchService
-		this.watcher = FileSystems.getDefault().newWatchService();
+		
 		Path path = Paths.get(Constants.rootDirectory);
 		
 		WatchKey key = null;
@@ -68,6 +70,9 @@ public class StorageWorker extends Thread {
 		}catch(IOException iox){
 			Constants.log.addMsg("Error accessing device for file-watching! Exiting...",1);
 			System.exit(2);
+		}catch(ClosedWatchServiceException cwse){
+			Constants.log.addMsg("WatchService was closed! Exiting...",1);
+			interrupt();
 		}
 		
 		while(!isInterrupted()){

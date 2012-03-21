@@ -52,9 +52,6 @@ public class MainWorker extends Thread {
 			}
 		}
 		
-		myNetwork.XMPPconnect();
-		myNetwork.XMPPlogin();
-		
 		while(!isInterrupted()){
 			try{
 				Request nextRequest = Constants.requestQueue.take();
@@ -68,6 +65,8 @@ public class MainWorker extends Thread {
 					case Constants.LOCAL_ENTRY_MODIFY:
 						handleLocalEntryModify(nextRequest);
 						break;
+					case Constants.STH_EVIL_HAPPENED:
+						handleEvilEvents(nextRequest);
 					default:
 				}
 			}catch(InterruptedException ie){
@@ -75,6 +74,18 @@ public class MainWorker extends Thread {
 			}			
 		}
 		Constants.log.addMsg("Main thread interrupted. Closing...",4);
+	}
+	
+	private void handleEvilEvents(Request request){
+		Constants.log.addMsg("Something evil happened: " + request.getContent(),1);
+		
+		Constants.storage.stopStorageWorker();
+		Constants.network.stopNetworkWorker();
+		if(System.getProperty("os.name").equals("Linux") 
+			|| System.getProperty("os.name").equals("Windows")){
+			Constants.modQueue.interrupt();
+		}
+		Constants.main.interrupt();
 	}
 	
 	private void handleLocalEntryCreate(Request request){

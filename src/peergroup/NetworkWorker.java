@@ -23,7 +23,7 @@ import org.jivesoftware.smack.*;
  */
 public class NetworkWorker extends Thread {
 	
-	
+	private Network myNetwork;
 	
 	/**
 	* Creates a NetworkWorker.
@@ -31,11 +31,17 @@ public class NetworkWorker extends Thread {
 	public NetworkWorker(){
 	}
 	
+	public void stopNetworkWorker(){
+		this.myNetwork.xmppDisconnect();
+		this.interrupt();
+	}
+	
 	/**
 	* The run() method
 	*/
 	public void run(){
 		Constants.log.addMsg("Networking thread started...",2);
+		this.myNetwork = Network.getInstance();
 		while(true){
 			try{
 				Thread.sleep(1000);

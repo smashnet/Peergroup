@@ -27,15 +27,26 @@ public class Network {
 	
 	private Network(){
 		this.xmppCon = new XMPPConnection(Constants.server);
+		if(this.xmppConnect()){
+			this.xmppLogin();
+		}else{
+			try{
+				Thread.sleep(1000);
+			}catch(InterruptedException ie){
+				
+			}finally{
+				Constants.requestQueue.offer(new Request(Constants.STH_EVIL_HAPPENED,"Coudln't create Network object"));
+			}
+		}
 	}
 	
 	public static Network getInstance(){
 		return instance;
 	}
 	
-	public void XMPPlogin(){
+	private void xmppLogin(){
 		try{
-			this.getInstance().xmppCon.login(Constants.user,Constants.pass,Constants.resource);
+			this.xmppCon.login(Constants.user,Constants.pass,Constants.resource);
 			Constants.log.addMsg("Successfully logged into XMPP Server as: " +
 				Constants.user + "@" + Constants.server + "/" + Constants.resource,2);
 		}catch(XMPPException xe){
@@ -43,16 +54,18 @@ public class Network {
 		}
 	}
 	
-	public void XMPPconnect(){
+	private boolean xmppConnect(){
 		try{
-			this.getInstance().xmppCon.connect();
+			this.xmppCon.connect();
 			Constants.log.addMsg("Successfully established connection to XMPP Server: " + Constants.server,2);
+			return true;
 		}catch(XMPPException xe){
 			Constants.log.addMsg("Failed connecting to XMPP Server: " + xe,4);
+			return false;
 		}
 	}
 	
-	public void XMPPdisconnect(){
+	public void xmppDisconnect(){
 		this.getInstance().xmppCon.disconnect();
 		Constants.log.addMsg("Disconnected from XMPP Server: " + Constants.server,4);
 	}
