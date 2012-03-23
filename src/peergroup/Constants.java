@@ -23,22 +23,27 @@ import java.util.concurrent.*;
  */
 public class Constants {
     
-    public final static String PROGNAME    = "peergroup";
-    public final static String VERSION     = "0.01 (development version)";
+	public final static String PROGNAME    = "peergroup";
+	public final static String VERSION     = "0.01 (development version)";
     
-    public final static Logger log = new Logger();
+	public final static Logger log = new Logger();
 	
 	/*
 	* Request queue where StorageWorker and NetworkWorker push their
 	* requests to, which are then processed by the MainWorker.
 	*/
-    public static LinkedBlockingQueue<Request> requestQueue = new LinkedBlockingQueue<Request>();
+	public static LinkedBlockingQueue<Request> requestQueue = new LinkedBlockingQueue<Request>();
 	
 	/*
 	* Use extra queue for modify events to prevent modify-flooding on large files
 	* under Windows and Linux
 	*/
 	public static ConcurrentLinkedQueue<ModifyEvent> modifyQueue = new ConcurrentLinkedQueue<ModifyEvent>();
+	
+	/**
+	* Global ID counters
+	*/
+	public static volatile int p2pCount = 0;
 	
 	/*
 	* Running threads
@@ -52,15 +57,15 @@ public class Constants {
 	* Storage constants
 	*/
 	public static String rootDirectory = "./share/";
-    public static String tmpDirectory = "./tmp/";
-    public static long shareLimit = 2048;                //MegaBytes
+    	public static String tmpDirectory = "./tmp/";
+    	public static long shareLimit = 2048;                //MegaBytes
 	
 	/*
 	* XMPP information
 	*/
 	public static String user = "test1";
 	public static String pass = "test1";
-	public static String resource = "hackbox";
+	public static String resource = "peergroup";
 	public static String server = "vmhost1";
 	public static int port = 5222;
 	public static String conference_channel = "";

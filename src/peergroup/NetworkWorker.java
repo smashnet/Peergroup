@@ -42,6 +42,7 @@ public class NetworkWorker extends Thread {
 	public void run(){
 		Constants.log.addMsg("Networking thread started...",2);
 		this.myNetwork = Network.getInstance();
+		this.myNetwork.joinMuc(Constants.user, Constants.pass, Constants.conference_channel + "@" + Constants.conference_server);
 		while(true){
 			try{
 				Thread.sleep(1000);

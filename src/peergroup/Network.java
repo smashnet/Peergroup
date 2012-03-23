@@ -14,16 +14,18 @@
 package peergroup;
 
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smackx.muc.*;
 
 /**
- * This class is a singelton
+ * This class is a singelton managing the XMPP connection
  *
  * @author Nicolas Inden
  */
 public class Network {
 	
 	private static Network instance = new Network();
-    private Connection xmppCon;
+	private Connection xmppCon;
+	private boolean joinedAChannel = false;
 	
 	private Network(){
 		this.xmppCon = new XMPPConnection(Constants.server);
@@ -63,6 +65,26 @@ public class Network {
 			Constants.log.addMsg("Failed connecting to XMPP Server: " + xe,4);
 			return false;
 		}
+	}
+	
+	public Connection getConnection(){
+		return this.getInstance().xmppCon;
+	}
+	
+	public void joinMuc(String user, String pass, String room){
+		MultiUserChat muc = new MultiUserChat(getConnection(),room);
+		try{
+			muc.join(user,pass);
+			this.joinedAChannel = true;
+			Constants.log.addMsg("Successfully joined conference: " + room,2);
+		}catch(XMPPException xe){
+			Constants.log.addMsg("Failed joining conference: " + room,2);
+			this.joinedAChannel = false;
+		}
+	}
+	
+	public void sendMUCmessage(String text){
+		
 	}
 	
 	public void xmppDisconnect(){

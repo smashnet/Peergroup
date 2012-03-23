@@ -34,8 +34,14 @@ public class Logger {
 	*/
 	public Logger(){
 		try{
+			this.cal = Calendar.getInstance();
+			String date = cal.get(Calendar.YEAR) + "-" 
+		        + (cal.get(Calendar.MONTH)+1) + "-" 
+		        + cal.get(Calendar.DAY_OF_MONTH) + "_" 
+		        + cal.get(Calendar.HOUR_OF_DAY) 
+		        + cal.get(Calendar.MINUTE);
 			this.color = true;
-			this.output = new File("std.log");
+			this.output = new File(date + "_peergroup.log");
 			this.fw = new FileWriter(this.output);
 			this.bw = new BufferedWriter(this.fw);
 		}catch(IOException ioe){
