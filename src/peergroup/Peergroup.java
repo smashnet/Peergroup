@@ -1,7 +1,7 @@
 /*
 * Peergroup - Peergroup.java
 * 
-* Peergroup is a file synching tool using XMPP for data- and 
+* Peergroup is a P2P Shared Storage System using XMPP for data- and 
 * participantmanagement and Apache Thrift for direct data-
 * exchange between users.
 *
@@ -26,14 +26,19 @@ import sun.misc.SignalHandler;
  */
 public class Peergroup {
 	
-	 /**
-     * @param args the command line arguments
-     */
+	/**
+	* @param args the command line arguments
+	*/
     public static void main(String[] args) {
 		// -- Handle SIGINT and SIGTERM
 		SignalHandler signalHandler = new SignalHandler() {
 			public void handle(Signal signal) {
+			    if(Constants.caughtSignal){
+			        Constants.log.addMsg("Last interrupt couldn't successfully quit the program: Using baseball bat method :-/",1);
+			        System.exit(5);
+			    }
 				Constants.log.addMsg("Caught signal: " + signal + ". Gracefully shutting down!",1);
+				Constants.caughtSignal = true;
 				Constants.storage.stopStorageWorker();
 				Constants.network.stopNetworkWorker();
 				if(System.getProperty("os.name").equals("Linux") 
@@ -137,6 +142,10 @@ public class Peergroup {
 				}
 				Constants.log.addMsg("Set share limit to: " + Constants.shareLimit,3);
 			}
+			if(last.equals("-pass")){
+				Constants.pass = s;
+				Constants.log.addMsg("Set pass for JID to: " + Constants.pass,3); //Maybe this should be hidden in the final version ;-)
+			}
 			last = s;
         }
     }
@@ -151,7 +160,8 @@ public class Peergroup {
 		out += "\t-h\t\t\tprints this help\n";
 		out += "\t-dir\t[DIR]\t\tset the shared files directory (default: ./share/)\n";
 		out += "\t-jid\t[JID]\t\tset your jabber ID (e.g. foo@jabber.bar.com)\n";
-		out += "\t-port\t[JID]\t\tset the XMPP server port (default: 5222)\n";
+		out += "\t-pass\t[PASS]\t\tset the password for your JID\n";
+		out += "\t-port\t[PORT]\t\tset the XMPP server port (default: 5222)\n";
 		out += "\t-chan\t[CHANNEL]\tset the conference channel to join (e.g. foo@conference.jabber.bar.com)\n";
 		out += "\t-limit\t[LIMIT]\t\tset the amount of space you want to share in MB (default: 2048MB)\n";
 		return out;

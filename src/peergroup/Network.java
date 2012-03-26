@@ -1,7 +1,7 @@
 /*
 * Peergroup - Network.java
 * 
-* Peergroup is a file synching tool using XMPP for data- and 
+* Peergroup is a P2P Shared Storage System using XMPP for data- and 
 * participantmanagement and Apache Thrift for direct data-
 * exchange between users.
 *
@@ -14,6 +14,7 @@
 package peergroup;
 
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smackx.muc.*;
 
 /**
@@ -25,8 +26,14 @@ public class Network {
 	
 	private static Network instance = new Network();
 	private Connection xmppCon;
+	private MultiUserChat muc;
 	private boolean joinedAChannel = false;
 	
+	/**
+	* The default constructor. It initializes the Connection object with the XMPP server
+	* supplied in the JID from the commandline args. Then it tries to establish a connection
+	* and logs in the user.
+	*/
 	private Network(){
 		this.xmppCon = new XMPPConnection(Constants.server);
 		if(this.xmppConnect()){
@@ -42,10 +49,17 @@ public class Network {
 		}
 	}
 	
+	/**
+	* Network is a singleton, this returns the instance of Network (or creates one, if none exists)
+	*/
 	public static Network getInstance(){
 		return instance;
 	}
 	
+	/**
+	* Once the connection is successfully established, this logs in the user
+	* specified in the commandline arguments
+	*/
 	private void xmppLogin(){
 		try{
 			this.xmppCon.login(Constants.user,Constants.pass,Constants.resource);
@@ -56,6 +70,12 @@ public class Network {
 		}
 	}
 	
+	
+	/**
+	* Connects to the XMPP Server the xmppCon object was initialized with
+	*
+	* @return Returns true, if the connection was successfully established, else false
+	*/
 	private boolean xmppConnect(){
 		try{
 			this.xmppCon.connect();
@@ -67,26 +87,86 @@ public class Network {
 		}
 	}
 	
+	/**
+	* Gets the Connection object from the Network instance
+	*
+	* @return The Connection object managing the connection to the XMPP Server
+	*/
 	public Connection getConnection(){
 		return this.getInstance().xmppCon;
 	}
 	
-	public void joinMuc(String user, String pass, String room){
-		MultiUserChat muc = new MultiUserChat(getConnection(),room);
+	/**
+	* Joins the MuC room specified by the supplied information
+	*
+	* @param user The username you want to use in the room
+	* @param pass The password necessary to join the corresponding room (not the one for your JID)
+	* @param roomAndServer The string representing the exact room to join (e.g. foo@conference.bar.com)
+	*/
+	public void joinMUC(String user, String pass, String roomAndServer){
+		this.muc = new MultiUserChat(getConnection(),roomAndServer);
+		DiscussionHistory history = new DiscussionHistory();
+		history.setMaxStanzas(0);
 		try{
-			muc.join(user,pass);
+			this.muc.join(user, pass, history, SmackConfiguration.getPacketReplyTimeout());
 			this.joinedAChannel = true;
-			Constants.log.addMsg("Successfully joined conference: " + room,2);
+			Constants.log.addMsg("Successfully joined conference: " + roomAndServer,2);
 		}catch(XMPPException xe){
-			Constants.log.addMsg("Failed joining conference: " + room,2);
+			Constants.log.addMsg("Failed joining conference: " + roomAndServer + " " + xe,4);
 			this.joinedAChannel = false;
 		}
 	}
 	
+	/**
+	* Sends a visible message in the currently joined MuC room
+	*
+	* @param text The text to be sent
+	*/
 	public void sendMUCmessage(String text){
-		
+		if(!this.joinedAChannel){
+			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
+			return;
+		}
+		Message newMessage = this.muc.createMessage();
+		newMessage.setType(Message.Type.groupchat);
+		newMessage.setBody(text);
+		System.out.println(newMessage.toXML());
+		try{
+			this.muc.sendMessage(newMessage);		
+		}catch(XMPPException xe){
+			Constants.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe,4);
+		}
 	}
 	
+	/**
+	* Returns the next message received from the XMPP server. This blocks until
+	* a message is there.
+	*
+	* --- Maybe we should do all message handling in this class, and only return a String? ---
+	*
+	* @return the Message object
+	*/
+	public Message getNextMessage(){
+	    return this.muc.nextMessage(1);
+	}
+	
+	/**
+	* This sends update information to other participants
+	*/
+	public void sendMUCdatainfo(){
+	    
+	}
+	
+	/**
+	* Leave the current Multi-User-Chat room (recommended before quitting the program)
+	*/
+	public void leaveMUC(){
+		this.muc.leave();
+	}
+	
+	/**
+	* Disconnect from the XMPP server (recommended before quitting the program)
+	*/
 	public void xmppDisconnect(){
 		this.getInstance().xmppCon.disconnect();
 		Constants.log.addMsg("Disconnected from XMPP Server: " + Constants.server,4);

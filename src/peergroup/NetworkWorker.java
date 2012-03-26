@@ -1,7 +1,7 @@
 /*
 * Peergroup - NetworkWorker.java
 * 
-* Peergroup is a file synching tool using XMPP for data- and 
+* Peergroup is a P2P Shared Storage System using XMPP for data- and 
 * participantmanagement and Apache Thrift for direct data-
 * exchange between users.
 *
@@ -14,6 +14,8 @@
 package peergroup;
 
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smackx.muc.*;
 
 /**
  * This thread listens for new information on the XMPP side
@@ -32,7 +34,6 @@ public class NetworkWorker extends Thread {
 	}
 	
 	public void stopNetworkWorker(){
-		this.myNetwork.xmppDisconnect();
 		this.interrupt();
 	}
 	
@@ -42,16 +43,19 @@ public class NetworkWorker extends Thread {
 	public void run(){
 		Constants.log.addMsg("Networking thread started...",2);
 		this.myNetwork = Network.getInstance();
-		this.myNetwork.joinMuc(Constants.user, Constants.pass, Constants.conference_channel + "@" + Constants.conference_server);
-		while(true){
-			try{
-				Thread.sleep(1000);
-			}catch(InterruptedException ie){
-				interrupt();
-				break;
-			}
+		this.myNetwork.joinMUC(Constants.user, Constants.pass, 
+			Constants.conference_channel + "@" + Constants.conference_server);
+		this.myNetwork.sendMUCmessage("Hi there!");
+		
+		while(!isInterrupted()){
+			Message newMessage = this.myNetwork.getNextMessage();
+			if(newMessage != null)
+    			Constants.log.addMsg("Incoming message: " + newMessage.getBody(),3);
 		}
+		
+		this.myNetwork.leaveMUC();
+		this.myNetwork.xmppDisconnect();
+		
 		Constants.log.addMsg("Networking thread interrupted. Closing...",4);
-	}
-    
+	}   
 }

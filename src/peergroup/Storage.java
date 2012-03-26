@@ -1,7 +1,7 @@
 /*
 * Peergroup - Storage.java
 * 
-* Peergroup is a file synching tool using XMPP for data- and 
+* Peergroup is a P2P Shared Storage System using XMPP for data- and 
 * participantmanagement and Apache Thrift for direct data-
 * exchange between users.
 *

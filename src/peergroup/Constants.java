@@ -1,7 +1,7 @@
 /*
 * Peergroup - Constants.java
 * 
-* Peergroup is a file synching tool using XMPP for data- and 
+* Peergroup is a P2P Shared Storage System using XMPP for data- and 
 * participantmanagement and Apache Thrift for direct data-
 * exchange between users.
 *
@@ -57,8 +57,8 @@ public class Constants {
 	* Storage constants
 	*/
 	public static String rootDirectory = "./share/";
-    	public static String tmpDirectory = "./tmp/";
-    	public static long shareLimit = 2048;                //MegaBytes
+    public static String tmpDirectory = "./tmp/";
+    public static long shareLimit = 2048;                //MegaBytes
 	
 	/*
 	* XMPP information
@@ -68,8 +68,8 @@ public class Constants {
 	public static String resource = "peergroup";
 	public static String server = "vmhost1";
 	public static int port = 5222;
-	public static String conference_channel = "";
-	public static String conference_server = "";
+	public static String conference_channel = "peergroup";
+	public static String conference_server = "localhost";
 	
 	/*
 	* Constants defining request-types
@@ -79,4 +79,9 @@ public class Constants {
 	public final static int LOCAL_ENTRY_MODIFY = 12;
 	
 	public final static int STH_EVIL_HAPPENED = 666;
+	
+	/*
+	* Stuff
+	*/
+	public static boolean caughtSignal = false;
 }
