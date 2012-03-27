@@ -13,6 +13,7 @@
 
 package peergroup;
 
+import java.util.LinkedList;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smackx.muc.*;
@@ -220,7 +221,7 @@ public class Network {
 	* @param list A list of the blocks that changed with this update (only IDs)
 	* @param hash The new SHA256 value of the file
 	*/
-	public void sendMUCUpdateFile(String filename, int vers, int size, LinkedList<int> list, String hash){
+	public void sendMUCUpdateFile(String filename, int vers, int size, LinkedList<Integer> list, String hash){
 		if(!this.joinedAChannel){
 			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
 			return;
