@@ -175,9 +175,14 @@ public class Peergroup {
 		return out;
 	}
     
+	/**
+	* If the external IP was not set by the cmd-line argument, this function queries
+	* the external IP from http://automation.whatismyip.com/n09230945.asp
+	* If neither an IP was set nor one was detected, Peergroup exits.
+	*/
 	private static void getExternalIP(){
 		if(!Constants.ipAddress.equals("")){
-			Constants.log.addMsg("External IP was manually set skipping the guessing.",2);
+			Constants.log.addMsg("External IP was manually set, skipping the guessing.",2);
 			return;
 		}
 		try{

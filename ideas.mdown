@@ -13,16 +13,24 @@ Receiving
 Message tmp = chat.nextMessage();
 String myIP = (String)tmp.getProperty("ip");
 
-Sent properties
+Message Types
 ---------------
 
-* IP:port (always)
-* Create/Delete/Update
-* filename
-* fileversion
-* filelistversion
-* 
-
+* New file
+	* IP
+	* filename
+	* size (in bytes)
+	* sha256
+* Delete file
+	* filename
+	* sha256
+* Update file
+	* IP
+	* filename
+	* fileversion
+	* size
+	* new blocks
+	* sha256
 
 Stuff
 =====

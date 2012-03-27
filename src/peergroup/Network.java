@@ -146,21 +146,98 @@ public class Network {
 	*
 	* @return the Message object
 	*/
-	public MultiUserChat getMUChandle(){
-	    return this.muc;
+	public Message getNextMessage(){
+	    return this.muc.nextMessage();
 	}
 	
 	/**
-	* This sends create file information to other participants
+	* This sends new-file information to other participants
+	*
+	* @param filename The filename of the new file
+	* @param size The filesize of the new file
+	* @param hash The new SHA256 value of the file
 	*/
-	public void sendMUCCreateFile(){
+	public void sendMUCCreateFile(String filename, int size, String hash){
 		if(!this.joinedAChannel){
 			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
 			return;
 		}
 		Message newMessage = this.muc.createMessage();
 		newMessage.setType(Message.Type.groupchat);
-		newMessage.setProperty("Test","MyProperty");
+		
+		/*
+		* Set message properties
+		*/
+		newMessage.setProperty("Type","New");
+		newMessage.setProperty("IP",Constants.ipAddress);
+		newMessage.setProperty("name",filename);
+		newMessage.setProperty("size",size);
+		newMessage.setProperty("sha256",hash);
+		
+		System.out.println(newMessage.toXML());
+		try{
+			this.muc.sendMessage(newMessage);		
+		}catch(XMPPException xe){
+			Constants.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe,4);
+		}
+	}
+	
+	/**
+	* This sends delete-file information to other participants
+	*
+	* @param filename The filename of the deleted file
+	* @param hash The new SHA256 value of the file
+	*/	
+	public void sendMUCDeleteFile(String filename, String hash){
+		if(!this.joinedAChannel){
+			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
+			return;
+		}
+		Message newMessage = this.muc.createMessage();
+		newMessage.setType(Message.Type.groupchat);
+		
+		/*
+		* Set message properties
+		*/
+		newMessage.setProperty("Type","Delete");
+		newMessage.setProperty("name",filename);
+		newMessage.setProperty("sha256",hash);
+		
+		System.out.println(newMessage.toXML());
+		try{
+			this.muc.sendMessage(newMessage);		
+		}catch(XMPPException xe){
+			Constants.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe,4);
+		}
+	}
+	
+	/**
+	* This sends update-file information to other participants
+	*
+	* @param filename The filename of the updated file
+	* @param vers The fileversion after the update
+	* @param size The filesize of the updated file
+	* @param list A list of the blocks that changed with this update (only IDs)
+	* @param hash The new SHA256 value of the file
+	*/
+	public void sendMUCUpdateFile(String filename, int vers, int size, LinkedList<int> list, String hash){
+		if(!this.joinedAChannel){
+			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
+			return;
+		}
+		Message newMessage = this.muc.createMessage();
+		newMessage.setType(Message.Type.groupchat);
+		
+		/*
+		* Set message properties
+		*/
+		newMessage.setProperty("Type","Delete");
+		newMessage.setProperty("name",filename);
+		newMessage.setProperty("version",vers);
+		newMessage.setProperty("size",size);
+		newMessage.setProperty("blocks",list);
+		newMessage.setProperty("sha256",hash);
+		
 		System.out.println(newMessage.toXML());
 		try{
 			this.muc.sendMessage(newMessage);		

@@ -49,10 +49,9 @@ public class NetworkWorker extends Thread {
 		this.myNetwork.joinMUC(Constants.user, Constants.pass, 
 			Constants.conference_channel + "@" + Constants.conference_server);
 		this.myNetwork.sendMUCmessage("Hello World!");
-		MultiUserChat room = this.myNetwork.getMUChandle();
 		
 		while(!isInterrupted()){
-			Message newMessage = room.nextMessage();
+			Message newMessage = this.myNetwork.getNextMessage();
 			if(newMessage != null)
     			Constants.log.addMsg("Incoming message: " + newMessage.getBody(),3);
 		}
