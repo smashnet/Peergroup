@@ -152,13 +152,36 @@ public class Network {
 	}
 	
 	/**
+	* Leave the current Multi-User-Chat room (recommended before quitting the program)
+	*/
+	public void leaveMUC(){
+		this.muc.leave();
+		Constants.log.addMsg("Left conference room: " + Constants.conference_channel,4);
+	}
+	
+	/**
+	* Disconnect from the XMPP server (recommended before quitting the program)
+	*/
+	public void xmppDisconnect(){
+		this.getInstance().xmppCon.disconnect();
+		Constants.log.addMsg("Disconnected from XMPP Server: " + Constants.server,4);
+	}
+	
+	/* -------- Primitives for sending and receiving XMPP packets ----------
+	* Type:
+	*	1: new file
+	*	2: delete file
+	*	3: update file
+	*/
+	
+	/**
 	* This sends new-file information to other participants
 	*
 	* @param filename The filename of the new file
 	* @param size The filesize of the new file
 	* @param hash The new SHA256 value of the file
 	*/
-	public void sendMUCCreateFile(String filename, int size, String hash){
+	public void sendMUCNewFile(String filename, int size, String hash){
 		if(!this.joinedAChannel){
 			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
 			return;
@@ -169,7 +192,7 @@ public class Network {
 		/*
 		* Set message properties
 		*/
-		newMessage.setProperty("Type","New");
+		newMessage.setProperty("Type",1);
 		newMessage.setProperty("IP",Constants.ipAddress);
 		newMessage.setProperty("name",filename);
 		newMessage.setProperty("size",size);
@@ -200,7 +223,7 @@ public class Network {
 		/*
 		* Set message properties
 		*/
-		newMessage.setProperty("Type","Delete");
+		newMessage.setProperty("Type",2);
 		newMessage.setProperty("name",filename);
 		newMessage.setProperty("sha256",hash);
 		
@@ -232,7 +255,7 @@ public class Network {
 		/*
 		* Set message properties
 		*/
-		newMessage.setProperty("Type","Delete");
+		newMessage.setProperty("Type",3);
 		newMessage.setProperty("name",filename);
 		newMessage.setProperty("version",vers);
 		newMessage.setProperty("size",size);
@@ -245,20 +268,5 @@ public class Network {
 		}catch(XMPPException xe){
 			Constants.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe,4);
 		}
-	}
-	
-	/**
-	* Leave the current Multi-User-Chat room (recommended before quitting the program)
-	*/
-	public void leaveMUC(){
-		this.muc.leave();
-	}
-	
-	/**
-	* Disconnect from the XMPP server (recommended before quitting the program)
-	*/
-	public void xmppDisconnect(){
-		this.getInstance().xmppCon.disconnect();
-		Constants.log.addMsg("Disconnected from XMPP Server: " + Constants.server,4);
 	}
 }

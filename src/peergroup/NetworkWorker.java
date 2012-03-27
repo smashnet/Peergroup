@@ -13,6 +13,7 @@
 
 package peergroup;
 
+import java.util.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smackx.muc.*;
@@ -44,16 +45,40 @@ public class NetworkWorker extends Thread {
 	* The run() method
 	*/
 	public void run(){
+		this.setName("XMPP Thread");
 		Constants.log.addMsg("Networking thread started...",2);
 		this.myNetwork = Network.getInstance();
 		this.myNetwork.joinMUC(Constants.user, Constants.pass, 
 			Constants.conference_channel + "@" + Constants.conference_server);
-		this.myNetwork.sendMUCmessage("Hello World!");
+		this.myNetwork.sendMUCmessage("Hi, I'm a peergroup client. I do awesome things :-)");
+		this.myNetwork.sendMUCNewFile("foo",123,"bar");
 		
 		while(!isInterrupted()){
+			// read next message from XMPP
 			Message newMessage = this.myNetwork.getNextMessage();
-			if(newMessage != null)
-    			Constants.log.addMsg("Incoming message: " + newMessage.getBody(),3);
+			if(newMessage.getBody() != null){
+				Constants.log.addMsg("Message: " + newMessage.getBody(),3);
+				continue;
+			}
+			// extract message type from message
+			int type = ((Integer)newMessage.getProperty("Type")).intValue();
+			String filename;
+			
+			switch(type){
+				case 1: // someone announced a new file via XMPP
+					filename = (String)newMessage.getProperty("name");
+					Constants.log.addMsg("New file discovered via XMPP: " + filename);
+					break;
+				case 2: // someone announced a delete via XMPP
+					filename = (String)newMessage.getProperty("name");
+					Constants.log.addMsg("File deletion discovered via XMPP: " + filename);
+					break;
+				case 3: // someone announced a fileupdate via XMPP
+					filename = (String)newMessage.getProperty("name");
+					Constants.log.addMsg("File update discovered via XMPP: " + filename);
+					break;
+				default:
+			}
 		}
 		
 		Constants.log.addMsg("Networking thread interrupted. Closing...",4);
