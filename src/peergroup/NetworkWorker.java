@@ -34,7 +34,10 @@ public class NetworkWorker extends Thread {
 	}
 	
 	public void stopNetworkWorker(){
-		this.interrupt();
+		this.myNetwork.leaveMUC();
+		this.myNetwork.xmppDisconnect();
+		Constants.log.addMsg("Networking thread stopped. Closing...",4);
+		this.stop();
 	}
 	
 	/**
@@ -45,16 +48,14 @@ public class NetworkWorker extends Thread {
 		this.myNetwork = Network.getInstance();
 		this.myNetwork.joinMUC(Constants.user, Constants.pass, 
 			Constants.conference_channel + "@" + Constants.conference_server);
-		this.myNetwork.sendMUCmessage("Hi there!");
+		this.myNetwork.sendMUCmessage("Hello World!");
+		MultiUserChat room = this.myNetwork.getMUChandle();
 		
 		while(!isInterrupted()){
-			Message newMessage = this.myNetwork.getNextMessage();
+			Message newMessage = room.nextMessage();
 			if(newMessage != null)
     			Constants.log.addMsg("Incoming message: " + newMessage.getBody(),3);
 		}
-		
-		this.myNetwork.leaveMUC();
-		this.myNetwork.xmppDisconnect();
 		
 		Constants.log.addMsg("Networking thread interrupted. Closing...",4);
 	}   

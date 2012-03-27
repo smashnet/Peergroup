@@ -146,15 +146,27 @@ public class Network {
 	*
 	* @return the Message object
 	*/
-	public Message getNextMessage(){
-	    return this.muc.nextMessage(1);
+	public MultiUserChat getMUChandle(){
+	    return this.muc;
 	}
 	
 	/**
-	* This sends update information to other participants
+	* This sends create file information to other participants
 	*/
-	public void sendMUCdatainfo(){
-	    
+	public void sendMUCCreateFile(){
+		if(!this.joinedAChannel){
+			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
+			return;
+		}
+		Message newMessage = this.muc.createMessage();
+		newMessage.setType(Message.Type.groupchat);
+		newMessage.setProperty("Test","MyProperty");
+		System.out.println(newMessage.toXML());
+		try{
+			this.muc.sendMessage(newMessage);		
+		}catch(XMPPException xe){
+			Constants.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe,4);
+		}
 	}
 	
 	/**

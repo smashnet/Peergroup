@@ -15,6 +15,8 @@
 
 package peergroup;
 
+import java.io.*;
+import java.net.*;
 import sun.misc.Signal;
 import sun.misc.SignalHandler;
 
@@ -57,6 +59,7 @@ public class Peergroup {
 			+ Constants.VERSION + " on " + os + " " + System.getProperty("os.version"),2);
         
         getCmdArgs(args);
+		getExternalIP();
 		
 		// -- Create Threads
 		Constants.main = new MainWorker();		
@@ -146,6 +149,10 @@ public class Peergroup {
 				Constants.pass = s;
 				Constants.log.addMsg("Set pass for JID to: " + Constants.pass,3); //Maybe this should be hidden in the final version ;-)
 			}
+			if(last.equals("-ip")){
+				Constants.ipAddress = s;
+				Constants.log.addMsg("Set external IP to: " + Constants.ipAddress,3);
+			}
 			last = s;
         }
     }
@@ -163,8 +170,26 @@ public class Peergroup {
 		out += "\t-pass\t[PASS]\t\tset the password for your JID\n";
 		out += "\t-port\t[PORT]\t\tset the XMPP server port (default: 5222)\n";
 		out += "\t-chan\t[CHANNEL]\tset the conference channel to join (e.g. foo@conference.jabber.bar.com)\n";
+		out += "\t-ip\t[IP]\t\tmanually set your external IP (the IP is usually guessed by the program)\n";
 		out += "\t-limit\t[LIMIT]\t\tset the amount of space you want to share in MB (default: 2048MB)\n";
 		return out;
 	}
     
+	private static void getExternalIP(){
+		if(!Constants.ipAddress.equals("")){
+			Constants.log.addMsg("External IP was manually set skipping the guessing.",2);
+			return;
+		}
+		try{
+			URL whatismyip = new URL("http://automation.whatismyip.com/n09230945.asp");
+			BufferedReader in = new BufferedReader(new InputStreamReader(
+			                whatismyip.openStream()));
+		
+			Constants.ipAddress = in.readLine();
+			Constants.log.addMsg("Found external IP: " + Constants.ipAddress,2);
+		}catch(Exception e){
+			Constants.log.addMsg("Couldn't get external IP! " + e + " Try setting it manually!",1);
+			System.exit(1);
+		}
+	}
 }

@@ -83,5 +83,6 @@ public class Constants {
 	/*
 	* Stuff
 	*/
+	public static String ipAddress = "";
 	public static boolean caughtSignal = false;
 }
