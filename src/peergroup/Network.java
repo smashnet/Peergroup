@@ -172,6 +172,8 @@ public class Network {
 	*	1: new file
 	*	2: delete file
 	*	3: update file
+	*	4: completed file
+	*	5: 
 	*/
 	
 	/**
@@ -181,7 +183,7 @@ public class Network {
 	* @param size The filesize of the new file
 	* @param hash The new SHA256 value of the file
 	*/
-	public void sendMUCNewFile(String filename, int size, String hash){
+	public void sendMUCNewFile(String filename, long size, String hash){
 		if(!this.joinedAChannel){
 			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
 			return;
@@ -198,9 +200,9 @@ public class Network {
 		newMessage.setProperty("size",size);
 		newMessage.setProperty("sha256",hash);
 		
-		System.out.println(newMessage.toXML());
 		try{
-			this.muc.sendMessage(newMessage);		
+			this.muc.sendMessage(newMessage);
+			Constants.log.addMsg("XMPP: -NEW- " + filename + " - " + size + "Bytes - " + hash,2);	
 		}catch(XMPPException xe){
 			Constants.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe,4);
 		}
@@ -229,7 +231,8 @@ public class Network {
 		
 		System.out.println(newMessage.toXML());
 		try{
-			this.muc.sendMessage(newMessage);		
+			this.muc.sendMessage(newMessage);	
+			Constants.log.addMsg("XMPP: -DELETE- " + filename + " - " + hash,2);	
 		}catch(XMPPException xe){
 			Constants.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe,4);
 		}
@@ -256,6 +259,7 @@ public class Network {
 		* Set message properties
 		*/
 		newMessage.setProperty("Type",3);
+		newMessage.setProperty("IP",Constants.ipAddress);
 		newMessage.setProperty("name",filename);
 		newMessage.setProperty("version",vers);
 		newMessage.setProperty("size",size);
@@ -264,9 +268,46 @@ public class Network {
 		
 		System.out.println(newMessage.toXML());
 		try{
-			this.muc.sendMessage(newMessage);		
+			this.muc.sendMessage(newMessage);
+			Constants.log.addMsg("XMPP: -UPDATE- " + filename + " - Version " + vers + " - " + size + "Bytes - " + hash,2);
 		}catch(XMPPException xe){
 			Constants.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe,4);
 		}
 	}
+	
+	/**
+	* This sends completed-file information to other participants
+	*
+	* @param filename The filename of the completed file
+	* @param vers The fileversion of the completed file
+	* @param size The filesize of the completed file
+	* @param hash The new SHA256 value of the file
+	*/
+	public void sendMUCCompletedFile(String filename, int vers, int size, String hash){
+		if(!this.joinedAChannel){
+			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
+			return;
+		}
+		Message newMessage = this.muc.createMessage();
+		newMessage.setType(Message.Type.groupchat);
+		
+		/*
+		* Set message properties
+		*/
+		newMessage.setProperty("Type",4);
+		newMessage.setProperty("IP",Constants.ipAddress);
+		newMessage.setProperty("name",filename);
+		newMessage.setProperty("version",vers);
+		newMessage.setProperty("size",size);
+		newMessage.setProperty("sha256",hash);
+		
+		System.out.println(newMessage.toXML());
+		try{
+			this.muc.sendMessage(newMessage);
+			Constants.log.addMsg("XMPP: -COMPLETED- " + filename + " - Version " + vers + " - " + size + "Bytes - " + hash,2);	
+		}catch(XMPPException xe){
+			Constants.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe,4);
+		}
+	}
+	
 }

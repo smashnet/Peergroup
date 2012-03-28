@@ -52,6 +52,9 @@ public class MainWorker extends Thread {
 			}
 		}
 		
+		/*
+		* Main loop, takes requests from the queue and processes them
+		*/
 		while(!isInterrupted()){
 			try{
 				Request nextRequest = Constants.requestQueue.take();
@@ -88,8 +91,14 @@ public class MainWorker extends Thread {
 		Constants.main.interrupt();
 	}
 	
+	/**
+	* Add new local file to file list and propagate via XMPP
+	*/
 	private void handleLocalEntryCreate(Request request){
-		this.myStorage.addFileFromLocal(request.getContent());
+		FileHandle newFile = this.myStorage.addFileFromLocal(request.getContent());
+		if(newFile != null){
+			this.myNetwork.sendMUCNewFile(newFile.getPath(),newFile.getSize(),newFile.getHexHash());
+		}
 	}
 	
 	private void handleLocalEntryDelete(Request request){

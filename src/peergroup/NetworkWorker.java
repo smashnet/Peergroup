@@ -64,6 +64,9 @@ public class NetworkWorker extends Thread {
 			int type = ((Integer)newMessage.getProperty("Type")).intValue();
 			String filename;
 			
+			/*
+			* TODO: Proper handling of cases
+			*/
 			switch(type){
 				case 1: // someone announced a new file via XMPP
 					filename = (String)newMessage.getProperty("name");
@@ -77,6 +80,9 @@ public class NetworkWorker extends Thread {
 					filename = (String)newMessage.getProperty("name");
 					Constants.log.addMsg("File update discovered via XMPP: " + filename);
 					break;
+				case 4: // someone announced that a file download is completed
+					filename = (String)newMessage.getProperty("name");
+					Constants.log.addMsg("Completed file download discovered via XMPP: " + filename);
 				default:
 			}
 		}

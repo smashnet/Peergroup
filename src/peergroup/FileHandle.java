@@ -363,6 +363,10 @@ public class FileHandle {
 	public File getFile(){
 		return this.file;
 	}
+	
+	public long getSize(){
+		return this.size;
+	}
     
     @Override
     public String toString(){

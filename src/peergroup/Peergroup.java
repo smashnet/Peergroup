@@ -127,7 +127,7 @@ public class Peergroup {
 				Constants.log.addMsg("Set conference channel to: " + Constants.conference_channel + "@" 
 					+ Constants.conference_server,3);
 			}
-			if(last.equals("-port")){
+			if(last.equals("-XMPPport")){
 				try{
 					Constants.port = Integer.parseInt(s);
 				}catch(NumberFormatException nan){
@@ -168,9 +168,10 @@ public class Peergroup {
 		out += "\t-dir\t[DIR]\t\tset the shared files directory (default: ./share/)\n";
 		out += "\t-jid\t[JID]\t\tset your jabber ID (e.g. foo@jabber.bar.com)\n";
 		out += "\t-pass\t[PASS]\t\tset the password for your JID\n";
-		out += "\t-port\t[PORT]\t\tset the XMPP server port (default: 5222)\n";
+		out += "\t-XMPPport\t[PORT]\tset the XMPP server port (default: 5222)\n";
 		out += "\t-chan\t[CHANNEL]\tset the conference channel to join (e.g. foo@conference.jabber.bar.com)\n";
 		out += "\t-ip\t[IP]\t\tmanually set your external IP (the IP is usually guessed by the program)\n";
+		out += "\t-port\t[PORT]\t\tset the port for P2P data exchange (default: 43334)";
 		out += "\t-limit\t[LIMIT]\t\tset the amount of space you want to share in MB (default: 2048MB)\n";
 		return out;
 	}

@@ -38,17 +38,20 @@ public class Storage {
 	* Adds a local file to the storage list
 	*
 	* @param filename the filename
+	* @return The FileHandle added to the list
 	*/
-	public void addFileFromLocal(String filename){
+	public FileHandle addFileFromLocal(String filename){
 		try{
 			FileHandle newFile = new FileHandle(Constants.rootDirectory + filename);
 			this.files.add(newFile);
 			Constants.log.addMsg("Adding " + newFile.toString(),4);
 			this.fileListVersion++;
+			Constants.log.addMsg(this.toString(),4);
+			return newFile;
 		}catch(Exception ioe){
 			Constants.log.addMsg("Local file does not exist anymore: " + ioe,4);
-		}	
-		Constants.log.addMsg(this.toString(),4);
+		}
+		return null;
 	}
 	
 	/**
