@@ -35,11 +35,11 @@ public class Logger {
 	public Logger(){
 		try{
 			this.cal = Calendar.getInstance();
-			String date = cal.get(Calendar.YEAR) + "-" 
-		        + (cal.get(Calendar.MONTH)+1) + "-" 
-		        + cal.get(Calendar.DAY_OF_MONTH) + "_" 
-		        + cal.get(Calendar.HOUR_OF_DAY) 
-		        + cal.get(Calendar.MINUTE);
+			String date = getYear() + "-" 
+		        + getMonth() + "-" 
+		        + getDayOfMonth() + "_" 
+		        + getHourOfDay() 
+		        + getMinute();
 			this.color = true;
 			this.output = new File(date + "_peergroup.log");
 			this.fw = new FileWriter(this.output);
@@ -55,6 +55,7 @@ public class Logger {
 	* @param filename is the name of the logfile as string
 	*/
 	public Logger(String filename){
+		this.cal = Calendar.getInstance();
 		try{
 			this.color = true;
 			this.output = new File(filename);
@@ -71,14 +72,13 @@ public class Logger {
 	*
 	* @return tmp the string
 	*/
-	private String getTimeString(){
-		this.cal = Calendar.getInstance();
-		String tmp = "[" + cal.get(Calendar.YEAR) + "/" 
-		        + (cal.get(Calendar.MONTH)+1) + "/" 
-		        + cal.get(Calendar.DAY_OF_MONTH) + " " 
-		        + cal.get(Calendar.HOUR_OF_DAY) + ":" 
-		        + cal.get(Calendar.MINUTE) + ":" 
-				+ cal.get(Calendar.SECOND) + "] - ";
+	private String getTimeString(){		
+		String tmp = "[" + getYear() + "/" 
+		        + getMonth() + "/" 
+		        + getDayOfMonth() + " " 
+		        + getHourOfDay() + ":" 
+		        + getMinute() + ":" 
+				+ getSecond() + "] - ";
 		return tmp;
 	}
 	
@@ -166,5 +166,71 @@ public class Logger {
 		}catch(IOException ioe){
 			System.out.println("Caught error: " + ioe);
 		}
+	}
+	
+	private String getYear(){
+		String res;
+		int tmp = cal.get(Calendar.YEAR);
+		if(tmp < 10){
+			res = "0" + tmp;
+		}else{
+			res = "" + tmp;
+		}
+		return res;
+	}
+	
+	private String getMonth(){
+		String res;
+		int tmp = (cal.get(Calendar.MONTH)+1);
+		if(tmp < 10){
+			res = "0" + tmp;
+		}else{
+			res = "" + tmp;
+		}
+		return res;
+	}
+	
+	private String getDayOfMonth(){
+		String res;
+		int tmp = cal.get(Calendar.DAY_OF_MONTH);
+		if(tmp < 10){
+			res = "0" + tmp;
+		}else{
+			res = "" + tmp;
+		}
+		return res;
+	}
+	
+	private String getHourOfDay(){
+		String res;
+		int tmp = cal.get(Calendar.HOUR_OF_DAY);
+		if(tmp < 10){
+			res = "0" + tmp;
+		}else{
+			res = "" + tmp;
+		}
+		return res;
+	}
+	
+	private String getMinute(){
+		String res;
+		int tmp = cal.get(Calendar.MINUTE);
+		if(tmp < 10){
+			res = "0" + tmp;
+		}else{
+			res = "" + tmp;
+		}
+		return res;
+	}
+	
+	private String getSecond(){
+		String res;
+		int tmp = cal.get(Calendar.SECOND);
+		if(tmp < 10){
+			res = "0" + tmp;
+		}else{
+			res = "" + tmp;
+		}
+		return res;
 	}
 }
