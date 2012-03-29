@@ -61,6 +61,11 @@ public class Peergroup {
         getCmdArgs(args);
 		getExternalIP();
 		
+		// Join XMPP Channel
+		Network.getInstance().joinMUC(Constants.user, Constants.pass, 
+			Constants.conference_channel + "@" + Constants.conference_server);
+		Network.getInstance().sendMUCmessage("Hi, I'm a peergroup client. I do awesome things :-)");
+		
 		// -- Create Threads
 		Constants.main = new MainWorker();		
 		Constants.storage = new StorageWorker();

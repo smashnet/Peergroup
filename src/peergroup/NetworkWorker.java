@@ -48,10 +48,6 @@ public class NetworkWorker extends Thread {
 		this.setName("XMPP Thread");
 		Constants.log.addMsg("Networking thread started...",2);
 		this.myNetwork = Network.getInstance();
-		this.myNetwork.joinMUC(Constants.user, Constants.pass, 
-			Constants.conference_channel + "@" + Constants.conference_server);
-		this.myNetwork.sendMUCmessage("Hi, I'm a peergroup client. I do awesome things :-)");
-		this.myNetwork.sendMUCNewFile("foo",123,"bar");
 		
 		while(!isInterrupted()){
 			// read next message from XMPP
@@ -62,8 +58,6 @@ public class NetworkWorker extends Thread {
 				continue;
 			}
 			// ignore messages sent by yourself
-			System.out.println("Message: " + newMessage.getProperty("JID"));
-			System.out.println("Me: " + Constants.getJID());
 			if(newMessage.getProperty("JID").equals(Constants.getJID())){
 				continue;
 			}
