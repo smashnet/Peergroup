@@ -48,6 +48,10 @@ public class FileHandle {
 	*/
     private LinkedList<FileChunk> chunks;
 	/**
+	* A linked list of FileChunk objects which this file consists of
+	*/
+    private LinkedList<Integer> updatedBlocks;
+	/**
 	* The size of the filechunks in bytes
 	*/
     private int chunkSize;
@@ -69,6 +73,7 @@ public class FileHandle {
         this.hash = this.calcHash(this.file);
         this.size = this.file.length();
         this.complete = true;
+		this.updatedBlocks = new LinkedList<Integer>();
 		Constants.log.addMsg("FileHandle: New file from storage: " + this.getPath() 
 								+ " (Size: " + this.size + ", Hash: " + this.getHexHash() + ")", 3);
 		
@@ -93,6 +98,7 @@ public class FileHandle {
         this.hash = this.calcHash(this.file);
         this.size = this.file.length();
         this.complete = true;
+		this.updatedBlocks = new LinkedList<Integer>();
 		Constants.log.addMsg("FileHandle: New file from storage: " + this.getPath() 
 								+ " (Size: " + this.size + ", Hash: " + this.getHexHash() + ")", 3);
 		
@@ -120,6 +126,7 @@ public class FileHandle {
 		this.chunks = chunks;
 		this.chunkSize = chunkSize;
 		this.complete = false;
+		this.updatedBlocks = new LinkedList<Integer>();
         Constants.log.addMsg("FileHandle: New file via network: " + filename
 								+ " (Size: " + this.size + ", Hash: " + this.getHexHash() + ")", 3);
 		// Create empty file on disk
@@ -223,14 +230,18 @@ public class FileHandle {
 		this.size = this.file.length();
         
         while((bytesRead = stream.read(buffer)) != -1){
-            if(id < this.chunks.size()){ //change is within existent chunks
-				if(!(Arrays.equals(calcHash(buffer),this.chunks.get(id).getHash()))){ // new chunk hash != old chunk hash
+			//change is within existent chunks
+            if(id < this.chunks.size()){ 
+				// new chunk hash != old chunk hash
+				if(!(Arrays.equals(calcHash(buffer),this.chunks.get(id).getHash()))){ 
 					Constants.log.addMsg("FileHandle: Chunk " + id + " changed! Updating chunklist...",3);
-					FileChunk updated = new FileChunk(id,calcHash(buffer),bytesRead,id*chunkSize,true);
+					FileChunk updated = new FileChunk(id,this.chunks.get(id).getVersion()+1,calcHash(buffer),bytesRead,id*chunkSize,true);
+					this.updatedBlocks.add(new Integer(id));
 					this.chunks.set(id,updated);
 					changed = true;
 				}
-				if(bytesRead < chunkSize && id < (this.chunks.size()-1)){ // chunk is smaller than others and is not the last chunk -> file got smaller
+				// chunk is smaller than others and is not the last chunk -> file got smaller
+				if(bytesRead < chunkSize && id < (this.chunks.size()-1)){ 
 					Constants.log.addMsg("FileHandle: Smaller chunk is not last chunk! Pruning following chunks...",3);
 					int i = this.chunks.size()-1;
 					while(i > id){
@@ -239,16 +250,21 @@ public class FileHandle {
 					}
 					changed = true;
 				}
+				// Last chunk got bigger
 				if(bytesRead > this.chunks.get(id).getSize() && id == this.chunks.size()-1){
 					Constants.log.addMsg("FileHandle: Chunk " + id + " changed! Updating chunklist...",3);
-					FileChunk updated = new FileChunk(id,calcHash(buffer),bytesRead,id*chunkSize,true);
+					FileChunk updated = new FileChunk(id,this.chunks.get(id).getVersion()+1,calcHash(buffer),bytesRead,id*chunkSize,true);
 					this.chunks.set(id,updated);
+					this.updatedBlocks.add(new Integer(id));
 					changed = true;
 				}
-			}else{ // file is grown and needs more chunks
+			}else{
+				// file is grown and needs more chunks
+				// TODO: What to do with the Chunk Version here?? 
 				Constants.log.addMsg("FileHandle: File needs more chunks than before! Adding new chunks...",3);
 				FileChunk next = new FileChunk(id,calcHash(buffer),bytesRead,id*chunkSize,true);
 				this.chunks.add(next);
+				this.updatedBlocks.add(new Integer(id));
 				changed = true;
 			}
             id++;
@@ -340,6 +356,22 @@ public class FileHandle {
     }
 	
 	/**
+	* Returns a list of blocks that have updated with the last call of localUpdate()
+	*
+	* @return A linked list of Integer showing the IDs of updated blocks
+	*/
+	public LinkedList<Integer> getUpdatedBlocks(){
+		return this.updatedBlocks;
+	}
+	
+	/**
+	* Clear the list of updated blocks
+	*/
+	public void clearUpdatedBlocks(){
+		this.updatedBlocks.clear();
+	}
+	
+	/**
 	* Returns a relative path to this file/directory (e.g. /subdir/file.txt)
 	*
 	* @return a path to the file/directory relative to the document root (e.g. /subdir/file.txt)
@@ -366,6 +398,10 @@ public class FileHandle {
 	
 	public long getSize(){
 		return this.size;
+	}
+	
+	public int getVersion(){
+		return this.fileVersion;
 	}
     
     @Override

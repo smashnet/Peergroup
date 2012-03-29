@@ -62,7 +62,9 @@ public class NetworkWorker extends Thread {
 				continue;
 			}
 			// ignore messages sent by yourself
-			if(newMessage.getFrom().equals(Constants.getJID())){
+			System.out.println("Message: " + newMessage.getProperty("JID"));
+			System.out.println("Me: " + Constants.getJID());
+			if(newMessage.getProperty("JID").equals(Constants.getJID())){
 				continue;
 			}
 			// extract message type from message

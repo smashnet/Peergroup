@@ -22,6 +22,7 @@ import java.util.LinkedList;
 public class FileChunk {
     
     private int id;
+	private int version;
     private byte[] chunkHash;
 	private long offset;
 	private long size;
@@ -34,6 +35,16 @@ public class FileChunk {
     
     public FileChunk(int no, byte[] digest, long s, long off, boolean compl){
         this.id = no;
+		this.version = 0;
+        this.chunkHash = digest;
+		this.size = s;
+		this.offset = off;
+		this.complete = compl;
+    }
+	
+    public FileChunk(int no, int vers, byte[] digest, long s, long off, boolean compl){
+        this.id = no;
+		this.version = vers;
         this.chunkHash = digest;
 		this.size = s;
 		this.offset = off;
@@ -42,6 +53,17 @@ public class FileChunk {
 	
 	public FileChunk(int no, byte[] digest, long s, long off, boolean compl, LinkedList<P2Pdevice> peers){
 		this.id = no;
+		this.version = 0;
+		this.chunkHash = digest;
+		this.size = s;
+		this.offset = off;
+		this.peers = peers;
+		this.complete = compl;
+	}
+	
+	public FileChunk(int no, int vers, byte[] digest, long s, long off, boolean compl, LinkedList<P2Pdevice> peers){
+		this.id = no;
+		this.version = vers;
 		this.chunkHash = digest;
 		this.size = s;
 		this.offset = off;
@@ -51,6 +73,14 @@ public class FileChunk {
 	
 	public int getID(){
 		return this.id;
+	}
+	
+	public void setVersion(int vers){
+		this.version = vers;
+	}
+	
+	public int getVersion(){
+		return this.version;
 	}
 	
 	public byte[] getHash(){

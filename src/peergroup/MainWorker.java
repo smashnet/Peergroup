@@ -96,17 +96,23 @@ public class MainWorker extends Thread {
 	*/
 	private void handleLocalEntryCreate(Request request){
 		FileHandle newFile = this.myStorage.addFileFromLocal(request.getContent());
-		if(newFile != null){
+		if(newFile != null)
 			this.myNetwork.sendMUCNewFile(newFile.getPath(),newFile.getSize(),newFile.getHexHash());
-		}
 	}
 	
 	private void handleLocalEntryDelete(Request request){
 		this.myStorage.removeFile(request.getContent());
+		this.myNetwork.sendMUCDeleteFile(request.getContent());
 	}
 	
 	private void handleLocalEntryModify(Request request){
-		this.myStorage.modifyFileFromLocal(request.getContent());
+		FileHandle newFile = this.myStorage.modifyFileFromLocal(request.getContent());
+		if(newFile != null){
+			this.myNetwork.sendMUCUpdateFile(newFile.getPath(),newFile.getVersion(),
+				newFile.getSize(),newFile.getUpdatedBlocks(),newFile.getHexHash());
+			newFile.clearUpdatedBlocks();
+		}
+			
 	}
     
 }

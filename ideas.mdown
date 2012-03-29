@@ -31,10 +31,15 @@ Message Types
 	* size
 	* new blocks
 	* sha256
+* Completed file
+	* IP
+	* filename
+	* fileversion
+	* size
+	* sha256
 
 Stuff
 =====
 
-* timeout for nextMessage -> use for regular checks of XMPP room
 * ignore jpathwatch for files being downloaded
-* ignore self sent messages on XMPP
+* FileHandle ~line 253 What about chunk version in additional new chunks?

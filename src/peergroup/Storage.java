@@ -93,25 +93,29 @@ public class Storage {
 	* Applies a change to a file in the file list
 	*
 	*/
-	public void modifyFileFromLocal(String file){
+	public FileHandle modifyFileFromLocal(String file){
 		FileHandle tmp;
 		int i = 0;
 		while(i < this.files.size()){
 			if(this.files.get(i).getPath().equals(file)){
 				try{
-					this.files.get(i).localUpdate();
+					tmp = this.files.get(i);
+					tmp.localUpdate();
+					
+					Constants.log.addMsg("Updated " + this.files.get(i).getPath(),4);
+					return tmp;
 					//Constants.log.addMsg("Updating: " + this.files.get(i).toString(),4);
 				}catch(Exception ioe){
 					Constants.log.addMsg("Error updating file: " + ioe,1);
 					break;
 				}
-				Constants.log.addMsg("Updated " + this.files.get(i).getPath(),4);
-				break;
 			}
 			i++;
 		}
 		this.fileListVersion++;
-		Constants.log.addMsg(this.toString(),4);
+		//Constants.log.addMsg(this.toString(),4);
+		
+		return null;
 	}
 	
 	public File getDirHandle(){

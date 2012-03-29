@@ -130,7 +130,6 @@ public class Network {
 		}
 		Message newMessage = this.muc.createMessage();
 		newMessage.setType(Message.Type.groupchat);
-		newMessage.setFrom(Constants.getJID());
 		
 		newMessage.setBody(text);
 		
@@ -192,12 +191,12 @@ public class Network {
 		}
 		Message newMessage = this.muc.createMessage();
 		newMessage.setType(Message.Type.groupchat);
-		newMessage.setFrom(Constants.getJID());
 		
 		/*
 		* Set message properties
 		*/
 		newMessage.setProperty("Type",1);
+		newMessage.setProperty("JID",Constants.getJID());
 		newMessage.setProperty("IP",Constants.ipAddress);
 		newMessage.setProperty("name",filename);
 		newMessage.setProperty("size",size);
@@ -215,27 +214,25 @@ public class Network {
 	* This sends delete-file information to other participants
 	*
 	* @param filename The filename of the deleted file
-	* @param hash The new SHA256 value of the file
 	*/	
-	public void sendMUCDeleteFile(String filename, String hash){
+	public void sendMUCDeleteFile(String filename){
 		if(!this.joinedAChannel){
 			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
 			return;
 		}
 		Message newMessage = this.muc.createMessage();
 		newMessage.setType(Message.Type.groupchat);
-		newMessage.setFrom(Constants.getJID());
 		
 		/*
 		* Set message properties
 		*/
 		newMessage.setProperty("Type",2);
+		newMessage.setProperty("JID",Constants.getJID());
 		newMessage.setProperty("name",filename);
-		newMessage.setProperty("sha256",hash);
 		
 		try{
 			this.muc.sendMessage(newMessage);	
-			Constants.log.addMsg("XMPP: -DELETE- " + filename + " - " + hash,2);	
+			Constants.log.addMsg("XMPP: -DELETE- " + filename,2);	
 		}catch(XMPPException xe){
 			Constants.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe,4);
 		}
@@ -250,19 +247,19 @@ public class Network {
 	* @param list A list of the blocks that changed with this update (only IDs)
 	* @param hash The new SHA256 value of the file
 	*/
-	public void sendMUCUpdateFile(String filename, int vers, int size, LinkedList<Integer> list, String hash){
+	public void sendMUCUpdateFile(String filename, int vers, long size, LinkedList<Integer> list, String hash){
 		if(!this.joinedAChannel){
 			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
 			return;
 		}
 		Message newMessage = this.muc.createMessage();
 		newMessage.setType(Message.Type.groupchat);
-		newMessage.setFrom(Constants.getJID());
 		
 		/*
 		* Set message properties
 		*/
 		newMessage.setProperty("Type",3);
+		newMessage.setProperty("JID",Constants.getJID());
 		newMessage.setProperty("IP",Constants.ipAddress);
 		newMessage.setProperty("name",filename);
 		newMessage.setProperty("version",vers);
@@ -293,12 +290,12 @@ public class Network {
 		}
 		Message newMessage = this.muc.createMessage();
 		newMessage.setType(Message.Type.groupchat);
-		newMessage.setFrom(Constants.getJID());
 		
 		/*
 		* Set message properties
 		*/
 		newMessage.setProperty("Type",4);
+		newMessage.setProperty("JID",Constants.getJID());
 		newMessage.setProperty("IP",Constants.ipAddress);
 		newMessage.setProperty("name",filename);
 		newMessage.setProperty("version",vers);
