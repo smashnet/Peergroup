@@ -44,7 +44,7 @@ public class Peergroup {
 				Constants.storage.stopStorageWorker();
 				Constants.network.stopNetworkWorker();
 				if(System.getProperty("os.name").equals("Linux") 
-					|| System.getProperty("os.name").equals("Windows")){
+					|| System.getProperty("os.name").equals("Windows 7")){
 					Constants.modQueue.interrupt();
 				}
 				Constants.main.interrupt();
@@ -75,7 +75,7 @@ public class Peergroup {
 		Constants.network.start();
 		Constants.main.start();
 		
-		if(os.equals("Linux") || os.equals("Windows")){
+		if(os.equals("Linux") || os.equals("Windows 7")){
 			Constants.modQueue = new ModifyQueueWorker();
 			Constants.modQueue.start();
 		}
@@ -85,7 +85,7 @@ public class Peergroup {
 			Constants.main.join();
 			Constants.storage.join();
 			Constants.network.join();
-			if(os.equals("Linux") || os.equals("Windows")){
+			if(os.equals("Linux") || os.equals("Windows 7")){
 				Constants.modQueue.join();
 			}
 		}catch(InterruptedException ie){

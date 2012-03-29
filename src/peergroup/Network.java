@@ -267,6 +267,7 @@ public class Network {
 		newMessage.setProperty("blocks",list);
 		newMessage.setProperty("sha256",hash);
 		
+		System.out.println(newMessage.toXML());
 		try{
 			this.muc.sendMessage(newMessage);
 			Constants.log.addMsg("XMPP: -UPDATE- " + filename + " - Version " + vers + " - " + size + "Bytes - " + hash,2);

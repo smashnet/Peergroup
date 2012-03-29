@@ -40,7 +40,11 @@ public class Logger {
 		        + getDayOfMonth() + "_" 
 		        + getHourOfDay() 
 		        + getMinute();
-			this.color = true;
+			if(System.getProperty("os.name").equals("Windows 7")){
+				this.color = false;
+			}else{
+				this.color = true;
+			}
 			this.output = new File(date + "_peergroup.log");
 			this.fw = new FileWriter(this.output);
 			this.bw = new BufferedWriter(this.fw);
@@ -136,7 +140,8 @@ public class Logger {
 						break;
 				}
 			}else{
-				this.bw.write(this.getTimeString() + txt + '\n');
+				this.bw.write(time + txt + '\n');
+				System.out.print(time + txt + '\n');
 			}
 		}catch(IOException ioe){
 			System.out.println("Caught error: " + ioe);
