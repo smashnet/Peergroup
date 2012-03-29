@@ -35,4 +35,6 @@ Message Types
 Stuff
 =====
 
-timeout for nextMessage -> use for regular checks of XMPP room
+* timeout for nextMessage -> use for regular checks of XMPP room
+* ignore jpathwatch for files being downloaded
+* ignore self sent messages on XMPP

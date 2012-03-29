@@ -86,4 +86,8 @@ public class Constants {
 	public static String ipAddress = "";
 	public static int p2pPort = 43334;
 	public static boolean caughtSignal = false;
+	
+	public static String getJID(){
+		return user + "@" + server + "/" + resource;
+	}
 }

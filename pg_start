@@ -1,2 +1,0 @@
-#!/bin/bash
-java -jar export/peergroup.jar -jid test1@eckhard -pass test1 -chan peergroup@conference.eckhard

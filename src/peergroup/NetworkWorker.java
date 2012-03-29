@@ -56,8 +56,13 @@ public class NetworkWorker extends Thread {
 		while(!isInterrupted()){
 			// read next message from XMPP
 			Message newMessage = this.myNetwork.getNextMessage();
+			// messages with body are not from a peergroup clients and are only displayed
 			if(newMessage.getBody() != null){
 				Constants.log.addMsg("Message: " + newMessage.getBody(),3);
+				continue;
+			}
+			// ignore messages sent by yourself
+			if(newMessage.getFrom().equals(Constants.getJID())){
 				continue;
 			}
 			// extract message type from message

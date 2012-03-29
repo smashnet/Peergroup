@@ -130,8 +130,10 @@ public class Network {
 		}
 		Message newMessage = this.muc.createMessage();
 		newMessage.setType(Message.Type.groupchat);
+		newMessage.setFrom(Constants.getJID());
+		
 		newMessage.setBody(text);
-		System.out.println(newMessage.toXML());
+		
 		try{
 			this.muc.sendMessage(newMessage);		
 		}catch(XMPPException xe){
@@ -190,6 +192,7 @@ public class Network {
 		}
 		Message newMessage = this.muc.createMessage();
 		newMessage.setType(Message.Type.groupchat);
+		newMessage.setFrom(Constants.getJID());
 		
 		/*
 		* Set message properties
@@ -221,6 +224,7 @@ public class Network {
 		}
 		Message newMessage = this.muc.createMessage();
 		newMessage.setType(Message.Type.groupchat);
+		newMessage.setFrom(Constants.getJID());
 		
 		/*
 		* Set message properties
@@ -229,7 +233,6 @@ public class Network {
 		newMessage.setProperty("name",filename);
 		newMessage.setProperty("sha256",hash);
 		
-		System.out.println(newMessage.toXML());
 		try{
 			this.muc.sendMessage(newMessage);	
 			Constants.log.addMsg("XMPP: -DELETE- " + filename + " - " + hash,2);	
@@ -254,6 +257,7 @@ public class Network {
 		}
 		Message newMessage = this.muc.createMessage();
 		newMessage.setType(Message.Type.groupchat);
+		newMessage.setFrom(Constants.getJID());
 		
 		/*
 		* Set message properties
@@ -266,7 +270,6 @@ public class Network {
 		newMessage.setProperty("blocks",list);
 		newMessage.setProperty("sha256",hash);
 		
-		System.out.println(newMessage.toXML());
 		try{
 			this.muc.sendMessage(newMessage);
 			Constants.log.addMsg("XMPP: -UPDATE- " + filename + " - Version " + vers + " - " + size + "Bytes - " + hash,2);
@@ -290,6 +293,7 @@ public class Network {
 		}
 		Message newMessage = this.muc.createMessage();
 		newMessage.setType(Message.Type.groupchat);
+		newMessage.setFrom(Constants.getJID());
 		
 		/*
 		* Set message properties
@@ -301,7 +305,6 @@ public class Network {
 		newMessage.setProperty("size",size);
 		newMessage.setProperty("sha256",hash);
 		
-		System.out.println(newMessage.toXML());
 		try{
 			this.muc.sendMessage(newMessage);
 			Constants.log.addMsg("XMPP: -COMPLETED- " + filename + " - Version " + vers + " - " + size + "Bytes - " + hash,2);	
