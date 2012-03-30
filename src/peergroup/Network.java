@@ -29,6 +29,7 @@ public class Network {
 	private Connection xmppCon;
 	private MultiUserChat muc;
 	private boolean joinedAChannel = false;
+	private long lamportTime;
 	
 	/**
 	* The default constructor. It initializes the Connection object with the XMPP server
@@ -37,6 +38,7 @@ public class Network {
 	*/
 	private Network(){
 		this.xmppCon = new XMPPConnection(Constants.server);
+		this.lamportTime = 0;
 		if(this.xmppConnect()){
 			this.xmppLogin();
 		}else{
@@ -168,6 +170,60 @@ public class Network {
 		Constants.log.addMsg("Disconnected from XMPP Server: " + Constants.server,4);
 	}
 	
+	/**
+	* Creates a custom Message object with all always present properties
+	*
+	* @return The Message object
+	*/
+	private Message createMessageObject(){
+		incrementLamportTime();
+		Message newMessage = this.muc.createMessage();
+		newMessage.setType(Message.Type.groupchat);
+		newMessage.setProperty("LamportTime",this.lamportTime);
+		
+		return newMessage;
+	}
+	
+	/**
+	* Sets the lamport clock to the given value
+	*
+	* @param value The value
+	*/
+	public void setLamportTime(long value){
+		this.lamportTime = value;
+	}
+	
+	/**
+	* Updates the local lamport time: If the given value is greater-equal
+	* to the current local lamport time, the local lamport time is set to
+	* value+1.
+	*
+	* @param value The value
+	*/
+	public void updateLamportTime(long value){
+		if(value >= this.lamportTime){
+			this.lamportTime = value+1;
+		}else{
+			this.lamportTime++;
+		}
+	}
+	
+	/**
+	* Increments the local lamport time by one
+	*/
+	public void incrementLamportTime(){
+		this.lamportTime++;
+	}
+	
+	/**
+	* Gets the current lamport time
+	*
+	* @return The value
+	*/
+	public long getLamportTime(){
+		return this.lamportTime;
+	}
+	
 	/* -------- Primitives for sending and receiving XMPP packets ----------
 	* Type:
 	*	1: new file
@@ -189,8 +245,7 @@ public class Network {
 			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
 			return;
 		}
-		Message newMessage = this.muc.createMessage();
-		newMessage.setType(Message.Type.groupchat);
+		Message newMessage = this.createMessageObject();
 		
 		/*
 		* Set message properties
@@ -220,8 +275,7 @@ public class Network {
 			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
 			return;
 		}
-		Message newMessage = this.muc.createMessage();
-		newMessage.setType(Message.Type.groupchat);
+		Message newMessage = this.createMessageObject();
 		
 		/*
 		* Set message properties
@@ -252,8 +306,7 @@ public class Network {
 			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
 			return;
 		}
-		Message newMessage = this.muc.createMessage();
-		newMessage.setType(Message.Type.groupchat);
+		Message newMessage = this.createMessageObject();
 		
 		/*
 		* Set message properties
@@ -289,8 +342,7 @@ public class Network {
 			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
 			return;
 		}
-		Message newMessage = this.muc.createMessage();
-		newMessage.setType(Message.Type.groupchat);
+		Message newMessage = this.createMessageObject();
 		
 		/*
 		* Set message properties

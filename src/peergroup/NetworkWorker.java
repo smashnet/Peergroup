@@ -52,15 +52,22 @@ public class NetworkWorker extends Thread {
 		while(!isInterrupted()){
 			// read next message from XMPP
 			Message newMessage = this.myNetwork.getNextMessage();
-			// messages with body are not from a peergroup clients and are only displayed
+			
+			// messages with body are not from peergroup clients and are only displayed
 			if(newMessage.getBody() != null){
 				Constants.log.addMsg("Message: " + newMessage.getBody(),3);
 				continue;
 			}
+			
+			// adjust lamport time
+			long msgLamp = ((Long)newMessage.getProperty("LamportTime")).longValue();
+			this.myNetwork.updateLamportTime(msgLamp);
+			
 			// ignore messages sent by yourself
 			if(newMessage.getProperty("JID").equals(Constants.getJID())){
 				continue;
 			}
+			
 			// extract message type from message
 			int type = ((Integer)newMessage.getProperty("Type")).intValue();
 			String filename;
@@ -71,19 +78,19 @@ public class NetworkWorker extends Thread {
 			switch(type){
 				case 1: // someone announced a new file via XMPP
 					filename = (String)newMessage.getProperty("name");
-					Constants.log.addMsg("New file discovered via XMPP: " + filename);
+					Constants.log.addMsg("New file discovered via XMPP: " + filename + " Lamport: " + msgLamp);
 					break;
 				case 2: // someone announced a delete via XMPP
 					filename = (String)newMessage.getProperty("name");
-					Constants.log.addMsg("File deletion discovered via XMPP: " + filename);
+					Constants.log.addMsg("File deletion discovered via XMPP: " + filename + " Lamport: " + msgLamp);
 					break;
 				case 3: // someone announced a fileupdate via XMPP
 					filename = (String)newMessage.getProperty("name");
-					Constants.log.addMsg("File update discovered via XMPP: " + filename);
+					Constants.log.addMsg("File update discovered via XMPP: " + filename + " Lamport: " + msgLamp);
 					break;
 				case 4: // someone announced that a file download is completed
 					filename = (String)newMessage.getProperty("name");
-					Constants.log.addMsg("Completed file download discovered via XMPP: " + filename);
+					Constants.log.addMsg("Completed file download discovered via XMPP: " + filename + " Lamport: " + msgLamp);
 				default:
 			}
 		}
