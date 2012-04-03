@@ -47,7 +47,7 @@ public class Network {
 			}catch(InterruptedException ie){
 				
 			}finally{
-				Constants.requestQueue.offer(new Request(Constants.STH_EVIL_HAPPENED,"Coudln't create Network object"));
+				Constants.requestQueue.offer(new FSRequest(Constants.STH_EVIL_HAPPENED,"Coudln't create Network object"));
 			}
 		}
 	}
@@ -230,7 +230,6 @@ public class Network {
 	*	2: delete file
 	*	3: update file
 	*	4: completed file
-	*	5: 
 	*/
 	
 	/**
@@ -240,7 +239,7 @@ public class Network {
 	* @param size The filesize of the new file
 	* @param hash The new SHA256 value of the file
 	*/
-	public void sendMUCNewFile(String filename, long size, String hash){
+	public void sendMUCNewFile(String filename, long size, byte[] hash){
 		if(!this.joinedAChannel){
 			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
 			return;
@@ -259,7 +258,8 @@ public class Network {
 		
 		try{
 			this.muc.sendMessage(newMessage);
-			Constants.log.addMsg("XMPP: -NEW- " + filename + " - " + size + "Bytes - " + hash,2);	
+			Constants.log.addMsg("Sending XMPP: -NEW- " + filename + " - " + size + "Bytes - " 
+				+ FileHandle.toHexHash(hash),2);	
 		}catch(XMPPException xe){
 			Constants.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe,4);
 		}
@@ -286,7 +286,7 @@ public class Network {
 		
 		try{
 			this.muc.sendMessage(newMessage);	
-			Constants.log.addMsg("XMPP: -DELETE- " + filename,2);	
+			Constants.log.addMsg("Sending XMPP: -DELETE- " + filename,2);	
 		}catch(XMPPException xe){
 			Constants.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe,4);
 		}
@@ -301,7 +301,7 @@ public class Network {
 	* @param list A list of the blocks that changed with this update (only IDs)
 	* @param hash The new SHA256 value of the file
 	*/
-	public void sendMUCUpdateFile(String filename, int vers, long size, LinkedList<Integer> list, String hash){
+	public void sendMUCUpdateFile(String filename, int vers, long size, LinkedList<Integer> list, byte[] hash){
 		if(!this.joinedAChannel){
 			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
 			return;
@@ -320,10 +320,10 @@ public class Network {
 		newMessage.setProperty("blocks",list);
 		newMessage.setProperty("sha256",hash);
 		
-		System.out.println(newMessage.toXML());
 		try{
 			this.muc.sendMessage(newMessage);
-			Constants.log.addMsg("XMPP: -UPDATE- " + filename + " - Version " + vers + " - " + size + "Bytes - " + hash,2);
+			Constants.log.addMsg("Sending XMPP: -UPDATE- " + filename + " - Version " + vers + " - " + size + "Bytes - " 
+				+ FileHandle.toHexHash(hash),2);
 		}catch(XMPPException xe){
 			Constants.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe,4);
 		}
@@ -357,7 +357,7 @@ public class Network {
 		
 		try{
 			this.muc.sendMessage(newMessage);
-			Constants.log.addMsg("XMPP: -COMPLETED- " + filename + " - Version " + vers + " - " + size + "Bytes - " + hash,2);	
+			Constants.log.addMsg("Sending XMPP: -COMPLETED- " + filename + " - Version " + vers + " - " + size + "Bytes - " + hash,2);	
 		}catch(XMPPException xe){
 			Constants.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe,4);
 		}

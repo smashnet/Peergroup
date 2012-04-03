@@ -78,6 +78,11 @@ public class Constants {
 	public final static int LOCAL_ENTRY_DELETE = 11;
 	public final static int LOCAL_ENTRY_MODIFY = 12;
 	
+	public final static int REMOTE_ENTRY_CREATE = 20;
+	public final static int REMOTE_ENTRY_DELETE = 21;
+	public final static int REMOTE_ENTRY_MODIFY = 22;
+	public final static int REMOTE_ENTRY_COMPLETE = 23;
+		
 	public final static int STH_EVIL_HAPPENED = 666;
 	
 	/*

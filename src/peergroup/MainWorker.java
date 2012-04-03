@@ -13,9 +13,10 @@
 
 package peergroup;
 
-import java.util.List;
+import java.util.*;
 import java.io.*;
 import name.pachler.nio.file.*;
+import org.jivesoftware.smack.packet.*;
 
 /**
  * The MainWorker processes the requests enqueued by the StorageWorker
@@ -48,7 +49,7 @@ public class MainWorker extends Thread {
 		for(File newFile : test.listFiles() ){
 			if(newFile.isFile()){
 				Constants.log.addMsg("Found: " + newFile.getName(),2);
-				Constants.requestQueue.offer(new Request(Constants.LOCAL_ENTRY_CREATE,newFile.getName()));
+				Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_ENTRY_CREATE,newFile.getName()));
 			}
 		}
 		
@@ -60,16 +61,28 @@ public class MainWorker extends Thread {
 				Request nextRequest = Constants.requestQueue.take();
 				switch(nextRequest.getID()){
 					case Constants.LOCAL_ENTRY_CREATE:
-						handleLocalEntryCreate(nextRequest);
+						handleLocalEntryCreate((FSRequest)nextRequest);
 						break;
 					case Constants.LOCAL_ENTRY_DELETE:
-						handleLocalEntryDelete(nextRequest);
+						handleLocalEntryDelete((FSRequest)nextRequest);
 						break;
 					case Constants.LOCAL_ENTRY_MODIFY:
-						handleLocalEntryModify(nextRequest);
+						handleLocalEntryModify((FSRequest)nextRequest);
+						break;
+					case Constants.REMOTE_ENTRY_CREATE:
+						handleRemoteEntryCreate((XMPPRequest)nextRequest);
+						break;
+					case Constants.REMOTE_ENTRY_DELETE:
+						handleRemoteEntryDelete((XMPPRequest)nextRequest);
+						break;
+					case Constants.REMOTE_ENTRY_MODIFY:
+						handleRemoteEntryModify((XMPPRequest)nextRequest);
+						break;
+					case Constants.REMOTE_ENTRY_COMPLETE:
+						handleRemoteEntryComplete((XMPPRequest)nextRequest);
 						break;
 					case Constants.STH_EVIL_HAPPENED:
-						handleEvilEvents(nextRequest);
+						handleEvilEvents((FSRequest)nextRequest);
 					default:
 				}
 			}catch(InterruptedException ie){
@@ -79,7 +92,12 @@ public class MainWorker extends Thread {
 		Constants.log.addMsg("Main thread interrupted. Closing...",4);
 	}
 	
-	private void handleEvilEvents(Request request){
+	/**
+	* This one is invoked, if something reeeaallly evil happened. The program is shut down.
+	*
+	* @param request The request containing error information
+	*/
+	private void handleEvilEvents(FSRequest request){
 		Constants.log.addMsg("Something evil happened: " + request.getContent(),1);
 		
 		Constants.storage.stopStorageWorker();
@@ -92,27 +110,111 @@ public class MainWorker extends Thread {
 	}
 	
 	/**
-	* Add new local file to file list and propagate via XMPP
+	* Add new local file to file-list and propagate via XMPP
+	*
+	* @param request The request containing the new filename
 	*/
-	private void handleLocalEntryCreate(Request request){
+	private void handleLocalEntryCreate(FSRequest request){
+		if(myStorage.fileExists(request.getContent())){
+			return;
+		}
 		FileHandle newFile = this.myStorage.addFileFromLocal(request.getContent());
 		if(newFile != null)
-			this.myNetwork.sendMUCNewFile(newFile.getPath(),newFile.getSize(),newFile.getHexHash());
+			this.myNetwork.sendMUCNewFile(newFile.getPath(),newFile.getSize(),newFile.getByteHash());
 	}
 	
-	private void handleLocalEntryDelete(Request request){
+	/**
+	* Removes file from file-list and propagates deletion via XMPP
+	*
+	* @param request The request containing the filename of the deleted file
+	*/
+	private void handleLocalEntryDelete(FSRequest request){
 		this.myStorage.removeFile(request.getContent());
 		this.myNetwork.sendMUCDeleteFile(request.getContent());
 	}
 	
-	private void handleLocalEntryModify(Request request){
+	/**
+	* Checks a local file for changes and modifies its FileHandle appropriately.
+	* Afterwards the change is published via XMPP.
+	*
+	* @param request The request containing the filename of the changed file
+	*/
+	private void handleLocalEntryModify(FSRequest request){
 		FileHandle newFile = this.myStorage.modifyFileFromLocal(request.getContent());
 		if(newFile != null){
 			this.myNetwork.sendMUCUpdateFile(newFile.getPath(),newFile.getVersion(),
-				newFile.getSize(),newFile.getUpdatedBlocks(),newFile.getHexHash());
+				newFile.getSize(),newFile.getUpdatedBlocks(),newFile.getByteHash());
 			newFile.clearUpdatedBlocks();
 		}
-			
 	}
-    
+	
+	/**
+	* Process a new remotely created file
+	*
+	* @param request The request containing the XMPP Message object, including its properties
+	*/
+	private void handleRemoteEntryCreate(XMPPRequest request){
+		/*
+		* Someone announced a new file via XMPP
+		* Available information:
+		* "JID","IP","name","size","sha256"
+		*/
+		
+		Message in = request.getContent();
+		
+		String jid 	= (String)in.getProperty("JID");
+		String ip 	= (String)in.getProperty("IP");
+		String name = (String)in.getProperty("name");
+		long size 	= ((Long)in.getProperty("size")).longValue();
+		byte[] hash = (byte[])in.getProperty("sha256");
+		
+		// TODO: Change linked list and cSize!
+		myStorage.xmppNewFile(name,hash,size,new LinkedList<FileChunk>(), 0);
+	}
+	
+	/**
+	* Process a remotely deleted file
+	*
+	* @param request The request containing the XMPP Message object, including its properties
+	*/
+	private void handleRemoteEntryDelete(XMPPRequest request){
+		/*
+		* Someone announced a delete via XMPP
+		* Available information:
+		* "JID","name"
+		*/
+		
+		Message in = request.getContent();
+	}
+	
+	/**
+	* Process a remotely modified file
+	*
+	* @param request The request containing the XMPP Message object, including its properties
+	*/
+	private void handleRemoteEntryModify(XMPPRequest request){
+		/*
+		* Someone announced a fileupdate via XMPP
+		* Available information:
+		* "JID","IP","name","version","size","blocks","sha256"
+		*/
+		
+		Message in = request.getContent();
+	}
+	
+	/**
+	* Note that a remote node completed the download of a file. This especially means,
+	* that this node has all recent blocks available for upload.
+	*
+	* @param request The request containing the XMPP Message object, including its properties
+	*/
+	private void handleRemoteEntryComplete(XMPPRequest request){
+		/*
+		* Someone announced that a file download is completed
+		* Available information:
+		* "JID","IP","name","version","size","sha256"
+		*/
+		
+		Message in = request.getContent();
+	}
 }

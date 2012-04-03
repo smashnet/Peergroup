@@ -76,21 +76,49 @@ public class NetworkWorker extends Thread {
 			* TODO: Proper handling of cases
 			*/
 			switch(type){
-				case 1: // someone announced a new file via XMPP
+				case 1: 
+					/*
+					* Someone announced a new file via XMPP
+					* Available information:
+					* "JID","IP","name","size","sha256"
+					*/
+						
 					filename = (String)newMessage.getProperty("name");
 					Constants.log.addMsg("New file discovered via XMPP: " + filename + " Lamport: " + msgLamp);
+					Constants.requestQueue.offer(new XMPPRequest(Constants.REMOTE_ENTRY_CREATE,newMessage));
 					break;
-				case 2: // someone announced a delete via XMPP
+				case 2: 
+					/*
+					* Someone announced a delete via XMPP
+					* Available information:
+					* "JID","name"
+					*/
+					
 					filename = (String)newMessage.getProperty("name");
 					Constants.log.addMsg("File deletion discovered via XMPP: " + filename + " Lamport: " + msgLamp);
+					Constants.requestQueue.offer(new XMPPRequest(Constants.REMOTE_ENTRY_DELETE,newMessage));
 					break;
-				case 3: // someone announced a fileupdate via XMPP
+				case 3: 
+					/*
+					* Someone announced a fileupdate via XMPP
+					* Available information:
+					* "JID","IP","name","version","size","blocks","sha256"
+					*/
+					
 					filename = (String)newMessage.getProperty("name");
 					Constants.log.addMsg("File update discovered via XMPP: " + filename + " Lamport: " + msgLamp);
+					Constants.requestQueue.offer(new XMPPRequest(Constants.REMOTE_ENTRY_MODIFY,newMessage));
 					break;
-				case 4: // someone announced that a file download is completed
+				case 4: 
+					/*
+					* Someone announced that a file download is completed
+					* Available information:
+					* "JID","IP","name","version","size","sha256"
+					*/
+					
 					filename = (String)newMessage.getProperty("name");
 					Constants.log.addMsg("Completed file download discovered via XMPP: " + filename + " Lamport: " + msgLamp);
+					Constants.requestQueue.offer(new XMPPRequest(Constants.REMOTE_ENTRY_COMPLETE,newMessage));
 				default:
 			}
 		}

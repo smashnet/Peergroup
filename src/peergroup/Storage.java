@@ -55,21 +55,6 @@ public class Storage {
 	}
 	
 	/**
-	* Adds a remote file to the storage list
-	*
-	* @param filename the filename+path (e.g. subdir/file.txt)
-	* @param vers the fileversion
-	* @param fileHash the SHA-256 value of the file
-	* @param fileSize the size of the file in bytes
-	* @param chunks the list of chunks for this file
-	*/
-	public void addFileFromXMPP(String filename, int vers, byte[] fileHash, long fileSize, LinkedList<FileChunk> chunks, int cSize) throws Exception{
-		FileHandle newFile = new FileHandle(Constants.rootDirectory + filename,vers,fileHash,fileSize,chunks,cSize);
-		this.files.add(newFile);
-		this.fileListVersion++;
-	}
-	
-	/**
 	* Removes a file from the storage list
 	*
 	* @param file the filename+path (e.g. subdir/file.txt)
@@ -116,6 +101,40 @@ public class Storage {
 		//Constants.log.addMsg(this.toString(),4);
 		
 		return null;
+	}
+	
+	/**
+	* Adds a remote file to the storage list
+	*
+	* @param filename the filename+path (e.g. subdir/file.txt)
+	* @param fileHash the SHA-256 value of the file
+	* @param fileSize the size of the file in bytes
+	* @param chunks the list of chunks for this file
+	*/
+	public void xmppNewFile(String filename, byte[] fileHash, long fileSize, LinkedList<FileChunk> chunks, int cSize){
+		try{
+			FileHandle newFile = new FileHandle(filename,fileHash,fileSize,chunks,cSize);
+			newFile.createEmptyLocalFile();
+			this.files.add(newFile);
+			this.fileListVersion++;
+		}catch(Exception e){
+			Constants.log.addMsg("Couldn't create FileHandle for new file from XMPP!",2);
+		}
+	}
+	
+	/**
+	* Checks if a file already exists in the list
+	*
+	* @param filename The filename (without rootDirectory)
+	* @return true if file exists, else false
+	*/
+	public boolean fileExists(String filename){
+		for(FileHandle f : this.files){
+			if(filename.equals(f.getPath())){
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public File getDirHandle(){

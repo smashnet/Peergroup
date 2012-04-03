@@ -98,10 +98,10 @@ public class StorageWorker extends Thread {
 		    for(WatchEvent e : list){
 				if(e.kind() == StandardWatchEventKind.ENTRY_CREATE){
 					Path context = (Path)e.context();
-					Constants.requestQueue.offer(new Request(Constants.LOCAL_ENTRY_CREATE,context.toString()));
+					Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_ENTRY_CREATE,context.toString()));
 				} else if(e.kind() == StandardWatchEventKind.ENTRY_DELETE){
 					Path context = (Path)e.context();
-					Constants.requestQueue.offer(new Request(Constants.LOCAL_ENTRY_DELETE,context.toString()));
+					Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_ENTRY_DELETE,context.toString()));
 				} else if(e.kind() == StandardWatchEventKind.ENTRY_MODIFY){
 					Path context = (Path)e.context();
 					/*
@@ -114,7 +114,7 @@ public class StorageWorker extends Thread {
 					if(os.equals("Linux") || os.equals("Windows")){
 						insertElement(Constants.modifyQueue,new ModifyEvent(context.toString()));						
 					}else{
-						Constants.requestQueue.offer(new Request(Constants.LOCAL_ENTRY_MODIFY,context.toString()));
+						Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_ENTRY_MODIFY,context.toString()));
 					}
 				} else if(e.kind() == StandardWatchEventKind.OVERFLOW){
 					Constants.log.addMsg("OVERFLOW: more changes happened than we could retreive",4);

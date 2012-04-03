@@ -76,7 +76,8 @@ public class Logger {
 	*
 	* @return tmp the string
 	*/
-	private String getTimeString(){		
+	private String getTimeString(){
+		this.cal = Calendar.getInstance();
 		String tmp = "[" + getYear() + "/" 
 		        + getMonth() + "/" 
 		        + getDayOfMonth() + " " 

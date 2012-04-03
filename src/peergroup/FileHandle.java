@@ -117,27 +117,18 @@ public class FileHandle {
 	/**
 	* Use this constructor for files to be received via network
 	*/
-    public FileHandle(String filename, int vers, byte[] fileHash, long fileSize, LinkedList<FileChunk> chunks, int chunkSize) 
+    public FileHandle(String filename, byte[] fileHash, long fileSize, LinkedList<FileChunk> chunks, int chunkSize) 
     throws Exception{ 
         this.file = new File(Constants.rootDirectory + filename);
-		this.fileVersion = vers;
+		this.fileVersion = 0;
         this.hash = fileHash;
         this.size = fileSize;
 		this.chunks = chunks;
 		this.chunkSize = chunkSize;
 		this.complete = false;
 		this.updatedBlocks = new LinkedList<Integer>();
-        Constants.log.addMsg("FileHandle: New file via network: " + filename
+        Constants.log.addMsg("FileHandle: New file from network: " + filename
 								+ " (Size: " + this.size + ", Hash: " + this.getHexHash() + ")", 3);
-		// Create empty file on disk
-		try{
-			this.file.createNewFile();
-			RandomAccessFile out = new RandomAccessFile(this.file,"rwd");
-			out.setLength(this.size);
-			out.close();
-		}catch(IOException ioe){
-			Constants.log.addMsg("FileHandle: Cannot create new file from network: " + ioe,4);
-		}
     }
     
 	/**
@@ -274,6 +265,21 @@ public class FileHandle {
 	}
 	
 	/**
+	* Creates an empty file to reserve space on local storage
+	*/
+	public void createEmptyLocalFile(){
+		// Create empty file on disk
+		try{
+			this.file.createNewFile();
+			RandomAccessFile out = new RandomAccessFile(this.file,"rwd");
+			out.setLength(this.size);
+			out.close();
+		}catch(IOException ioe){
+			Constants.log.addMsg("FileHandle: Cannot create new file from network: " + ioe,4);
+		}
+	}
+	
+	/**
 	* This updates all parameters and increments the fileversion, 
 	* if a filechange is received via XMPP.
 	*/
@@ -333,7 +339,7 @@ public class FileHandle {
 	* @param in the byte array
 	* @return the hex string
 	*/
-    public String toHexHash(byte[] in){
+    public static String toHexHash(byte[] in){
         StringBuilder hexString = new StringBuilder();
     	for (int i=0;i<in.length;i++) {
     	  hexString.append(Integer.toHexString(0xFF & in[i]));

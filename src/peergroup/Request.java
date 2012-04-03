@@ -18,39 +18,32 @@ package peergroup;
  *
  * @author Nicolas Inden
  */
-public class Request {
+public abstract class Request {
 	
 	/**
 	* The type specifies what kind of request this is
 	*/
-	private int type;
+	protected int type;
 	
 	/**
 	* The lamport time for this request (to reconstruct an ordering of requests)
 	*/
-	private long lamportTime;
-	
-	/**
-	* The content of this request
-	*/
-	private String content;
+	protected long lamportTime;
     
 	/**
 	* Constructor to use if no lamport time is given or necessary
 	*/
-	public Request(int newID, String newContent){
+	public Request(int newID){
 		this.type = newID;
 		this.lamportTime = -1;
-		this.content = newContent;
 	}
 	
 	/**
 	* Constructor to use if lamport timestamps are needed
 	*/
-	public Request(int newID, long newLamp, String newContent){
+	public Request(int newID, long newLamp){
 		this.type = newID;
 		this.lamportTime = newLamp;
-		this.content = newContent;
 	}
 	
 	public void setID(int newID){
@@ -61,19 +54,11 @@ public class Request {
 		this.lamportTime = newLamp;
 	}
 	
-	public void setContent(String newContent){
-		this.content = newContent;
-	}
-	
 	public int getID(){
 		return this.type;
 	}
 	
 	public long getLamportTime(){
 		return this.lamportTime;
-	}
-	
-	public String getContent(){
-		return this.content;
 	}
 }

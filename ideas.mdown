@@ -41,5 +41,5 @@ Message Types
 Stuff
 =====
 
-* ignore jpathwatch for files being downloaded
+* ignore jpathwatch for files being downloaded <---- !!!!!!!
 * FileHandle ~line 253 What about chunk version in additional new chunks?
