@@ -13,33 +13,10 @@ Receiving
 Message tmp = chat.nextMessage();
 String myIP = (String)tmp.getProperty("ip");
 
-Message Types
----------------
-
-* New file
-	* IP
-	* filename
-	* size (in bytes)
-	* sha256
-* Delete file
-	* filename
-	* sha256
-* Update file
-	* IP
-	* filename
-	* fileversion
-	* size
-	* new blocks
-	* sha256
-* Completed file
-	* IP
-	* filename
-	* fileversion
-	* size
-	* sha256
-
 Stuff
 =====
 
-* ignore jpathwatch for files being downloaded <---- !!!!!!!
+* stop FS events caused network activity
+	- process remoteAffectedItems list in MainWorker
+* new peer, get current FileSystem and merge with local directory
 * FileHandle ~line 253 What about chunk version in additional new chunks?

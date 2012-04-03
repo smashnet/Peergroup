@@ -14,6 +14,7 @@
 package peergroup;
 
 import java.util.concurrent.*;
+import java.util.LinkedList;
 
 /**
  * This class is the saving point for all globally used constants
@@ -39,6 +40,11 @@ public class Constants {
 	* under Windows and Linux
 	*/
 	public static ConcurrentLinkedQueue<ModifyEvent> modifyQueue = new ConcurrentLinkedQueue<ModifyEvent>();
+	
+	/*
+	* A list of files currently causing filesystem activity due to network updates
+	*/
+	public static volatile LinkedList<String> remoteAffectedItems = new LinkedList<String>();
 	
 	/**
 	* Global ID counters
@@ -88,6 +94,7 @@ public class Constants {
 	/*
 	* Stuff
 	*/
+	public static boolean enableModQueue = false;
 	public static String ipAddress = "";
 	public static int p2pPort = 43334;
 	public static boolean caughtSignal = false;

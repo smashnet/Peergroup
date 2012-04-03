@@ -220,7 +220,7 @@ public class FileHandle {
 		this.hash = calcHash(this.file);
 		this.size = this.file.length();
         
-        while((bytesRead = stream.read(buffer)) != -1){
+        while((bytesRead = stream.read(buffer)) > 0){
 			//change is within existent chunks
             if(id < this.chunks.size()){ 
 				// new chunk hash != old chunk hash
@@ -271,9 +271,9 @@ public class FileHandle {
 		// Create empty file on disk
 		try{
 			this.file.createNewFile();
-			RandomAccessFile out = new RandomAccessFile(this.file,"rwd");
+			/*RandomAccessFile out = new RandomAccessFile(this.file,"rwd");
 			out.setLength(this.size);
-			out.close();
+			out.close();*/
 		}catch(IOException ioe){
 			Constants.log.addMsg("FileHandle: Cannot create new file from network: " + ioe,4);
 		}
@@ -360,6 +360,16 @@ public class FileHandle {
         
         return hexString.toString();
     }
+	
+	/**
+	* Returns the SHA256 value for the specified block
+	*
+	* @param no The no of the chunk
+	* @return The hash of the chunk as String
+	*/
+	public String getChunkHash(int no){
+		return toHexHash(this.chunks.get(no).getHash());
+	}
 	
 	/**
 	* Returns a list of blocks that have updated with the last call of localUpdate()

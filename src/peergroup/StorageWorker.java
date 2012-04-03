@@ -111,7 +111,7 @@ public class StorageWorker extends Thread {
 					* if there are files that haven't got modified in the last second, these are then enqueued in the
 					* request queue.
 					*/
-					if(os.equals("Linux") || os.equals("Windows")){
+					if(Constants.enableModQueue){
 						insertElement(Constants.modifyQueue,new ModifyEvent(context.toString()));						
 					}else{
 						Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_ENTRY_MODIFY,context.toString()));

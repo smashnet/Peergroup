@@ -43,8 +43,7 @@ public class Peergroup {
 				Constants.caughtSignal = true;
 				Constants.storage.stopStorageWorker();
 				Constants.network.stopNetworkWorker();
-				if(System.getProperty("os.name").equals("Linux") 
-					|| System.getProperty("os.name").equals("Windows 7")){
+				if(Constants.enableModQueue){
 					Constants.modQueue.interrupt();
 				}
 				Constants.main.interrupt();
@@ -58,6 +57,9 @@ public class Peergroup {
         Constants.log.addMsg("Starting " + Constants.PROGNAME + " " 
 			+ Constants.VERSION + " on " + os + " " + System.getProperty("os.version"),2);
         
+		if(os.equals("Linux") || os.equals("Windows 7"))
+				Constants.enableModQueue = true;
+		
         getCmdArgs(args);
 		getExternalIP();
 		
@@ -75,7 +77,7 @@ public class Peergroup {
 		Constants.network.start();
 		Constants.main.start();
 		
-		if(os.equals("Linux") || os.equals("Windows 7")){
+		if(Constants.enableModQueue){
 			Constants.modQueue = new ModifyQueueWorker();
 			Constants.modQueue.start();
 		}
@@ -85,7 +87,7 @@ public class Peergroup {
 			Constants.main.join();
 			Constants.storage.join();
 			Constants.network.join();
-			if(os.equals("Linux") || os.equals("Windows 7")){
+			if(Constants.enableModQueue){
 				Constants.modQueue.join();
 			}
 		}catch(InterruptedException ie){
@@ -158,6 +160,10 @@ public class Peergroup {
 				Constants.ipAddress = s;
 				Constants.log.addMsg("Set external IP to: " + Constants.ipAddress,3);
 			}
+			if(s.equals("-modQueue")){
+				Constants.enableModQueue = true;
+				Constants.log.addMsg("Manually enabled ModifyEvent Queue",3);
+			}
 			last = s;
         }
     }
@@ -176,8 +182,9 @@ public class Peergroup {
 		out += "\t-XMPPport\t[PORT]\tset the XMPP server port (default: 5222)\n";
 		out += "\t-chan\t[CHANNEL]\tset the conference channel to join (e.g. foo@conference.jabber.bar.com)\n";
 		out += "\t-ip\t[IP]\t\tmanually set your external IP (the IP is usually guessed by the program)\n";
-		out += "\t-port\t[PORT]\t\tset the port for P2P data exchange (default: 43334)";
+		out += "\t-port\t[PORT]\t\tset the port for P2P data exchange (default: 43334)\n";
 		out += "\t-limit\t[LIMIT]\t\tset the amount of space you want to share in MB (default: 2048MB)\n";
+		out += "\t-modQueue\t\tforce ModifyEvent Queue (default: only on linux and windows OS)\n";
 		return out;
 	}
     

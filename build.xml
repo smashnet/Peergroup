@@ -44,7 +44,7 @@
 	<!-- targets to run-->
 	
 	<!-- default target, will export the client and the java doc -->
-	<target name="all" depends="jar, javadoc, clean"/>
+	<target name="all" depends="jar, clean"/>
 	
 	<!-- JUnit-Test  target -->
 	<target name="test" depends="compile-tests">

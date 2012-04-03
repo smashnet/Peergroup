@@ -102,8 +102,7 @@ public class MainWorker extends Thread {
 		
 		Constants.storage.stopStorageWorker();
 		Constants.network.stopNetworkWorker();
-		if(System.getProperty("os.name").equals("Linux") 
-			|| System.getProperty("os.name").equals("Windows")){
+		if(Constants.enableModQueue){
 			Constants.modQueue.interrupt();
 		}
 		Constants.main.interrupt();
@@ -142,8 +141,16 @@ public class MainWorker extends Thread {
 	private void handleLocalEntryModify(FSRequest request){
 		FileHandle newFile = this.myStorage.modifyFileFromLocal(request.getContent());
 		if(newFile != null){
+			LinkedList<Integer> updated = newFile.getUpdatedBlocks();
+			LinkedList<String> updatedWithHash = new LinkedList<String>();
+			for(Integer i : updated){
+				String tmp = "";
+				tmp += i.intValue() + ":";
+				tmp += newFile.getChunkHash(i.intValue());
+				updatedWithHash.add(tmp);
+			}
 			this.myNetwork.sendMUCUpdateFile(newFile.getPath(),newFile.getVersion(),
-				newFile.getSize(),newFile.getUpdatedBlocks(),newFile.getByteHash());
+				newFile.getSize(),updatedWithHash,newFile.getByteHash());
 			newFile.clearUpdatedBlocks();
 		}
 	}
@@ -185,6 +192,7 @@ public class MainWorker extends Thread {
 		*/
 		
 		Message in = request.getContent();
+		myStorage.remoteRemoveFile((String)in.getProperty("name"));
 	}
 	
 	/**
@@ -200,6 +208,15 @@ public class MainWorker extends Thread {
 		*/
 		
 		Message in = request.getContent();
+		
+		String jid 	= (String)in.getProperty("JID");
+		String ip 	= (String)in.getProperty("IP");
+		String name = (String)in.getProperty("name");
+		int vers	= ((Integer)in.getProperty("version")).intValue();
+		long size 	= ((Long)in.getProperty("size")).longValue();
+		LinkedList<String> blocks = (LinkedList<String>)in.getProperty("blocks");
+		byte[] hash = (byte[])in.getProperty("sha256");
+		
 	}
 	
 	/**

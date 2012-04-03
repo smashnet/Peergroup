@@ -75,6 +75,26 @@ public class Storage {
 	}
 	
 	/**
+	* Removes a file from the storage list and from local storage device
+	*
+	* @param file the filename+path (e.g. subdir/file.txt)
+	*/
+	public void remoteRemoveFile(String file){
+		int i = 0;
+		while(i < this.files.size()){
+			if(this.files.get(i).getPath().equals(file)){
+				this.files.get(i).getFile().delete();
+				this.files.remove(i);
+				Constants.log.addMsg("Deleted " + file,4);
+				break;
+			}
+			i++;
+		}
+		this.fileListVersion++;
+		Constants.log.addMsg(this.toString(),4);
+	}
+	
+	/**
 	* Applies a change to a file in the file list
 	*
 	*/
@@ -89,7 +109,6 @@ public class Storage {
 					
 					Constants.log.addMsg("Updated " + this.files.get(i).getPath(),4);
 					return tmp;
-					//Constants.log.addMsg("Updating: " + this.files.get(i).toString(),4);
 				}catch(Exception ioe){
 					Constants.log.addMsg("Error updating file: " + ioe,1);
 					break;
