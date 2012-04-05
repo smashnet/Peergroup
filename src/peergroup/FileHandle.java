@@ -392,7 +392,7 @@ public class FileHandle {
 	}
 	
 	/**
-	* Returns true if filename, hash and version match
+	* Returns true if filename and hash match
 	*
 	* @param compFH The FileHandle to compare with
 	* @return true if equal, else false
@@ -403,8 +403,6 @@ public class FileHandle {
 		if(!this.getPath().equals(compFH.getPath()))
 			equal = false;
 		if(!Arrays.equals(this.hash,compFH.getByteHash()))
-			equal = false;
-		if(!(this.fileVersion == compFH.getVersion()))
 			equal = false;
 		
 		return equal;

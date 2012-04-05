@@ -24,3 +24,6 @@ Stuff
 	- File has flag "updating" + File gets updated locally during update
 * have to handle directories
 * what if file grows drastically and chunksize is changed -> complete new upload -> bad
+* think of a better approach for merging local file list with remote file list
+* when merging lists: what to do with case: same filename but different version/hash
+* implement lamport boradcast (if inconsistencies occur)

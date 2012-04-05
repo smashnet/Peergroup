@@ -162,20 +162,48 @@ public class Storage {
 	* @param remoteStorage The Storage object received from the network
 	*/
 	public void mergeWithRemoteStorage(int remoteVersion, LinkedList<FileHandle> newList){
-		// Update version number
+		// Update FileList version number
 		if(remoteVersion > this.fileListVersion){
 			this.fileListVersion = remoteVersion+1;
 		}else{
 			this.fileListVersion++;
 		}
 		
-		// Merge file lists
+		// Merge file lists (naive approach, better improve it!)
 		LinkedList<FileHandle> localOnlyFiles = new LinkedList<FileHandle>();
 		LinkedList<FileHandle> remoteOnlyFiles = new LinkedList<FileHandle>();
 		
 		for(FileHandle localFH : this.files){
-			// TODO
+			boolean exists = false;
+			for(FileHandle remoteFH : newList){
+				if(localFH.equals(remoteFH)){
+					exists = true;
+					// Update file version number for existing files
+					if(localFH.getVersion() < remoteFH.getVersion()){
+						localFH.setVersion(remoteFH.getVersion());
+					}
+				}
+			}
+			if(!exists){
+				localOnlyFiles.add(localFH);
+			}
 		}
+		
+		for(FileHandle remoteFH : newList){
+			boolean exists = false;
+			for(FileHandle localFH : this.files){
+				if(remoteFH.equals(localFH)){
+					exists = true;
+				}else{
+				
+				}
+			}
+			if(!exists){
+				remoteOnlyFiles.add(remoteFH);
+			}
+		}
+		
+		//TODO Rest
 	}
 	
 	public File getDirHandle(){
