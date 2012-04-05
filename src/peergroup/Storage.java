@@ -106,8 +106,8 @@ public class Storage {
 				try{
 					tmp = this.files.get(i);
 					tmp.localUpdate();
-					
 					Constants.log.addMsg("Updated " + this.files.get(i).getPath(),4);
+					this.fileListVersion++;
 					return tmp;
 				}catch(Exception ioe){
 					Constants.log.addMsg("Error updating file: " + ioe,1);
@@ -116,8 +116,7 @@ public class Storage {
 			}
 			i++;
 		}
-		this.fileListVersion++;
-		//Constants.log.addMsg(this.toString(),4);
+		Constants.log.addMsg("Locally modified file not found in file-list.",4);
 		
 		return null;
 	}
@@ -154,6 +153,29 @@ public class Storage {
 			}
 		}
 		return false;
+	}
+	
+	/**
+	* This performs a merge of the locally found files after the initial scan
+	* with the list of files received from network
+	*
+	* @param remoteStorage The Storage object received from the network
+	*/
+	public void mergeWithRemoteStorage(int remoteVersion, LinkedList<FileHandle> newList){
+		// Update version number
+		if(remoteVersion > this.fileListVersion){
+			this.fileListVersion = remoteVersion+1;
+		}else{
+			this.fileListVersion++;
+		}
+		
+		// Merge file lists
+		LinkedList<FileHandle> localOnlyFiles = new LinkedList<FileHandle>();
+		LinkedList<FileHandle> remoteOnlyFiles = new LinkedList<FileHandle>();
+		
+		for(FileHandle localFH : this.files){
+			// TODO
+		}
 	}
 	
 	public File getDirHandle(){

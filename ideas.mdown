@@ -20,3 +20,7 @@ Stuff
 	- process remoteAffectedItems list in MainWorker
 * new peer, get current FileSystem and merge with local directory
 * FileHandle ~line 253 What about chunk version in additional new chunks?
+* Conflicts:
+	- File has flag "updating" + File gets updated locally during update
+* have to handle directories
+* what if file grows drastically and chunksize is changed -> complete new upload -> bad

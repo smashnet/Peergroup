@@ -56,6 +56,10 @@ public class FileHandle {
 	*/
     private int chunkSize;
 	/**
+	* This boolean is set true while the file is being updated from network
+	*/
+	private boolean updating;
+	/**
 	* An indicator if the file is completely available on the local storage
 	*/
     private boolean complete;
@@ -388,6 +392,25 @@ public class FileHandle {
 	}
 	
 	/**
+	* Returns true if filename, hash and version match
+	*
+	* @param compFH The FileHandle to compare with
+	* @return true if equal, else false
+	*/
+	public boolean equals(FileHandle compFH){
+		boolean equal = true;
+		
+		if(!this.getPath().equals(compFH.getPath()))
+			equal = false;
+		if(!Arrays.equals(this.hash,compFH.getByteHash()))
+			equal = false;
+		if(!(this.fileVersion == compFH.getVersion()))
+			equal = false;
+		
+		return equal;
+	}
+	
+	/**
 	* Returns a relative path to this file/directory (e.g. /subdir/file.txt)
 	*
 	* @return a path to the file/directory relative to the document root (e.g. /subdir/file.txt)
@@ -418,6 +441,14 @@ public class FileHandle {
 	
 	public int getVersion(){
 		return this.fileVersion;
+	}
+	
+	public void setUpdating(boolean up){
+		this.updating = up;
+	}
+	
+	public boolean getUpdating(){
+		return this.updating;
 	}
     
     @Override
