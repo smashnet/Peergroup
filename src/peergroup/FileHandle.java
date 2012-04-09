@@ -441,6 +441,10 @@ public class FileHandle {
 		return this.fileVersion;
 	}
 	
+	public void setVersion(int newVers){
+		this.fileVersion = newVers;
+	}
+	
 	public void setUpdating(boolean up){
 		this.updating = up;
 	}

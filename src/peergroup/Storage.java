@@ -18,11 +18,13 @@ import java.util.List;
 import java.io.*;
 
 /**
+ * This class maintains local files, and provides information about the file list version etc.
  *
  * @author Nicolas Inden
  */
 public class Storage {
     
+	private static Storage instance = new Storage();
 	private File sharedDir;
 	private int fileListVersion;
 	private LinkedList<FileHandle> files;
@@ -32,6 +34,15 @@ public class Storage {
 		this.files = new LinkedList<FileHandle>();
 		this.sharedDir = new File(Constants.rootDirectory);
 		this.sharedDir.mkdirs();
+	}
+	
+	/**
+	* Returns the existing singleton instance of Storage, or creates a new one
+	*
+	* @return The singleton instance of Storage
+	*/
+	public static Storage getInstance(){
+		return instance;
 	}
 	
 	/**

@@ -121,6 +121,27 @@ public class NetworkWorker extends Thread {
 					filename = (String)newMessage.getProperty("name");
 					Constants.log.addMsg("Completed file download discovered via XMPP: " + filename + " Lamport: " + msgLamp);
 					Constants.requestQueue.offer(new XMPPRequest(Constants.REMOTE_ENTRY_COMPLETE,newMessage));
+					break;
+				case 5:
+					/*
+					* Someone requested your current file list version
+					* Available information:
+					* "JID"
+					*/
+				
+						//TODO
+				
+					break;
+				case 6:
+					/*
+					* Someone sent his current file list version
+					* Available information:
+					* "JID","IP","FileListVersion"
+					*/
+			
+						//TODO
+			
+					break;
 				default:
 			}
 		}

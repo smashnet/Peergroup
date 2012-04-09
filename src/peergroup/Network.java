@@ -230,6 +230,7 @@ public class Network {
 	*	2: delete file
 	*	3: update file
 	*	4: completed file
+	*	5: ask for current version (after connecting)
 	*/
 	
 	/**
@@ -363,4 +364,53 @@ public class Network {
 		}
 	}
 	
+	/**
+	* This requests others to post their file list version
+	*/	
+	public void sendMUCjoin(){
+		if(!this.joinedAChannel){
+			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
+			return;
+		}
+		Message newMessage = this.createMessageObject();
+		
+		/*
+		* Set message properties
+		*/
+		newMessage.setProperty("Type",5);
+		newMessage.setProperty("JID",Constants.getJID());
+		
+		try{
+			this.muc.sendMessage(newMessage);	
+			Constants.log.addMsg("Sending XMPP: -JOIN- ",2);	
+		}catch(XMPPException xe){
+			Constants.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe,4);
+		}
+	}
+	
+	/**
+	* This posts your current file list version
+	*/	
+	public void sendMUCpostFileListVersion(){
+		if(!this.joinedAChannel){
+			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
+			return;
+		}
+		Message newMessage = this.createMessageObject();
+		
+		/*
+		* Set message properties
+		*/
+		newMessage.setProperty("Type",6);
+		newMessage.setProperty("JID",Constants.getJID());
+		newMessage.setProperty("IP",Constants.ipAddress);
+		newMessage.setProperty("FileListVersion",Storage.getInstance().getVersion());
+		
+		try{
+			this.muc.sendMessage(newMessage);	
+			Constants.log.addMsg("Sending XMPP: -SENDFILELIST- ",2);	
+		}catch(XMPPException xe){
+			Constants.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe,4);
+		}
+	}
 }

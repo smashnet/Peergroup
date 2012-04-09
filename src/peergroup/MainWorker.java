@@ -33,7 +33,7 @@ public class MainWorker extends Thread {
 	* Creates a MainWorker.
 	*/
 	public MainWorker(){
-		this.myStorage = new Storage();
+		this.myStorage = Storage.getInstance();
 		this.myNetwork = Network.getInstance();
 	}
 	
