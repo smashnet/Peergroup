@@ -61,24 +61,31 @@ public class MainWorker extends Thread {
 				Request nextRequest = Constants.requestQueue.take();
 				switch(nextRequest.getID()){
 					case Constants.LOCAL_ENTRY_CREATE:
+						Constants.log.addMsg("MainWorker: Handling LOCAL_ENTRY_CREATE");
 						handleLocalEntryCreate((FSRequest)nextRequest);
 						break;
 					case Constants.LOCAL_ENTRY_DELETE:
+						Constants.log.addMsg("MainWorker: Handling LOCAL_ENTRY_DELETE");
 						handleLocalEntryDelete((FSRequest)nextRequest);
 						break;
 					case Constants.LOCAL_ENTRY_MODIFY:
+						Constants.log.addMsg("MainWorker: Handling LOCAL_ENTRY_MODIFY");
 						handleLocalEntryModify((FSRequest)nextRequest);
 						break;
 					case Constants.REMOTE_ENTRY_CREATE:
+						Constants.log.addMsg("MainWorker: Handling REMOTE_ENTRY_CREATE");
 						handleRemoteEntryCreate((XMPPRequest)nextRequest);
 						break;
 					case Constants.REMOTE_ENTRY_DELETE:
+						Constants.log.addMsg("MainWorker: Handling REMOTE_ENTRY_DELETE");
 						handleRemoteEntryDelete((XMPPRequest)nextRequest);
 						break;
 					case Constants.REMOTE_ENTRY_MODIFY:
+						Constants.log.addMsg("MainWorker: Handling REMOTE_ENTRY_MODIFY");
 						handleRemoteEntryModify((XMPPRequest)nextRequest);
 						break;
 					case Constants.REMOTE_ENTRY_COMPLETE:
+						Constants.log.addMsg("MainWorker: Handling REMOTE_ENTRY_COMPLETE");
 						handleRemoteEntryComplete((XMPPRequest)nextRequest);
 						break;
 					case Constants.STH_EVIL_HAPPENED:
@@ -114,7 +121,7 @@ public class MainWorker extends Thread {
 	* @param request The request containing the new filename
 	*/
 	private void handleLocalEntryCreate(FSRequest request){
-		if(myStorage.fileExists(request.getContent())){
+		if(myStorage.fileExists(request.getContent()) != null){
 			return;
 		}
 		FileHandle newFile = this.myStorage.addFileFromLocal(request.getContent());
@@ -128,6 +135,23 @@ public class MainWorker extends Thread {
 	* @param request The request containing the filename of the deleted file
 	*/
 	private void handleLocalEntryDelete(FSRequest request){
+		// Only handle local deletes
+		for(int i = 0; i < Constants.remoteAffectedItems.size(); i++){
+			if(Constants.remoteAffectedItems.get(i).equals(request.getContent())){
+				Constants.remoteAffectedItems.remove(i);
+				return;
+			}
+		}
+		// Only handle existing files
+		FileHandle tmp;
+		if((tmp = myStorage.fileExists(request.getContent())) == null){
+			return;
+		}
+		// Only handle files that are currently stable
+		if(tmp.isUpdating()){
+			return;
+		}
+		
 		this.myStorage.removeFile(request.getContent());
 		this.myNetwork.sendMUCDeleteFile(request.getContent());
 	}
@@ -149,8 +173,12 @@ public class MainWorker extends Thread {
 				tmp += newFile.getChunkHash(i.intValue());
 				updatedWithHash.add(tmp);
 			}
-			this.myNetwork.sendMUCUpdateFile(newFile.getPath(),newFile.getVersion(),
-				newFile.getSize(),updatedWithHash,newFile.getByteHash());
+			// Only send update, if updated blocks available
+			if(updatedWithHash.size() > 0){
+				this.myNetwork.sendMUCUpdateFile(newFile.getPath(),newFile.getVersion(),
+					newFile.getSize(),updatedWithHash,newFile.getByteHash());
+			}
+			
 			newFile.clearUpdatedBlocks();
 		}
 	}

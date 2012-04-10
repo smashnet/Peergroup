@@ -73,6 +73,7 @@ public class FileHandle {
      */
     public FileHandle(String filename) throws Exception{ 
         this.file = new File(filename);
+		this.updating = true;
 		this.fileVersion = 0;
         this.hash = this.calcHash(this.file);
         this.size = this.file.length();
@@ -91,6 +92,7 @@ public class FileHandle {
 			this.chunkSize = 2048000;
 		}
 		this.createChunks(this.chunkSize);
+		this.updating = false;
     }
 	
     /**
@@ -98,6 +100,7 @@ public class FileHandle {
      */
     public FileHandle(File newFile) throws Exception{ 
         this.file = newFile;
+		this.updating = true;
 		this.fileVersion = 0;
         this.hash = this.calcHash(this.file);
         this.size = this.file.length();
@@ -116,6 +119,7 @@ public class FileHandle {
 			this.chunkSize = 2048000;
 		}
 		this.createChunks(this.chunkSize);
+		this.updating = false;
     }
     
 	/**
@@ -124,6 +128,7 @@ public class FileHandle {
     public FileHandle(String filename, byte[] fileHash, long fileSize, LinkedList<FileChunk> chunks, int chunkSize) 
     throws Exception{ 
         this.file = new File(Constants.rootDirectory + filename);
+		this.updating = true;
 		this.fileVersion = 0;
         this.hash = fileHash;
         this.size = fileSize;
@@ -133,6 +138,7 @@ public class FileHandle {
 		this.updatedBlocks = new LinkedList<Integer>();
         Constants.log.addMsg("FileHandle: New file from network: " + filename
 								+ " (Size: " + this.size + ", Hash: " + this.getHexHash() + ")", 3);
+		this.updating = false;
     }
     
 	/**
@@ -449,7 +455,7 @@ public class FileHandle {
 		this.updating = up;
 	}
 	
-	public boolean getUpdating(){
+	public boolean isUpdating(){
 		return this.updating;
 	}
     

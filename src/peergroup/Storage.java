@@ -155,15 +155,15 @@ public class Storage {
 	* Checks if a file already exists in the list
 	*
 	* @param filename The filename (without rootDirectory)
-	* @return true if file exists, else false
+	* @return The FileHandle of the file, or null if doesn't exist
 	*/
-	public boolean fileExists(String filename){
+	public FileHandle fileExists(String filename){
 		for(FileHandle f : this.files){
 			if(filename.equals(f.getPath())){
-				return true;
+				return f;
 			}
 		}
-		return false;
+		return null;
 	}
 	
 	/**
