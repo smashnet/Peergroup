@@ -63,26 +63,32 @@ public class MainWorker extends Thread {
 					case Constants.LOCAL_ENTRY_CREATE:
 						Constants.log.addMsg("MainWorker: Handling LOCAL_ENTRY_CREATE");
 						handleLocalEntryCreate((FSRequest)nextRequest);
+						Constants.log.addMsg(myStorage.toString());
 						break;
 					case Constants.LOCAL_ENTRY_DELETE:
 						Constants.log.addMsg("MainWorker: Handling LOCAL_ENTRY_DELETE");
 						handleLocalEntryDelete((FSRequest)nextRequest);
+						Constants.log.addMsg(myStorage.toString());
 						break;
 					case Constants.LOCAL_ENTRY_MODIFY:
 						Constants.log.addMsg("MainWorker: Handling LOCAL_ENTRY_MODIFY");
 						handleLocalEntryModify((FSRequest)nextRequest);
+						Constants.log.addMsg(myStorage.toString());
 						break;
 					case Constants.REMOTE_ENTRY_CREATE:
 						Constants.log.addMsg("MainWorker: Handling REMOTE_ENTRY_CREATE");
 						handleRemoteEntryCreate((XMPPRequest)nextRequest);
+						Constants.log.addMsg(myStorage.toString());
 						break;
 					case Constants.REMOTE_ENTRY_DELETE:
 						Constants.log.addMsg("MainWorker: Handling REMOTE_ENTRY_DELETE");
 						handleRemoteEntryDelete((XMPPRequest)nextRequest);
+						Constants.log.addMsg(myStorage.toString());
 						break;
 					case Constants.REMOTE_ENTRY_MODIFY:
 						Constants.log.addMsg("MainWorker: Handling REMOTE_ENTRY_MODIFY");
 						handleRemoteEntryModify((XMPPRequest)nextRequest);
+						Constants.log.addMsg(myStorage.toString());
 						break;
 					case Constants.REMOTE_ENTRY_COMPLETE:
 						Constants.log.addMsg("MainWorker: Handling REMOTE_ENTRY_COMPLETE");
@@ -245,6 +251,7 @@ public class MainWorker extends Thread {
 		LinkedList<String> blocks = (LinkedList<String>)in.getProperty("blocks");
 		byte[] hash = (byte[])in.getProperty("sha256");
 		
+		myStorage.modifyFileFromXMPP(name, vers, size, blocks, hash);
 	}
 	
 	/**

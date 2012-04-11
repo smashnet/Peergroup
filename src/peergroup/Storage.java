@@ -57,7 +57,7 @@ public class Storage {
 			this.files.add(newFile);
 			Constants.log.addMsg("Adding " + newFile.toString(),4);
 			this.fileListVersion++;
-			Constants.log.addMsg(this.toString(),4);
+
 			return newFile;
 		}catch(Exception ioe){
 			Constants.log.addMsg("Local file does not exist anymore: " + ioe,4);
@@ -82,7 +82,6 @@ public class Storage {
 			i++;
 		}
 		this.fileListVersion++;
-		Constants.log.addMsg(this.toString(),4);
 	}
 	
 	/**
@@ -102,12 +101,12 @@ public class Storage {
 			i++;
 		}
 		this.fileListVersion++;
-		Constants.log.addMsg(this.toString(),4);
 	}
 	
 	/**
 	* Applies a change to a file in the file list
 	*
+	* @return The FileHandle if the file was listed, else null
 	*/
 	public FileHandle modifyFileFromLocal(String file){
 		FileHandle tmp;
@@ -116,9 +115,13 @@ public class Storage {
 			if(this.files.get(i).getPath().equals(file)){
 				try{
 					tmp = this.files.get(i);
-					tmp.localUpdate();
-					Constants.log.addMsg("Updated " + this.files.get(i).getPath(),4);
-					this.fileListVersion++;
+					if(tmp.localUpdate()){
+						Constants.log.addMsg("Updated " + this.files.get(i).getPath(),4);
+						this.fileListVersion++;
+					}else{
+						Constants.log.addMsg("No need to update something.",4);
+					}
+					
 					return tmp;
 				}catch(Exception ioe){
 					Constants.log.addMsg("Error updating file: " + ioe,1);
@@ -133,10 +136,38 @@ public class Storage {
 	}
 	
 	/**
+	* Applies a file change received via XMPP
+	*
+	* @param name The filename of the updated file
+	* @param vers The fileversion of the updated file
+	* @param size The size of the updated file in bytes
+	* @param blocks The list of blocks that need to be downloaded
+	* @param hash The SHA256 of the updated file
+	*/
+	public void modifyFileFromXMPP(String name, int vers, long size, LinkedList<String> blocks, byte[] hash){
+		FileHandle tmp;
+		int i = 0;
+		while(i < this.files.size()){
+			if(this.files.get(i).getPath().equals(name)){
+				tmp = this.files.get(i);
+				tmp.setUpdating(true);
+				tmp.setVersion(vers);
+				tmp.setSize(size);
+				tmp.setByteHash(hash);
+				tmp.updateChunkList(blocks);
+				
+				this.fileListVersion++;
+				
+				return;
+			}
+		}
+	}
+	
+	/**
 	* Adds a remote file to the storage list
 	*
 	* @param filename the filename+path (e.g. subdir/file.txt)
-	* @param fileHash the SHA-256 value of the file
+	* @param fileHash the SHA256 value of the file
 	* @param fileSize the size of the file in bytes
 	* @param chunks the list of chunks for this file
 	*/

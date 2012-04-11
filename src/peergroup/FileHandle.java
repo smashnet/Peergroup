@@ -48,7 +48,7 @@ public class FileHandle {
 	*/
     private LinkedList<FileChunk> chunks;
 	/**
-	* A linked list of FileChunk objects which this file consists of
+	* A list of the blocks that changed in the last localUpdate() invocation
 	*/
     private LinkedList<Integer> updatedBlocks;
 	/**
@@ -63,11 +63,7 @@ public class FileHandle {
 	* An indicator if the file is completely available on the local storage
 	*/
     private boolean complete;
-    
-    public FileHandle(){
         
-    }
-    
     /**
      * Use this constructor for complete files located on your device
      */
@@ -218,8 +214,10 @@ public class FileHandle {
 	/**
 	* This updates all parameters and increments the fileversion, 
 	* if a local filechange is detected.
+	*
+	* @return true if file has changed, else false
 	*/
-	public void localUpdate() throws Exception{
+	public boolean localUpdate() throws Exception{
 		Constants.log.addMsg("FileHandle: Local update triggered for " + this.file.getName()	+ " Scanning for changes!",3);
 		boolean changed = false;
 		FileInputStream stream = new FileInputStream(this.file);
@@ -227,7 +225,10 @@ public class FileHandle {
         int id = 0;
         byte[] buffer = new byte[chunkSize];
 		this.fileVersion += 1;
-		this.hash = calcHash(this.file);
+		if(!Arrays.equals(this.hash,calcHash(this.file))){
+			this.hash = calcHash(this.file);
+			changed = true;
+		}
 		this.size = this.file.length();
         
         while((bytesRead = stream.read(buffer)) > 0){
@@ -272,6 +273,21 @@ public class FileHandle {
         }
 		if(!changed)
 			Constants.log.addMsg("No changes found...",4);
+		return changed;
+	}
+	
+	/**
+	* 
+	*
+	* @param blocks The list of blocks that need to be downloaded
+	*/
+	public void updateChunkList(LinkedList<String> blocks){
+		for(String s : blocks){
+			String[] tmp = s.split(":");
+			int id = (Integer.valueOf(tmp[0])).intValue();
+			String hash = tmp[1];
+			//TODO
+		}
 	}
 	
 	/**
@@ -287,21 +303,6 @@ public class FileHandle {
 		}catch(IOException ioe){
 			Constants.log.addMsg("FileHandle: Cannot create new file from network: " + ioe,4);
 		}
-	}
-	
-	/**
-	* This updates all parameters and increments the fileversion, 
-	* if a filechange is received via XMPP.
-	*/
-	public void netUpdate(){
-		// TODO
-	}
-	
-	/**
-	* This updates the filename in the datastructure
-	*/
-	public void renameFile(){
-		// TODO
 	}
 
 	/**
@@ -341,6 +342,16 @@ public class FileHandle {
 			Constants.log.addMsg("Error skipping bytes in chunk:" + ioe, 1);
 			return null;
 		}
+	}
+	
+	/**
+	* Writes a chunk of data to the local storage
+	*
+	* @param id The chunk ID
+	* @param data The data as byte array
+	*/
+	public void setChunkData(int id, byte[] data){
+		// TODO
 	}
 	
 	/**
@@ -431,6 +442,10 @@ public class FileHandle {
 		return this.hash;
 	}
 	
+	public void setByteHash(byte[] newHash){
+		this.hash = newHash;
+	}
+	
 	public boolean isComplete(){
 		return this.complete;
 	}
@@ -441,6 +456,10 @@ public class FileHandle {
 	
 	public long getSize(){
 		return this.size;
+	}
+	
+	public void setSize(long newSize){
+		this.size = newSize;
 	}
 	
 	public int getVersion(){
