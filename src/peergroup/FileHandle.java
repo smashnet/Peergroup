@@ -78,15 +78,20 @@ public class FileHandle {
 		Constants.log.addMsg("FileHandle: New file from storage: " + this.getPath() 
 								+ " (Size: " + this.size + ", Hash: " + this.getHexHash() + ")", 3);
 		
-        if(this.size <= 512000){								// size <= 500kByte 				-> 100kByte Chunks
-			this.chunkSize = 102400;
-		}else if(this.size > 512000 && this.size <= 5120000){	// 500kByte < size <= 5000kByte 	-> 200kByte Chunks
-			this.chunkSize = 204800;
-		}else if(this.size > 5120000 && this.size <= 51200000){	// 5000kByte < size <= 50000kByte 	-> 1000kByte Chunks
-			this.chunkSize = 1024000;
-		}else if(this.size > 51200000){							// 50000kByte < size 				-> 2000kByte Chunks
-			this.chunkSize = 2048000;
-		}
+		// Use fixed chunk size for testing
+		this.chunkSize = 512000;
+		/*
+        *if(this.size <= 512000){								// size <= 500kByte 				-> 100kByte Chunks
+		*	this.chunkSize = 102400;
+		*}else if(this.size > 512000 && this.size <= 5120000){	// 500kByte < size <= 5000kByte 	-> 200kByte Chunks
+		*	this.chunkSize = 204800;
+		*}else if(this.size > 5120000 && this.size <= 51200000){	// 5000kByte < size <= 50000kByte 	-> 1000kByte Chunks
+		*	this.chunkSize = 1024000;
+		*}else if(this.size > 51200000){							// 50000kByte < size 				-> 2000kByte Chunks
+		*	this.chunkSize = 2048000;
+		*}
+		*/
+			
 		this.createChunks(this.chunkSize);
 		this.updating = false;
     }
@@ -105,15 +110,20 @@ public class FileHandle {
 		Constants.log.addMsg("FileHandle: New file from storage: " + this.getPath() 
 								+ " (Size: " + this.size + ", Hash: " + this.getHexHash() + ")", 3);
 		
-        if(this.size <= 512000){								// size <= 500kByte 				-> 100kByte Chunks
-			this.chunkSize = 102400;
-		}else if(this.size > 512000 && this.size <= 5120000){	// 500kByte < size <= 5000kByte 	-> 200kByte Chunks
-			this.chunkSize = 204800;
-		}else if(this.size > 5120000 && this.size <= 51200000){	// 5000kByte < size <= 50000kByte 	-> 1000kByte Chunks
-			this.chunkSize = 1024000;
-		}else if(this.size > 51200000){							// 50000kByte < size 				-> 2000kByte Chunks
-			this.chunkSize = 2048000;
-		}
+		// Use fixed chunk size for testing
+		this.chunkSize = 512000;
+		/*
+        *if(this.size <= 512000){								// size <= 500kByte 				-> 100kByte Chunks
+		*	this.chunkSize = 102400;
+		*}else if(this.size > 512000 && this.size <= 5120000){	// 500kByte < size <= 5000kByte 	-> 200kByte Chunks
+		*	this.chunkSize = 204800;
+		*}else if(this.size > 5120000 && this.size <= 51200000){	// 5000kByte < size <= 50000kByte 	-> 1000kByte Chunks
+		*	this.chunkSize = 1024000;
+		*}else if(this.size > 51200000){							// 50000kByte < size 				-> 2000kByte Chunks
+		*	this.chunkSize = 2048000;
+		*}
+		*/
+        
 		this.createChunks(this.chunkSize);
 		this.updating = false;
     }
