@@ -155,11 +155,12 @@ public class Storage {
 				tmp.setSize(size);
 				tmp.setByteHash(hash);
 				tmp.updateChunkList(blocks);
-				
+								
 				this.fileListVersion++;
 				
 				return;
 			}
+			i++;
 		}
 	}
 	

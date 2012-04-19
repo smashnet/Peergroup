@@ -16,6 +16,7 @@ String myIP = (String)tmp.getProperty("ip");
 Stuff
 =====
 
+* remote modify -> remote affected items -> when try to delete locally -> item in list -> no deletion
 * XMPP getMessage blocks and cannot be interrupted -> need to use stop() to stop thread -> bad
 * new peer, get current FileSystem and merge with local directory
 * FileHandle ~line 253 What about chunk version in additional new chunks?
@@ -27,3 +28,12 @@ Stuff
 * when merging lists: what to do with case: same filename but different version/hash
 	-> 
 * implement lamport boradcast (if inconsistencies occur)
+
+* Test Thrift overhead
+
+Related Work
+============
+
+* Groove
+* OneSwarm
+* old Wuala

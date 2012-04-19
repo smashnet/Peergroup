@@ -86,6 +86,13 @@
 			<mkdir dir="${tmpclasses}" />
 	</target>
 	
+	<!-- clean share directories -->
+	<target name="clean-test">
+			<delete dir="test1/share" />
+			<delete dir="test2/share" />
+			<delete dir="test3/share" />
+	</target>
+	
 	<!-- compile the source code -->
 	<target name="compile" depends="init">
 		<javac srcdir="${src}" destdir="${tmpclasses}" compiler="extJavac" source="1.6" target="1.6" debug="on"

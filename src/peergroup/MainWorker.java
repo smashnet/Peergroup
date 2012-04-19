@@ -141,20 +141,23 @@ public class MainWorker extends Thread {
 	* @param request The request containing the filename of the deleted file
 	*/
 	private void handleLocalEntryDelete(FSRequest request){
-		// Only handle local deletes
-		for(int i = 0; i < Constants.remoteAffectedItems.size(); i++){
+		// Only apply local deletes
+		/*for(int i = 0; i < Constants.remoteAffectedItems.size(); i++){
 			if(Constants.remoteAffectedItems.get(i).equals(request.getContent())){
 				Constants.remoteAffectedItems.remove(i);
 				return;
 			}
-		}
+		}*/
+		
 		// Only handle existing files
 		FileHandle tmp;
 		if((tmp = myStorage.fileExists(request.getContent())) == null){
+			Constants.log.addMsg("Cannot delete file: File does not exist in datastructure.");
 			return;
 		}
 		// Only handle files that are currently stable
 		if(tmp.isUpdating()){
+			Constants.log.addMsg("Cannot delete file: File is currently updating.");
 			return;
 		}
 		
@@ -169,6 +172,9 @@ public class MainWorker extends Thread {
 	* @param request The request containing the filename of the changed file
 	*/
 	private void handleLocalEntryModify(FSRequest request){
+		/*
+		* Still need to catch 
+		*/
 		FileHandle newFile = this.myStorage.modifyFileFromLocal(request.getContent());
 		if(newFile != null){
 			LinkedList<Integer> updated = newFile.getUpdatedBlocks();
