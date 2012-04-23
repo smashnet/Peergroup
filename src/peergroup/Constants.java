@@ -57,6 +57,7 @@ public class Constants {
 	public static MainWorker main;
 	public static StorageWorker storage;
 	public static NetworkWorker network;
+	public static ThriftServerWorker thrift;
 	public static ModifyQueueWorker modQueue;
 	    
 	/*

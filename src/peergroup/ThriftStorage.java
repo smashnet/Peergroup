@@ -31,7 +31,7 @@ public class ThriftStorage implements org.apache.thrift.TBase<ThriftStorage, Thr
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("ThriftStorage");
 
   private static final org.apache.thrift.protocol.TField VERSION_FIELD_DESC = new org.apache.thrift.protocol.TField("version", org.apache.thrift.protocol.TType.I32, (short)1);
-  private static final org.apache.thrift.protocol.TField FILES_FIELD_DESC = new org.apache.thrift.protocol.TField("files", org.apache.thrift.protocol.TType.SET, (short)2);
+  private static final org.apache.thrift.protocol.TField FILES_FIELD_DESC = new org.apache.thrift.protocol.TField("files", org.apache.thrift.protocol.TType.LIST, (short)2);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -40,7 +40,7 @@ public class ThriftStorage implements org.apache.thrift.TBase<ThriftStorage, Thr
   }
 
   public int version; // required
-  public Set<ThriftFileHandle> files; // required
+  public List<ThriftFileHandle> files; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -112,7 +112,7 @@ public class ThriftStorage implements org.apache.thrift.TBase<ThriftStorage, Thr
     tmpMap.put(_Fields.VERSION, new org.apache.thrift.meta_data.FieldMetaData("version", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.FILES, new org.apache.thrift.meta_data.FieldMetaData("files", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.SetMetaData(org.apache.thrift.protocol.TType.SET, 
+        new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
             new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, ThriftFileHandle.class))));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(ThriftStorage.class, metaDataMap);
@@ -123,7 +123,7 @@ public class ThriftStorage implements org.apache.thrift.TBase<ThriftStorage, Thr
 
   public ThriftStorage(
     int version,
-    Set<ThriftFileHandle> files)
+    List<ThriftFileHandle> files)
   {
     this();
     this.version = version;
@@ -139,7 +139,7 @@ public class ThriftStorage implements org.apache.thrift.TBase<ThriftStorage, Thr
     __isset_bit_vector.or(other.__isset_bit_vector);
     this.version = other.version;
     if (other.isSetFiles()) {
-      Set<ThriftFileHandle> __this__files = new HashSet<ThriftFileHandle>();
+      List<ThriftFileHandle> __this__files = new ArrayList<ThriftFileHandle>();
       for (ThriftFileHandle other_element : other.files) {
         __this__files.add(new ThriftFileHandle(other_element));
       }
@@ -191,16 +191,16 @@ public class ThriftStorage implements org.apache.thrift.TBase<ThriftStorage, Thr
 
   public void addToFiles(ThriftFileHandle elem) {
     if (this.files == null) {
-      this.files = new HashSet<ThriftFileHandle>();
+      this.files = new ArrayList<ThriftFileHandle>();
     }
     this.files.add(elem);
   }
 
-  public Set<ThriftFileHandle> getFiles() {
+  public List<ThriftFileHandle> getFiles() {
     return this.files;
   }
 
-  public ThriftStorage setFiles(Set<ThriftFileHandle> files) {
+  public ThriftStorage setFiles(List<ThriftFileHandle> files) {
     this.files = files;
     return this;
   }
@@ -234,7 +234,7 @@ public class ThriftStorage implements org.apache.thrift.TBase<ThriftStorage, Thr
       if (value == null) {
         unsetFiles();
       } else {
-        setFiles((Set<ThriftFileHandle>)value);
+        setFiles((List<ThriftFileHandle>)value);
       }
       break;
 
@@ -419,18 +419,18 @@ public class ThriftStorage implements org.apache.thrift.TBase<ThriftStorage, Thr
             }
             break;
           case 2: // FILES
-            if (schemeField.type == org.apache.thrift.protocol.TType.SET) {
+            if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
-                org.apache.thrift.protocol.TSet _set8 = iprot.readSetBegin();
-                struct.files = new HashSet<ThriftFileHandle>(2*_set8.size);
-                for (int _i9 = 0; _i9 < _set8.size; ++_i9)
+                org.apache.thrift.protocol.TList _list16 = iprot.readListBegin();
+                struct.files = new ArrayList<ThriftFileHandle>(_list16.size);
+                for (int _i17 = 0; _i17 < _list16.size; ++_i17)
                 {
-                  ThriftFileHandle _elem10; // required
-                  _elem10 = new ThriftFileHandle();
-                  _elem10.read(iprot);
-                  struct.files.add(_elem10);
+                  ThriftFileHandle _elem18; // required
+                  _elem18 = new ThriftFileHandle();
+                  _elem18.read(iprot);
+                  struct.files.add(_elem18);
                 }
-                iprot.readSetEnd();
+                iprot.readListEnd();
               }
               struct.setFilesIsSet(true);
             } else { 
@@ -458,12 +458,12 @@ public class ThriftStorage implements org.apache.thrift.TBase<ThriftStorage, Thr
       if (struct.files != null) {
         oprot.writeFieldBegin(FILES_FIELD_DESC);
         {
-          oprot.writeSetBegin(new org.apache.thrift.protocol.TSet(org.apache.thrift.protocol.TType.STRUCT, struct.files.size()));
-          for (ThriftFileHandle _iter11 : struct.files)
+          oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.files.size()));
+          for (ThriftFileHandle _iter19 : struct.files)
           {
-            _iter11.write(oprot);
+            _iter19.write(oprot);
           }
-          oprot.writeSetEnd();
+          oprot.writeListEnd();
         }
         oprot.writeFieldEnd();
       }
@@ -498,9 +498,9 @@ public class ThriftStorage implements org.apache.thrift.TBase<ThriftStorage, Thr
       if (struct.isSetFiles()) {
         {
           oprot.writeI32(struct.files.size());
-          for (ThriftFileHandle _iter12 : struct.files)
+          for (ThriftFileHandle _iter20 : struct.files)
           {
-            _iter12.write(oprot);
+            _iter20.write(oprot);
           }
         }
       }
@@ -516,14 +516,14 @@ public class ThriftStorage implements org.apache.thrift.TBase<ThriftStorage, Thr
       }
       if (incoming.get(1)) {
         {
-          org.apache.thrift.protocol.TSet _set13 = new org.apache.thrift.protocol.TSet(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.files = new HashSet<ThriftFileHandle>(2*_set13.size);
-          for (int _i14 = 0; _i14 < _set13.size; ++_i14)
+          org.apache.thrift.protocol.TList _list21 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+          struct.files = new ArrayList<ThriftFileHandle>(_list21.size);
+          for (int _i22 = 0; _i22 < _list21.size; ++_i22)
           {
-            ThriftFileHandle _elem15; // required
-            _elem15 = new ThriftFileHandle();
-            _elem15.read(iprot);
-            struct.files.add(_elem15);
+            ThriftFileHandle _elem23; // required
+            _elem23 = new ThriftFileHandle();
+            _elem23.read(iprot);
+            struct.files.add(_elem23);
           }
         }
         struct.setFilesIsSet(true);

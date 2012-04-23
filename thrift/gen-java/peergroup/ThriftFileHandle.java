@@ -35,7 +35,7 @@ public class ThriftFileHandle implements org.apache.thrift.TBase<ThriftFileHandl
   private static final org.apache.thrift.protocol.TField SIZE_FIELD_DESC = new org.apache.thrift.protocol.TField("size", org.apache.thrift.protocol.TType.I64, (short)3);
   private static final org.apache.thrift.protocol.TField HASH_FIELD_DESC = new org.apache.thrift.protocol.TField("hash", org.apache.thrift.protocol.TType.STRING, (short)4);
   private static final org.apache.thrift.protocol.TField CHUNK_SIZE_FIELD_DESC = new org.apache.thrift.protocol.TField("chunkSize", org.apache.thrift.protocol.TType.I32, (short)5);
-  private static final org.apache.thrift.protocol.TField CHUNKS_FIELD_DESC = new org.apache.thrift.protocol.TField("chunks", org.apache.thrift.protocol.TType.SET, (short)6);
+  private static final org.apache.thrift.protocol.TField CHUNKS_FIELD_DESC = new org.apache.thrift.protocol.TField("chunks", org.apache.thrift.protocol.TType.LIST, (short)6);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -48,7 +48,7 @@ public class ThriftFileHandle implements org.apache.thrift.TBase<ThriftFileHandl
   public long size; // required
   public String hash; // required
   public int chunkSize; // required
-  public Set<ThriftFileChunk> chunks; // required
+  public List<ThriftFileChunk> chunks; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -142,7 +142,7 @@ public class ThriftFileHandle implements org.apache.thrift.TBase<ThriftFileHandl
     tmpMap.put(_Fields.CHUNK_SIZE, new org.apache.thrift.meta_data.FieldMetaData("chunkSize", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.CHUNKS, new org.apache.thrift.meta_data.FieldMetaData("chunks", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.SetMetaData(org.apache.thrift.protocol.TType.SET, 
+        new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
             new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, ThriftFileChunk.class))));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(ThriftFileHandle.class, metaDataMap);
@@ -157,7 +157,7 @@ public class ThriftFileHandle implements org.apache.thrift.TBase<ThriftFileHandl
     long size,
     String hash,
     int chunkSize,
-    Set<ThriftFileChunk> chunks)
+    List<ThriftFileChunk> chunks)
   {
     this();
     this.filename = filename;
@@ -187,7 +187,7 @@ public class ThriftFileHandle implements org.apache.thrift.TBase<ThriftFileHandl
     }
     this.chunkSize = other.chunkSize;
     if (other.isSetChunks()) {
-      Set<ThriftFileChunk> __this__chunks = new HashSet<ThriftFileChunk>();
+      List<ThriftFileChunk> __this__chunks = new ArrayList<ThriftFileChunk>();
       for (ThriftFileChunk other_element : other.chunks) {
         __this__chunks.add(new ThriftFileChunk(other_element));
       }
@@ -339,16 +339,16 @@ public class ThriftFileHandle implements org.apache.thrift.TBase<ThriftFileHandl
 
   public void addToChunks(ThriftFileChunk elem) {
     if (this.chunks == null) {
-      this.chunks = new HashSet<ThriftFileChunk>();
+      this.chunks = new ArrayList<ThriftFileChunk>();
     }
     this.chunks.add(elem);
   }
 
-  public Set<ThriftFileChunk> getChunks() {
+  public List<ThriftFileChunk> getChunks() {
     return this.chunks;
   }
 
-  public ThriftFileHandle setChunks(Set<ThriftFileChunk> chunks) {
+  public ThriftFileHandle setChunks(List<ThriftFileChunk> chunks) {
     this.chunks = chunks;
     return this;
   }
@@ -414,7 +414,7 @@ public class ThriftFileHandle implements org.apache.thrift.TBase<ThriftFileHandl
       if (value == null) {
         unsetChunks();
       } else {
-        setChunks((Set<ThriftFileChunk>)value);
+        setChunks((List<ThriftFileChunk>)value);
       }
       break;
 
@@ -751,18 +751,18 @@ public class ThriftFileHandle implements org.apache.thrift.TBase<ThriftFileHandl
             }
             break;
           case 6: // CHUNKS
-            if (schemeField.type == org.apache.thrift.protocol.TType.SET) {
+            if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
-                org.apache.thrift.protocol.TSet _set0 = iprot.readSetBegin();
-                struct.chunks = new HashSet<ThriftFileChunk>(2*_set0.size);
-                for (int _i1 = 0; _i1 < _set0.size; ++_i1)
+                org.apache.thrift.protocol.TList _list8 = iprot.readListBegin();
+                struct.chunks = new ArrayList<ThriftFileChunk>(_list8.size);
+                for (int _i9 = 0; _i9 < _list8.size; ++_i9)
                 {
-                  ThriftFileChunk _elem2; // required
-                  _elem2 = new ThriftFileChunk();
-                  _elem2.read(iprot);
-                  struct.chunks.add(_elem2);
+                  ThriftFileChunk _elem10; // required
+                  _elem10 = new ThriftFileChunk();
+                  _elem10.read(iprot);
+                  struct.chunks.add(_elem10);
                 }
-                iprot.readSetEnd();
+                iprot.readListEnd();
               }
               struct.setChunksIsSet(true);
             } else { 
@@ -806,12 +806,12 @@ public class ThriftFileHandle implements org.apache.thrift.TBase<ThriftFileHandl
       if (struct.chunks != null) {
         oprot.writeFieldBegin(CHUNKS_FIELD_DESC);
         {
-          oprot.writeSetBegin(new org.apache.thrift.protocol.TSet(org.apache.thrift.protocol.TType.STRUCT, struct.chunks.size()));
-          for (ThriftFileChunk _iter3 : struct.chunks)
+          oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.chunks.size()));
+          for (ThriftFileChunk _iter11 : struct.chunks)
           {
-            _iter3.write(oprot);
+            _iter11.write(oprot);
           }
-          oprot.writeSetEnd();
+          oprot.writeListEnd();
         }
         oprot.writeFieldEnd();
       }
@@ -870,9 +870,9 @@ public class ThriftFileHandle implements org.apache.thrift.TBase<ThriftFileHandl
       if (struct.isSetChunks()) {
         {
           oprot.writeI32(struct.chunks.size());
-          for (ThriftFileChunk _iter4 : struct.chunks)
+          for (ThriftFileChunk _iter12 : struct.chunks)
           {
-            _iter4.write(oprot);
+            _iter12.write(oprot);
           }
         }
       }
@@ -904,14 +904,14 @@ public class ThriftFileHandle implements org.apache.thrift.TBase<ThriftFileHandl
       }
       if (incoming.get(5)) {
         {
-          org.apache.thrift.protocol.TSet _set5 = new org.apache.thrift.protocol.TSet(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.chunks = new HashSet<ThriftFileChunk>(2*_set5.size);
-          for (int _i6 = 0; _i6 < _set5.size; ++_i6)
+          org.apache.thrift.protocol.TList _list13 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+          struct.chunks = new ArrayList<ThriftFileChunk>(_list13.size);
+          for (int _i14 = 0; _i14 < _list13.size; ++_i14)
           {
-            ThriftFileChunk _elem7; // required
-            _elem7 = new ThriftFileChunk();
-            _elem7.read(iprot);
-            struct.chunks.add(_elem7);
+            ThriftFileChunk _elem15; // required
+            _elem15 = new ThriftFileChunk();
+            _elem15.read(iprot);
+            struct.chunks.add(_elem15);
           }
         }
         struct.setChunksIsSet(true);

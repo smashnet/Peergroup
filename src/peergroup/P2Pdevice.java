@@ -30,11 +30,16 @@ public class P2Pdevice {
 	* The ip of the P2Pdevice as String
 	*/	
 	private String ip;
+	
+	/**
+	* The port of the P2Pdevice as int
+	*/	
+	private int port;
 
 	/**
-	* The user of the P2Pdevice as String
+	* The jid of the P2Pdevice as String
 	*/
-	private String user;
+	private String jid;
 
 	/**
 	* Default constructor
@@ -46,9 +51,26 @@ public class P2Pdevice {
 	/**
 	* Use this constructor to add a new P2Pdevice
 	*/
-	public P2Pdevice(String newUser,String newIP){
+	public P2Pdevice(String newJID,String newIP, int newPort){
 		this.id = Constants.p2pCount++;
-		this.user = newUser;
+		this.jid = newJID;
 		this.ip = newIP;
+		this.port = newPort;
+	}
+	
+	public int getID(){
+		return this.id;
+	}
+	
+	public String getIP(){
+		return this.ip;
+	}
+	
+	public int getPort(){
+		return this.port;
+	}
+	
+	public String getJID(){
+		return this.jid;
 	}
 }

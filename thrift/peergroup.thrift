@@ -57,14 +57,18 @@ namespace java peergroup
 namespace php peergroup
 namespace perl peergroup
 
-/**
-* Information about a specific DataBlock
-*/
+struct ThriftP2PDevice {
+	1: i32 id,
+	2: string ip,
+	3: i32 port,
+	4: string jid
+}
+
 struct ThriftFileChunk {
-	1: string filename,
-	2: i32 chunkID,
-	3: string hash,
-	4: i32 blockVersion
+	1: i32 chunkID,
+	2: string hash,
+	3: i32 blockVersion,
+	4: list<ThriftP2PDevice> devices
 }
 
 struct ThriftFileHandle {
@@ -73,15 +77,15 @@ struct ThriftFileHandle {
 	3: i64 size, 
 	4: string hash,
 	5: i32 chunkSize,
-	6: set<ThriftFileChunk> chunks
+	6: list<ThriftFileChunk> chunks
 }
 
 struct ThriftStorage {
 	1: i32 version,
-	2: set<ThriftFileHandle> files 
+	2: list<ThriftFileHandle> files 
 }
 
 service DataTransfer {
-	ThriftStorage getStorage(1:i32 version),
+	ThriftStorage getStorage(),
 	binary getDataBlock(1:string filename, 2:i32 blockID, 3:i32 blockVersion)
 }

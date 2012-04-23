@@ -71,6 +71,19 @@ public class FileChunk {
 		this.complete = compl;
 	}
 	
+	/**
+	* Returns the hash of this chunk as readable hex string
+	* @return the hex string
+	*/
+    public String getHexHash(){
+        StringBuilder hexString = new StringBuilder();
+    	for (int i=0;i<this.chunkHash.length;i++) {
+    	  hexString.append(Integer.toHexString(0xFF & this.chunkHash[i]));
+    	}
+        
+        return hexString.toString();
+    }
+	
 	public int getID(){
 		return this.id;
 	}

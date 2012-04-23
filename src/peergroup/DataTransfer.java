@@ -31,7 +31,7 @@ public class DataTransfer {
 
   public interface Iface {
 
-    public ThriftStorage getStorage(int version) throws org.apache.thrift.TException;
+    public ThriftStorage getStorage() throws org.apache.thrift.TException;
 
     public ByteBuffer getDataBlock(String filename, int blockID, int blockVersion) throws org.apache.thrift.TException;
 
@@ -39,7 +39,7 @@ public class DataTransfer {
 
   public interface AsyncIface {
 
-    public void getStorage(int version, org.apache.thrift.async.AsyncMethodCallback<AsyncClient.getStorage_call> resultHandler) throws org.apache.thrift.TException;
+    public void getStorage(org.apache.thrift.async.AsyncMethodCallback<AsyncClient.getStorage_call> resultHandler) throws org.apache.thrift.TException;
 
     public void getDataBlock(String filename, int blockID, int blockVersion, org.apache.thrift.async.AsyncMethodCallback<AsyncClient.getDataBlock_call> resultHandler) throws org.apache.thrift.TException;
 
@@ -65,16 +65,15 @@ public class DataTransfer {
       super(iprot, oprot);
     }
 
-    public ThriftStorage getStorage(int version) throws org.apache.thrift.TException
+    public ThriftStorage getStorage() throws org.apache.thrift.TException
     {
-      send_getStorage(version);
+      send_getStorage();
       return recv_getStorage();
     }
 
-    public void send_getStorage(int version) throws org.apache.thrift.TException
+    public void send_getStorage() throws org.apache.thrift.TException
     {
       getStorage_args args = new getStorage_args();
-      args.setVersion(version);
       sendBase("getStorage", args);
     }
 
@@ -131,24 +130,21 @@ public class DataTransfer {
       super(protocolFactory, clientManager, transport);
     }
 
-    public void getStorage(int version, org.apache.thrift.async.AsyncMethodCallback<getStorage_call> resultHandler) throws org.apache.thrift.TException {
+    public void getStorage(org.apache.thrift.async.AsyncMethodCallback<getStorage_call> resultHandler) throws org.apache.thrift.TException {
       checkReady();
-      getStorage_call method_call = new getStorage_call(version, resultHandler, this, ___protocolFactory, ___transport);
+      getStorage_call method_call = new getStorage_call(resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
       ___manager.call(method_call);
     }
 
     public static class getStorage_call extends org.apache.thrift.async.TAsyncMethodCall {
-      private int version;
-      public getStorage_call(int version, org.apache.thrift.async.AsyncMethodCallback<getStorage_call> resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+      public getStorage_call(org.apache.thrift.async.AsyncMethodCallback<getStorage_call> resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
-        this.version = version;
       }
 
       public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("getStorage", org.apache.thrift.protocol.TMessageType.CALL, 0));
         getStorage_args args = new getStorage_args();
-        args.setVersion(version);
         args.write(prot);
         prot.writeMessageEnd();
       }
@@ -230,7 +226,7 @@ public class DataTransfer {
 
       protected getStorage_result getResult(I iface, getStorage_args args) throws org.apache.thrift.TException {
         getStorage_result result = new getStorage_result();
-        result.success = iface.getStorage(args.version);
+        result.success = iface.getStorage();
         return result;
       }
     }
@@ -256,7 +252,6 @@ public class DataTransfer {
   public static class getStorage_args implements org.apache.thrift.TBase<getStorage_args, getStorage_args._Fields>, java.io.Serializable, Cloneable   {
     private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("getStorage_args");
 
-    private static final org.apache.thrift.protocol.TField VERSION_FIELD_DESC = new org.apache.thrift.protocol.TField("version", org.apache.thrift.protocol.TType.I32, (short)1);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
@@ -264,11 +259,10 @@ public class DataTransfer {
       schemes.put(TupleScheme.class, new getStorage_argsTupleSchemeFactory());
     }
 
-    public int version; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-      VERSION((short)1, "version");
+;
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -283,8 +277,6 @@ public class DataTransfer {
        */
       public static _Fields findByThriftId(int fieldId) {
         switch(fieldId) {
-          case 1: // VERSION
-            return VERSION;
           default:
             return null;
         }
@@ -323,15 +315,9 @@ public class DataTransfer {
         return _fieldName;
       }
     }
-
-    // isset id assignments
-    private static final int __VERSION_ISSET_ID = 0;
-    private BitSet __isset_bit_vector = new BitSet(1);
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
       Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.VERSION, new org.apache.thrift.meta_data.FieldMetaData("version", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(getStorage_args.class, metaDataMap);
     }
@@ -339,21 +325,10 @@ public class DataTransfer {
     public getStorage_args() {
     }
 
-    public getStorage_args(
-      int version)
-    {
-      this();
-      this.version = version;
-      setVersionIsSet(true);
-    }
-
     /**
      * Performs a deep copy on <i>other</i>.
      */
     public getStorage_args(getStorage_args other) {
-      __isset_bit_vector.clear();
-      __isset_bit_vector.or(other.__isset_bit_vector);
-      this.version = other.version;
     }
 
     public getStorage_args deepCopy() {
@@ -362,51 +337,15 @@ public class DataTransfer {
 
     @Override
     public void clear() {
-      setVersionIsSet(false);
-      this.version = 0;
-    }
-
-    public int getVersion() {
-      return this.version;
-    }
-
-    public getStorage_args setVersion(int version) {
-      this.version = version;
-      setVersionIsSet(true);
-      return this;
-    }
-
-    public void unsetVersion() {
-      __isset_bit_vector.clear(__VERSION_ISSET_ID);
-    }
-
-    /** Returns true if field version is set (has been assigned a value) and false otherwise */
-    public boolean isSetVersion() {
-      return __isset_bit_vector.get(__VERSION_ISSET_ID);
-    }
-
-    public void setVersionIsSet(boolean value) {
-      __isset_bit_vector.set(__VERSION_ISSET_ID, value);
     }
 
     public void setFieldValue(_Fields field, Object value) {
       switch (field) {
-      case VERSION:
-        if (value == null) {
-          unsetVersion();
-        } else {
-          setVersion((Integer)value);
-        }
-        break;
-
       }
     }
 
     public Object getFieldValue(_Fields field) {
       switch (field) {
-      case VERSION:
-        return Integer.valueOf(getVersion());
-
       }
       throw new IllegalStateException();
     }
@@ -418,8 +357,6 @@ public class DataTransfer {
       }
 
       switch (field) {
-      case VERSION:
-        return isSetVersion();
       }
       throw new IllegalStateException();
     }
@@ -437,15 +374,6 @@ public class DataTransfer {
       if (that == null)
         return false;
 
-      boolean this_present_version = true;
-      boolean that_present_version = true;
-      if (this_present_version || that_present_version) {
-        if (!(this_present_version && that_present_version))
-          return false;
-        if (this.version != that.version)
-          return false;
-      }
-
       return true;
     }
 
@@ -462,16 +390,6 @@ public class DataTransfer {
       int lastComparison = 0;
       getStorage_args typedOther = (getStorage_args)other;
 
-      lastComparison = Boolean.valueOf(isSetVersion()).compareTo(typedOther.isSetVersion());
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-      if (isSetVersion()) {
-        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.version, typedOther.version);
-        if (lastComparison != 0) {
-          return lastComparison;
-        }
-      }
       return 0;
     }
 
@@ -492,9 +410,6 @@ public class DataTransfer {
       StringBuilder sb = new StringBuilder("getStorage_args(");
       boolean first = true;
 
-      sb.append("version:");
-      sb.append(this.version);
-      first = false;
       sb.append(")");
       return sb.toString();
     }
@@ -513,8 +428,6 @@ public class DataTransfer {
 
     private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
       try {
-        // it doesn't seem like you should have to do this, but java serialization is wacky, and doesn't call the default constructor.
-        __isset_bit_vector = new BitSet(1);
         read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
       } catch (org.apache.thrift.TException te) {
         throw new java.io.IOException(te);
@@ -539,14 +452,6 @@ public class DataTransfer {
             break;
           }
           switch (schemeField.id) {
-            case 1: // VERSION
-              if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-                struct.version = iprot.readI32();
-                struct.setVersionIsSet(true);
-              } else { 
-                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-              }
-              break;
             default:
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
           }
@@ -562,9 +467,6 @@ public class DataTransfer {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
-        oprot.writeFieldBegin(VERSION_FIELD_DESC);
-        oprot.writeI32(struct.version);
-        oprot.writeFieldEnd();
         oprot.writeFieldStop();
         oprot.writeStructEnd();
       }
@@ -582,24 +484,11 @@ public class DataTransfer {
       @Override
       public void write(org.apache.thrift.protocol.TProtocol prot, getStorage_args struct) throws org.apache.thrift.TException {
         TTupleProtocol oprot = (TTupleProtocol) prot;
-        BitSet optionals = new BitSet();
-        if (struct.isSetVersion()) {
-          optionals.set(0);
-        }
-        oprot.writeBitSet(optionals, 1);
-        if (struct.isSetVersion()) {
-          oprot.writeI32(struct.version);
-        }
       }
 
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, getStorage_args struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
-        BitSet incoming = iprot.readBitSet(1);
-        if (incoming.get(0)) {
-          struct.version = iprot.readI32();
-          struct.setVersionIsSet(true);
-        }
       }
     }
 

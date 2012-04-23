@@ -43,6 +43,7 @@ public class Peergroup {
 				Constants.caughtSignal = true;
 				Constants.storage.stopStorageWorker();
 				Constants.network.stopNetworkWorker();
+				Constants.thrift.stopThriftWorker();
 				if(Constants.enableModQueue){
 					Constants.modQueue.interrupt();
 				}
@@ -72,9 +73,11 @@ public class Peergroup {
 		Constants.main = new MainWorker();		
 		Constants.storage = new StorageWorker();
 		Constants.network = new NetworkWorker();
+		Constants.thrift = new ThriftServerWorker();
 		// -- Start Threads
 		Constants.storage.start();
 		Constants.network.start();
+		Constants.thrift.start();
 		Constants.main.start();
 		
 		if(Constants.enableModQueue){
@@ -84,9 +87,10 @@ public class Peergroup {
 		
 		// -- Wait for threads to terminate (only happens through SIGINT/SIGTERM see handler above)
 		try{
-			Constants.main.join();
 			Constants.storage.join();
 			Constants.network.join();
+			Constants.thrift.join();
+			Constants.main.join();
 			if(Constants.enableModQueue){
 				Constants.modQueue.join();
 			}

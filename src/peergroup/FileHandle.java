@@ -411,6 +411,10 @@ public class FileHandle {
 		return this.updatedBlocks;
 	}
 	
+	public LinkedList<FileChunk> getChunks(){
+		return this.chunks;
+	}
+	
 	/**
 	* Clear the list of updated blocks
 	*/
@@ -466,6 +470,10 @@ public class FileHandle {
 	
 	public long getSize(){
 		return this.size;
+	}
+	
+	public int getChunkSize(){
+		return this.chunkSize;
 	}
 	
 	public void setSize(long newSize){

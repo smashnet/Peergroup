@@ -41,6 +41,7 @@ public class MainWorker extends Thread {
 	* The run() method
 	*/
 	public void run(){
+		this.setName("Main Thread");
 		Constants.log.addMsg("Main thread started...",2);
 		
 		//Do initial scan of share directory

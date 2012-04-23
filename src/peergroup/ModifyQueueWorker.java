@@ -32,6 +32,7 @@ public class ModifyQueueWorker extends Thread {
 	* The run() method
 	*/
 	public void run(){
+		this.setName("ModifyQueue Thread");
 		Constants.log.addMsg("ModifyQueue thread started...",2);
 		while(true){
 			try{
