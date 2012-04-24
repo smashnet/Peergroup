@@ -42,10 +42,10 @@ public class MainWorker extends Thread {
 	*/
 	public void run(){
 		this.setName("Main Thread");
-		Constants.log.addMsg("Main thread started...",2);
+		Constants.log.addMsg("Main thread started...");
 		
 		//Do initial scan of share directory
-		Constants.log.addMsg("Doing initial scan of share directory...",2);
+		Constants.log.addMsg("Doing initial scan of share directory...");
 		File test = this.myStorage.getDirHandle();
 		for(File newFile : test.listFiles() ){
 			if(newFile.isFile()){
@@ -212,6 +212,7 @@ public class MainWorker extends Thread {
 		
 		String jid 	= (String)in.getProperty("JID");
 		String ip 	= (String)in.getProperty("IP");
+		int port 	= ((Integer)in.getProperty("Port")).intValue();
 		String name = (String)in.getProperty("name");
 		long size 	= ((Long)in.getProperty("size")).longValue();
 		byte[] hash = (byte[])in.getProperty("sha256");
@@ -252,13 +253,14 @@ public class MainWorker extends Thread {
 		
 		String jid 	= (String)in.getProperty("JID");
 		String ip 	= (String)in.getProperty("IP");
+		int port 	= ((Integer)in.getProperty("Port")).intValue();
 		String name = (String)in.getProperty("name");
 		int vers	= ((Integer)in.getProperty("version")).intValue();
 		long size 	= ((Long)in.getProperty("size")).longValue();
 		LinkedList<String> blocks = (LinkedList<String>)in.getProperty("blocks");
 		byte[] hash = (byte[])in.getProperty("sha256");
 		
-		myStorage.modifyFileFromXMPP(name, vers, size, blocks, hash);
+		myStorage.modifyFileFromXMPP(name, vers, size, blocks, hash, new P2Pdevice(jid,ip,port));
 	}
 	
 	/**
@@ -271,9 +273,19 @@ public class MainWorker extends Thread {
 		/*
 		* Someone announced that a file download is completed
 		* Available information:
-		* "JID","IP","name","version","size","sha256"
+		* "JID","IP","Port","name","version","size","sha256"
 		*/
 		
 		Message in = request.getContent();
+		
+		String jid 	= (String)in.getProperty("JID");
+		String ip 	= (String)in.getProperty("IP");
+		int port 	= ((Integer)in.getProperty("Port")).intValue();
+		String name = (String)in.getProperty("name");
+		int vers	= ((Integer)in.getProperty("version")).intValue();
+		long size 	= ((Long)in.getProperty("size")).longValue();
+		byte[] hash = (byte[])in.getProperty("sha256");
+		
+		myStorage.addP2PdeviceToFile(name,new P2Pdevice(jid,ip,port));
 	}
 }

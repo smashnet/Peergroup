@@ -46,16 +46,22 @@ public class NetworkWorker extends Thread {
 	*/
 	public void run(){
 		this.setName("XMPP Thread");
-		Constants.log.addMsg("Networking thread started...",2);
+		Constants.log.addMsg("Networking thread started...");
 		this.myNetwork = Network.getInstance();
 		
 		while(!isInterrupted()){
 			// read next message from XMPP
 			Message newMessage = this.myNetwork.getNextMessage();
 			
+			// catch message stanzas announcing a new channel subject
+			if(newMessage.getSubject() != null){
+				Constants.log.addMsg("Subject: " + newMessage.getSubject(),2);
+				continue;
+			}
+						
 			// messages with body are not from peergroup clients and are only displayed
 			if(newMessage.getBody() != null){
-				Constants.log.addMsg("Message: " + newMessage.getBody(),3);
+				Constants.log.addMsg("Message: " + newMessage.getBody(),2);
 				continue;
 			}
 			
@@ -80,7 +86,7 @@ public class NetworkWorker extends Thread {
 					/*
 					* Someone announced a new file via XMPP
 					* Available information:
-					* "JID","IP","name","size","sha256"
+					* "JID","IP","Port","name","size","sha256"
 					*/
 						
 					filename = (String)newMessage.getProperty("name");
@@ -103,7 +109,7 @@ public class NetworkWorker extends Thread {
 					/*
 					* Someone announced a fileupdate via XMPP
 					* Available information:
-					* "JID","IP","name","version","size","blocks","sha256"
+					* "JID","IP","Port","name","version","size","blocks","sha256"
 					*/
 					
 					filename = (String)newMessage.getProperty("name");
@@ -115,7 +121,7 @@ public class NetworkWorker extends Thread {
 					/*
 					* Someone announced that a file download is completed
 					* Available information:
-					* "JID","IP","name","version","size","sha256"
+					* "JID","IP","Port","name","version","size","sha256"
 					*/
 					
 					filename = (String)newMessage.getProperty("name");

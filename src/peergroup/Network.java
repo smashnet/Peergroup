@@ -67,7 +67,7 @@ public class Network {
 		try{
 			this.xmppCon.login(Constants.user,Constants.pass,Constants.resource);
 			Constants.log.addMsg("Successfully logged into XMPP Server as: " +
-				Constants.user + "@" + Constants.server + "/" + Constants.resource,2);
+				Constants.user + "@" + Constants.server + "/" + Constants.resource);
 		}catch(XMPPException xe){
 			Constants.log.addMsg("Failed logging into XMPP Server: " + xe,4);
 		}
@@ -82,7 +82,7 @@ public class Network {
 	private boolean xmppConnect(){
 		try{
 			this.xmppCon.connect();
-			Constants.log.addMsg("Successfully established connection to XMPP Server: " + Constants.server,2);
+			Constants.log.addMsg("Successfully established connection to XMPP Server: " + Constants.server);
 			return true;
 		}catch(XMPPException xe){
 			Constants.log.addMsg("Failed connecting to XMPP Server: " + xe,4);
@@ -113,7 +113,7 @@ public class Network {
 		try{
 			this.muc.join(user, pass, history, SmackConfiguration.getPacketReplyTimeout());
 			this.joinedAChannel = true;
-			Constants.log.addMsg("Successfully joined conference: " + roomAndServer,2);
+			Constants.log.addMsg("Successfully joined conference: " + roomAndServer);
 		}catch(XMPPException xe){
 			Constants.log.addMsg("Failed joining conference: " + roomAndServer + " " + xe,4);
 			this.joinedAChannel = false;
@@ -253,6 +253,7 @@ public class Network {
 		newMessage.setProperty("Type",1);
 		newMessage.setProperty("JID",Constants.getJID());
 		newMessage.setProperty("IP",Constants.ipAddress);
+		newMessage.setProperty("Port",Constants.p2pPort);
 		newMessage.setProperty("name",filename);
 		newMessage.setProperty("size",size);
 		newMessage.setProperty("sha256",hash);
@@ -315,6 +316,7 @@ public class Network {
 		newMessage.setProperty("Type",3);
 		newMessage.setProperty("JID",Constants.getJID());
 		newMessage.setProperty("IP",Constants.ipAddress);
+		newMessage.setProperty("Port",Constants.p2pPort);
 		newMessage.setProperty("name",filename);
 		newMessage.setProperty("version",vers);
 		newMessage.setProperty("size",size);
@@ -351,6 +353,7 @@ public class Network {
 		newMessage.setProperty("Type",4);
 		newMessage.setProperty("JID",Constants.getJID());
 		newMessage.setProperty("IP",Constants.ipAddress);
+		newMessage.setProperty("Port",Constants.p2pPort);
 		newMessage.setProperty("name",filename);
 		newMessage.setProperty("version",vers);
 		newMessage.setProperty("size",size);
@@ -404,6 +407,7 @@ public class Network {
 		newMessage.setProperty("Type",6);
 		newMessage.setProperty("JID",Constants.getJID());
 		newMessage.setProperty("IP",Constants.ipAddress);
+		newMessage.setProperty("Port",Constants.p2pPort);
 		newMessage.setProperty("FileListVersion",Storage.getInstance().getVersion());
 		
 		try{

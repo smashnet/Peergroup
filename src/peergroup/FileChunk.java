@@ -40,7 +40,15 @@ public class FileChunk {
 		this.size = s;
 		this.offset = off;
 		this.complete = compl;
+		this.peers = new LinkedList<P2Pdevice>();
     }
+	
+	public FileChunk(int no, String hash, P2Pdevice node){
+		this.id = no;
+		this.chunkHash = toByteHash(hash);
+		this.peers = new LinkedList<P2Pdevice>();
+		this.peers.add(node);
+	}
 	
     public FileChunk(int no, int vers, byte[] digest, long s, long off, boolean compl){
         this.id = no;
@@ -49,6 +57,7 @@ public class FileChunk {
 		this.size = s;
 		this.offset = off;
 		this.complete = compl;
+		this.peers = new LinkedList<P2Pdevice>();
     }
 	
 	public FileChunk(int no, byte[] digest, long s, long off, boolean compl, LinkedList<P2Pdevice> peers){
@@ -84,6 +93,34 @@ public class FileChunk {
         return hexString.toString();
     }
 	
+	/**
+	* Converts the hex string to byte[] and sets variable.
+	*/
+	public void setHexHash(String s){
+		int len = s.length();
+		byte[] data = new byte[len / 2];
+		for (int i = 0; i < len; i += 2) {
+		    data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+		                         + Character.digit(s.charAt(i+1), 16));
+		}
+		
+		this.chunkHash = data;
+	}
+	
+	/**
+	* Converts the hex string to a byte[].
+	*/
+	public static byte[] toByteHash(String s){
+		int len = s.length();
+		byte[] data = new byte[len / 2];
+		for (int i = 0; i < len; i += 2) {
+		    data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+		                         + Character.digit(s.charAt(i+1), 16));
+		}
+		
+		return data;
+	}
+	
 	public int getID(){
 		return this.id;
 	}
@@ -114,6 +151,14 @@ public class FileChunk {
 	
 	public void setPeers(LinkedList<P2Pdevice> newPeers){
 		this.peers = newPeers;
+	}
+	
+	public void addPeer(P2Pdevice node){
+		this.peers.add(node);
+	}
+	
+	public void clearPeers(){
+		this.peers.clear();
 	}
 	
 	public boolean isComplete(){

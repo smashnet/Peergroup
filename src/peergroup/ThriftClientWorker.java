@@ -14,6 +14,9 @@
 package peergroup;
 
 import java.util.*;
+import org.apache.thrift.TException;
+import org.apache.thrift.protocol.*;
+import org.apache.thrift.transport.*;
 
 /**
  * This thread requests blocks or FileList information from other peers.
@@ -39,7 +42,28 @@ public class ThriftClientWorker extends Thread {
 	* The run() method
 	*/
 	public void run(){
+		this.setName("Thriftclient " + this.id);
+		
+		
 		
 		Constants.log.addMsg("ThriftClient-Thread " + this.id + " interrupted/finished. Closing...",4);
-	}   
+	}
+	
+	private void getBlock(String name, int id, int version, P2Pdevice node){
+		TTransport transport;
+		try{
+			transport = new TSocket(node.getIP(), node.getPort());
+			TProtocol protocol = new TBinaryProtocol(transport);
+			DataTransfer.Client client = new DataTransfer.Client(protocol);
+			transport.open();
+			
+			//Do something
+			
+			transport.close();		
+		}catch(TTransportException e){
+		
+		}catch(TException e){
+		
+		}
+	}
 }

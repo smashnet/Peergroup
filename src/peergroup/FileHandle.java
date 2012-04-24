@@ -287,16 +287,36 @@ public class FileHandle {
 	}
 	
 	/**
-	* 
+	* Insert new hashes on changed blocks
 	*
 	* @param blocks The list of blocks that need to be downloaded
 	*/
-	public void updateChunkList(LinkedList<String> blocks){
+	public void updateChunkList(LinkedList<String> blocks, P2Pdevice node){
 		for(String s : blocks){
 			String[] tmp = s.split(":");
 			int id = (Integer.valueOf(tmp[0])).intValue();
 			String hash = tmp[1];
-			//TODO
+			if(id < this.chunks.size()){
+				this.chunks.get(id).setHexHash(hash);
+			}else{
+				this.chunks.add(new FileChunk(id,hash,node));
+			}
+		}
+	}
+	
+	public void addP2PdeviceToBlock(int id, P2Pdevice node){
+		this.chunks.get(id).addPeer(node);
+	}
+	
+	public void addP2PdeviceToAllBlocks(P2Pdevice node){
+		for(FileChunk f : this.chunks){
+			f.addPeer(node);
+		}
+	}
+	
+	public void clearP2Pdevices(){
+		for(FileChunk f : this.chunks){
+			f.clearPeers();
 		}
 	}
 	

@@ -194,21 +194,21 @@ public class Peergroup {
     
 	/**
 	* If the external IP was not set by the cmd-line argument, this function queries
-	* the external IP from http://automation.whatismyip.com/n09230945.asp
+	* the external IP from http://cbyte.selfip.net/getIP.php
 	* If neither an IP was set nor one was detected, Peergroup exits.
 	*/
 	private static void getExternalIP(){
 		if(!Constants.ipAddress.equals("")){
-			Constants.log.addMsg("External IP was manually set, skipping the guessing.",2);
+			Constants.log.addMsg("External IP was manually set, skipping the guessing.");
 			return;
 		}
 		try{
-			URL whatismyip = new URL("http://automation.whatismyip.com/n09230945.asp");
+			URL whatismyip = new URL("http://cbyte.selfip.net/getIP.php");
 			BufferedReader in = new BufferedReader(new InputStreamReader(
 			                whatismyip.openStream()));
 		
 			Constants.ipAddress = in.readLine();
-			Constants.log.addMsg("Found external IP: " + Constants.ipAddress,2);
+			Constants.log.addMsg("Found external IP: " + Constants.ipAddress);
 		}catch(Exception e){
 			Constants.log.addMsg("Couldn't get external IP! " + e + " Try setting it manually!",1);
 			System.exit(1);

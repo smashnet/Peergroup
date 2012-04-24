@@ -16,6 +16,8 @@ String myIP = (String)tmp.getProperty("ip");
 Stuff
 =====
 
+* on filechange clear P2Pdevice list
+
 * remote modify -> remote affected items -> when try to delete locally -> item in list -> no deletion
 * XMPP getMessage blocks and cannot be interrupted -> need to use stop() to stop thread -> bad
 * new peer, get current FileSystem and merge with local directory

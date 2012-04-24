@@ -144,7 +144,7 @@ public class Storage {
 	* @param blocks The list of blocks that need to be downloaded
 	* @param hash The SHA256 of the updated file
 	*/
-	public void modifyFileFromXMPP(String name, int vers, long size, LinkedList<String> blocks, byte[] hash){
+	public void modifyFileFromXMPP(String name, int vers, long size, LinkedList<String> blocks, byte[] hash, P2Pdevice node){
 		FileHandle tmp;
 		int i = 0;
 		while(i < this.files.size()){
@@ -154,9 +154,53 @@ public class Storage {
 				tmp.setVersion(vers);
 				tmp.setSize(size);
 				tmp.setByteHash(hash);
-				tmp.updateChunkList(blocks);
+				tmp.updateChunkList(blocks,node);
 								
 				this.fileListVersion++;
+				
+				return;
+			}
+			i++;
+		}
+	}
+	
+	/**
+	* Adds the P2Pdevice to all FileChunks of the FileHandle filename
+	*
+	* @param fileName The filename
+	* @param node The P2Pdevice
+	*/
+	public void addP2PdeviceToFile(String fileName, P2Pdevice node){
+		FileHandle tmp;
+		int i = 0;
+		while(i < this.files.size()){
+			if(this.files.get(i).getPath().equals(fileName)){
+				tmp = this.files.get(i);
+				
+				tmp.addP2PdeviceToAllBlocks(node);
+				
+				return;
+			}
+			i++;
+		}
+	}
+	
+	/**
+	* Adds the P2Pdevice to the FileChunks 'id' of the FileHandle 'filename'
+	*
+	* @param fileName The filename
+	* @param node The P2Pdevice
+	*/
+	public void addP2PdeviceToBlocks(String fileName, LinkedList<Integer> list, P2Pdevice node){
+		FileHandle tmp;
+		int i = 0;
+		while(i < this.files.size()){
+			if(this.files.get(i).getPath().equals(fileName)){
+				tmp = this.files.get(i);
+				
+				for(Integer no : list){
+					tmp.addP2PdeviceToBlock(no.intValue(),node);
+				}
 				
 				return;
 			}

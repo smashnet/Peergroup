@@ -53,7 +53,7 @@ public class StorageWorker extends Thread {
 	*/
 	public void run(){
 		this.setName("Storage Thread");
-		Constants.log.addMsg("Storage thread started...",2);
+		Constants.log.addMsg("Storage thread started...");
 		String os = System.getProperty("os.name");
 		
 		//Init WatchService
