@@ -34,6 +34,15 @@ public class FileChunk {
         
     }
     
+    public FileChunk(int no, int cSize, String newHash,P2Pdevice newNode){
+        this.id = no;
+		this.size = cSize;
+		this.offset = no*cSize;
+		this.chunkHash = toByteHash(newHash);
+		this.peers = new LinkedList<P2Pdevice>();
+		this.peers.add(newNode);
+    }
+	
     public FileChunk(int no, byte[] digest, long s, long off, boolean compl){
         this.id = no;
 		this.version = 0;

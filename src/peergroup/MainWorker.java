@@ -133,7 +133,7 @@ public class MainWorker extends Thread {
 		}
 		FileHandle newFile = this.myStorage.addFileFromLocal(request.getContent());
 		if(newFile != null)
-			this.myNetwork.sendMUCNewFile(newFile.getPath(),newFile.getSize(),newFile.getByteHash());
+			this.myNetwork.sendMUCNewFile(newFile.getPath(),newFile.getSize(),newFile.getByteHash(),newFile.getBlockIDwithHash());
 	}
 	
 	/**
@@ -173,9 +173,6 @@ public class MainWorker extends Thread {
 	* @param request The request containing the filename of the changed file
 	*/
 	private void handleLocalEntryModify(FSRequest request){
-		/*
-		* Still need to catch 
-		*/
 		FileHandle newFile = this.myStorage.modifyFileFromLocal(request.getContent());
 		if(newFile != null){
 			LinkedList<Integer> updated = newFile.getUpdatedBlocks();
@@ -205,7 +202,7 @@ public class MainWorker extends Thread {
 		/*
 		* Someone announced a new file via XMPP
 		* Available information:
-		* "JID","IP","name","size","sha256"
+		* "JID","IP","name","size","blocks","sha256"
 		*/
 		
 		Message in = request.getContent();
@@ -215,10 +212,12 @@ public class MainWorker extends Thread {
 		int port 	= ((Integer)in.getProperty("Port")).intValue();
 		String name = (String)in.getProperty("name");
 		long size 	= ((Long)in.getProperty("size")).longValue();
+		LinkedList<String> blocks = (LinkedList<String>)in.getProperty("blocks");
 		byte[] hash = (byte[])in.getProperty("sha256");
 		
-		// TODO: Change linked list and cSize!
-		myStorage.xmppNewFile(name,hash,size,new LinkedList<FileChunk>(), 0);
+		P2Pdevice remoteNode = new P2Pdevice(jid,ip,port);
+		
+		myStorage.xmppNewFile(name,hash,size,blocks, 512000,remoteNode);
 	}
 	
 	/**

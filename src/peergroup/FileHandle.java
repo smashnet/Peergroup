@@ -347,7 +347,11 @@ public class FileHandle {
 			Constants.log.addMsg("Cannot return chunkData -> no chunk list available",1);
 			return null;
 		}
-				
+		
+		if(id >= this.chunks.size()){
+			Constants.log.addMsg("Cannot return chunkData -> ID exceeds list",1);
+			return null;
+		}
 		FileChunk recent = this.chunks.get(id);
 		if(!recent.isComplete()){
 			Constants.log.addMsg("Cannot return chunkData -> no chunk not complete",1);
@@ -478,6 +482,16 @@ public class FileHandle {
 			equal = false;
 		
 		return equal;
+	}
+	
+	public LinkedList<String> getBlockIDwithHash(){
+		LinkedList<String> tmp = new LinkedList<String>();
+		for(FileChunk f : this.chunks){
+			String newBlock = f.getID() + ":" + f.getHexHash();
+			System.out.println(newBlock);
+			tmp.add(newBlock);
+		}
+		return tmp;
 	}
 	
 	/**

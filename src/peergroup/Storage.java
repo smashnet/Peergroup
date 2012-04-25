@@ -216,12 +216,32 @@ public class Storage {
 	* @param fileSize the size of the file in bytes
 	* @param chunks the list of chunks for this file
 	*/
-	public void xmppNewFile(String filename, byte[] fileHash, long fileSize, LinkedList<FileChunk> chunks, int cSize){
+	public void xmppNewFile(String filename, byte[] fileHash, long fileSize, LinkedList<String> blocks, int cSize, P2Pdevice node){
 		try{
+			LinkedList<FileChunk> chunks = new LinkedList<FileChunk>();
+			
+			//unparse ID and hashes and handle them
+			for(String s : blocks){
+				String[] tmp = s.split(":");
+				int id = (Integer.valueOf(tmp[0])).intValue();
+				String hash = tmp[1];
+				
+				chunks.add(new FileChunk(id,cSize,hash,node));
+			}
+			
 			FileHandle newFile = new FileHandle(filename,fileHash,fileSize,chunks,cSize);
 			newFile.createEmptyLocalFile();
 			this.files.add(newFile);
 			this.fileListVersion++;
+			newFile.setUpdating(true);
+			
+			for(String s : blocks){
+				String[] tmp = s.split(":");
+				int id = (Integer.valueOf(tmp[0])).intValue();
+				String hash = tmp[1];
+				
+				Constants.downloadQueue.offer(new DLRequest(Constants.DOWNLOAD_BLOCK,filename,id,hash,node));
+			}
 		}catch(Exception e){
 			Constants.log.addMsg("Couldn't create FileHandle for new file from XMPP!",2);
 		}

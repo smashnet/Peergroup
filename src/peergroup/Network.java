@@ -240,7 +240,7 @@ public class Network {
 	* @param size The filesize of the new file
 	* @param hash The new SHA256 value of the file
 	*/
-	public void sendMUCNewFile(String filename, long size, byte[] hash){
+	public void sendMUCNewFile(String filename, long size, byte[] hash, LinkedList<String> list){
 		if(!this.joinedAChannel){
 			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
 			return;
@@ -257,6 +257,7 @@ public class Network {
 		newMessage.setProperty("name",filename);
 		newMessage.setProperty("size",size);
 		newMessage.setProperty("sha256",hash);
+		newMessage.setProperty("blocks",list);
 		
 		try{
 			this.muc.sendMessage(newMessage);

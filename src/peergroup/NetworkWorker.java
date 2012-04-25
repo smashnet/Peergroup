@@ -86,7 +86,7 @@ public class NetworkWorker extends Thread {
 					/*
 					* Someone announced a new file via XMPP
 					* Available information:
-					* "JID","IP","Port","name","size","sha256"
+					* "JID","IP","Port","name","size","blocks","sha256"
 					*/
 						
 					filename = (String)newMessage.getProperty("name");
