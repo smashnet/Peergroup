@@ -757,7 +757,7 @@ public class ThriftFileHandle implements org.apache.thrift.TBase<ThriftFileHandl
                 struct.chunks = new ArrayList<ThriftFileChunk>(_list8.size);
                 for (int _i9 = 0; _i9 < _list8.size; ++_i9)
                 {
-                  ThriftFileChunk _elem10; // required
+                  ThriftFileChunk _elem10; // optional
                   _elem10 = new ThriftFileChunk();
                   _elem10.read(iprot);
                   struct.chunks.add(_elem10);
@@ -908,7 +908,7 @@ public class ThriftFileHandle implements org.apache.thrift.TBase<ThriftFileHandl
           struct.chunks = new ArrayList<ThriftFileChunk>(_list13.size);
           for (int _i14 = 0; _i14 < _list13.size; ++_i14)
           {
-            ThriftFileChunk _elem15; // required
+            ThriftFileChunk _elem15; // optional
             _elem15 = new ThriftFileChunk();
             _elem15.read(iprot);
             struct.chunks.add(_elem15);

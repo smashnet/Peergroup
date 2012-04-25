@@ -309,6 +309,15 @@ public class Storage {
 		return this.files;
 	}
 	
+	public FileHandle getFileHandle(String name){
+		for(FileHandle f : this.files){
+			if(f.getPath().equals(name)){
+				return f;
+			}
+		}
+		return null;
+	}
+	
 	public void setFileList(LinkedList<FileHandle> newList){
 		this.files = newList;
 	}

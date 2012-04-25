@@ -14,6 +14,7 @@
 package peergroup;
 
 import java.util.LinkedList;
+import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
 /**
  *
@@ -85,12 +86,15 @@ public class FileChunk {
 	* @return the hex string
 	*/
     public String getHexHash(){
-        StringBuilder hexString = new StringBuilder();
+        /*StringBuilder hexString = new StringBuilder();
     	for (int i=0;i<this.chunkHash.length;i++) {
     	  hexString.append(Integer.toHexString(0xFF & this.chunkHash[i]));
     	}
         
-        return hexString.toString();
+        return hexString.toString();*/
+		HexBinaryAdapter adapter = new HexBinaryAdapter();
+	    String hash = adapter.marshal(this.chunkHash);
+	    return hash;
     }
 	
 	/**

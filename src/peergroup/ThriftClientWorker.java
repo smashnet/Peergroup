@@ -14,6 +14,7 @@
 package peergroup;
 
 import java.util.*;
+import java.nio.ByteBuffer;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.*;
 import org.apache.thrift.transport.*;
@@ -26,6 +27,10 @@ import org.apache.thrift.transport.*;
 public class ThriftClientWorker extends Thread {
 	
 	private int id;
+	
+	public ThriftClientWorker(){
+		
+	}
 	
 	/**
 	* Creates a ThriftClientWorker.
@@ -44,12 +49,39 @@ public class ThriftClientWorker extends Thread {
 	public void run(){
 		this.setName("Thriftclient " + this.id);
 		
-		
+		/*
+		* Main loop, takes requests from the queue and processes them
+		*/
+		while(!isInterrupted()){
+			try{
+				Request nextRequest = Constants.downloadQueue.take();
+				switch(nextRequest.getID()){
+					case Constants.DOWNLOAD_BLOCK:
+						Constants.log.addMsg("Thrift: Handling DOWNLOAD_BLOCK");
+						handleDownloadBlock((DLRequest)nextRequest);
+						break;
+					default:
+					
+				}
+			}catch(InterruptedException ie){
+				interrupt();
+			}
+		}
 		
 		Constants.log.addMsg("ThriftClient-Thread " + this.id + " interrupted/finished. Closing...",4);
 	}
 	
-	private void getBlock(String name, int id, int version, P2Pdevice node){
+	private void handleDownloadBlock(DLRequest request){
+		FileHandle tmp;
+		if((tmp = Storage.getInstance().getFileHandle(request.getName())) == null){
+			return;
+		}else{
+			byte[] swap = getBlock(request.getName(),request.getBlockID(),request.getHash(),request.getNode());
+			tmp.setChunkData(request.getBlockID(),swap);
+		}
+	}
+	
+	private byte[] getBlock(String name, int id, String hash, P2Pdevice node){
 		TTransport transport;
 		try{
 			transport = new TSocket(node.getIP(), node.getPort());
@@ -57,13 +89,21 @@ public class ThriftClientWorker extends Thread {
 			DataTransfer.Client client = new DataTransfer.Client(protocol);
 			transport.open();
 			
-			//Do something
+			ByteBuffer block = client.getDataBlock(name,id,hash);
 			
-			transport.close();		
+			transport.close();
+			
+			return block.array();
 		}catch(TTransportException e){
 		
 		}catch(TException e){
 		
 		}
+		return null;
 	}
+	
+	public void stopThriftWorker(){
+		this.interrupt();
+	}
+	
 }

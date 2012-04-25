@@ -87,5 +87,5 @@ struct ThriftStorage {
 
 service DataTransfer {
 	ThriftStorage getStorage(),
-	binary getDataBlock(1:string filename, 2:i32 blockID, 3:i32 blockVersion)
+	binary getDataBlock(1:string filename, 2:i32 blockID, 3:string hash)
 }

@@ -591,7 +591,7 @@ public class ThriftFileChunk implements org.apache.thrift.TBase<ThriftFileChunk,
                 struct.devices = new ArrayList<ThriftP2PDevice>(_list0.size);
                 for (int _i1 = 0; _i1 < _list0.size; ++_i1)
                 {
-                  ThriftP2PDevice _elem2; // required
+                  ThriftP2PDevice _elem2; // optional
                   _elem2 = new ThriftP2PDevice();
                   _elem2.read(iprot);
                   struct.devices.add(_elem2);
@@ -714,7 +714,7 @@ public class ThriftFileChunk implements org.apache.thrift.TBase<ThriftFileChunk,
           struct.devices = new ArrayList<ThriftP2PDevice>(_list5.size);
           for (int _i6 = 0; _i6 < _list5.size; ++_i6)
           {
-            ThriftP2PDevice _elem7; // required
+            ThriftP2PDevice _elem7; // optional
             _elem7 = new ThriftP2PDevice();
             _elem7.read(iprot);
             struct.devices.add(_elem7);

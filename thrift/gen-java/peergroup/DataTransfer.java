@@ -33,7 +33,7 @@ public class DataTransfer {
 
     public ThriftStorage getStorage() throws org.apache.thrift.TException;
 
-    public ByteBuffer getDataBlock(String filename, int blockID, int blockVersion) throws org.apache.thrift.TException;
+    public ByteBuffer getDataBlock(String filename, int blockID, String hash) throws org.apache.thrift.TException;
 
   }
 
@@ -41,7 +41,7 @@ public class DataTransfer {
 
     public void getStorage(org.apache.thrift.async.AsyncMethodCallback<AsyncClient.getStorage_call> resultHandler) throws org.apache.thrift.TException;
 
-    public void getDataBlock(String filename, int blockID, int blockVersion, org.apache.thrift.async.AsyncMethodCallback<AsyncClient.getDataBlock_call> resultHandler) throws org.apache.thrift.TException;
+    public void getDataBlock(String filename, int blockID, String hash, org.apache.thrift.async.AsyncMethodCallback<AsyncClient.getDataBlock_call> resultHandler) throws org.apache.thrift.TException;
 
   }
 
@@ -87,18 +87,18 @@ public class DataTransfer {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "getStorage failed: unknown result");
     }
 
-    public ByteBuffer getDataBlock(String filename, int blockID, int blockVersion) throws org.apache.thrift.TException
+    public ByteBuffer getDataBlock(String filename, int blockID, String hash) throws org.apache.thrift.TException
     {
-      send_getDataBlock(filename, blockID, blockVersion);
+      send_getDataBlock(filename, blockID, hash);
       return recv_getDataBlock();
     }
 
-    public void send_getDataBlock(String filename, int blockID, int blockVersion) throws org.apache.thrift.TException
+    public void send_getDataBlock(String filename, int blockID, String hash) throws org.apache.thrift.TException
     {
       getDataBlock_args args = new getDataBlock_args();
       args.setFilename(filename);
       args.setBlockID(blockID);
-      args.setBlockVersion(blockVersion);
+      args.setHash(hash);
       sendBase("getDataBlock", args);
     }
 
@@ -159,9 +159,9 @@ public class DataTransfer {
       }
     }
 
-    public void getDataBlock(String filename, int blockID, int blockVersion, org.apache.thrift.async.AsyncMethodCallback<getDataBlock_call> resultHandler) throws org.apache.thrift.TException {
+    public void getDataBlock(String filename, int blockID, String hash, org.apache.thrift.async.AsyncMethodCallback<getDataBlock_call> resultHandler) throws org.apache.thrift.TException {
       checkReady();
-      getDataBlock_call method_call = new getDataBlock_call(filename, blockID, blockVersion, resultHandler, this, ___protocolFactory, ___transport);
+      getDataBlock_call method_call = new getDataBlock_call(filename, blockID, hash, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
       ___manager.call(method_call);
     }
@@ -169,12 +169,12 @@ public class DataTransfer {
     public static class getDataBlock_call extends org.apache.thrift.async.TAsyncMethodCall {
       private String filename;
       private int blockID;
-      private int blockVersion;
-      public getDataBlock_call(String filename, int blockID, int blockVersion, org.apache.thrift.async.AsyncMethodCallback<getDataBlock_call> resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+      private String hash;
+      public getDataBlock_call(String filename, int blockID, String hash, org.apache.thrift.async.AsyncMethodCallback<getDataBlock_call> resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.filename = filename;
         this.blockID = blockID;
-        this.blockVersion = blockVersion;
+        this.hash = hash;
       }
 
       public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
@@ -182,7 +182,7 @@ public class DataTransfer {
         getDataBlock_args args = new getDataBlock_args();
         args.setFilename(filename);
         args.setBlockID(blockID);
-        args.setBlockVersion(blockVersion);
+        args.setHash(hash);
         args.write(prot);
         prot.writeMessageEnd();
       }
@@ -242,7 +242,7 @@ public class DataTransfer {
 
       protected getDataBlock_result getResult(I iface, getDataBlock_args args) throws org.apache.thrift.TException {
         getDataBlock_result result = new getDataBlock_result();
-        result.success = iface.getDataBlock(args.filename, args.blockID, args.blockVersion);
+        result.success = iface.getDataBlock(args.filename, args.blockID, args.hash);
         return result;
       }
     }
@@ -854,7 +854,7 @@ public class DataTransfer {
 
     private static final org.apache.thrift.protocol.TField FILENAME_FIELD_DESC = new org.apache.thrift.protocol.TField("filename", org.apache.thrift.protocol.TType.STRING, (short)1);
     private static final org.apache.thrift.protocol.TField BLOCK_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("blockID", org.apache.thrift.protocol.TType.I32, (short)2);
-    private static final org.apache.thrift.protocol.TField BLOCK_VERSION_FIELD_DESC = new org.apache.thrift.protocol.TField("blockVersion", org.apache.thrift.protocol.TType.I32, (short)3);
+    private static final org.apache.thrift.protocol.TField HASH_FIELD_DESC = new org.apache.thrift.protocol.TField("hash", org.apache.thrift.protocol.TType.STRING, (short)3);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
@@ -864,13 +864,13 @@ public class DataTransfer {
 
     public String filename; // required
     public int blockID; // required
-    public int blockVersion; // required
+    public String hash; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       FILENAME((short)1, "filename"),
       BLOCK_ID((short)2, "blockID"),
-      BLOCK_VERSION((short)3, "blockVersion");
+      HASH((short)3, "hash");
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -889,8 +889,8 @@ public class DataTransfer {
             return FILENAME;
           case 2: // BLOCK_ID
             return BLOCK_ID;
-          case 3: // BLOCK_VERSION
-            return BLOCK_VERSION;
+          case 3: // HASH
+            return HASH;
           default:
             return null;
         }
@@ -932,8 +932,7 @@ public class DataTransfer {
 
     // isset id assignments
     private static final int __BLOCKID_ISSET_ID = 0;
-    private static final int __BLOCKVERSION_ISSET_ID = 1;
-    private BitSet __isset_bit_vector = new BitSet(2);
+    private BitSet __isset_bit_vector = new BitSet(1);
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
       Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -941,8 +940,8 @@ public class DataTransfer {
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       tmpMap.put(_Fields.BLOCK_ID, new org.apache.thrift.meta_data.FieldMetaData("blockID", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-      tmpMap.put(_Fields.BLOCK_VERSION, new org.apache.thrift.meta_data.FieldMetaData("blockVersion", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+      tmpMap.put(_Fields.HASH, new org.apache.thrift.meta_data.FieldMetaData("hash", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(getDataBlock_args.class, metaDataMap);
     }
@@ -953,14 +952,13 @@ public class DataTransfer {
     public getDataBlock_args(
       String filename,
       int blockID,
-      int blockVersion)
+      String hash)
     {
       this();
       this.filename = filename;
       this.blockID = blockID;
       setBlockIDIsSet(true);
-      this.blockVersion = blockVersion;
-      setBlockVersionIsSet(true);
+      this.hash = hash;
     }
 
     /**
@@ -973,7 +971,9 @@ public class DataTransfer {
         this.filename = other.filename;
       }
       this.blockID = other.blockID;
-      this.blockVersion = other.blockVersion;
+      if (other.isSetHash()) {
+        this.hash = other.hash;
+      }
     }
 
     public getDataBlock_args deepCopy() {
@@ -985,8 +985,7 @@ public class DataTransfer {
       this.filename = null;
       setBlockIDIsSet(false);
       this.blockID = 0;
-      setBlockVersionIsSet(false);
-      this.blockVersion = 0;
+      this.hash = null;
     }
 
     public String getFilename() {
@@ -1036,27 +1035,28 @@ public class DataTransfer {
       __isset_bit_vector.set(__BLOCKID_ISSET_ID, value);
     }
 
-    public int getBlockVersion() {
-      return this.blockVersion;
+    public String getHash() {
+      return this.hash;
     }
 
-    public getDataBlock_args setBlockVersion(int blockVersion) {
-      this.blockVersion = blockVersion;
-      setBlockVersionIsSet(true);
+    public getDataBlock_args setHash(String hash) {
+      this.hash = hash;
       return this;
     }
 
-    public void unsetBlockVersion() {
-      __isset_bit_vector.clear(__BLOCKVERSION_ISSET_ID);
+    public void unsetHash() {
+      this.hash = null;
     }
 
-    /** Returns true if field blockVersion is set (has been assigned a value) and false otherwise */
-    public boolean isSetBlockVersion() {
-      return __isset_bit_vector.get(__BLOCKVERSION_ISSET_ID);
+    /** Returns true if field hash is set (has been assigned a value) and false otherwise */
+    public boolean isSetHash() {
+      return this.hash != null;
     }
 
-    public void setBlockVersionIsSet(boolean value) {
-      __isset_bit_vector.set(__BLOCKVERSION_ISSET_ID, value);
+    public void setHashIsSet(boolean value) {
+      if (!value) {
+        this.hash = null;
+      }
     }
 
     public void setFieldValue(_Fields field, Object value) {
@@ -1077,11 +1077,11 @@ public class DataTransfer {
         }
         break;
 
-      case BLOCK_VERSION:
+      case HASH:
         if (value == null) {
-          unsetBlockVersion();
+          unsetHash();
         } else {
-          setBlockVersion((Integer)value);
+          setHash((String)value);
         }
         break;
 
@@ -1096,8 +1096,8 @@ public class DataTransfer {
       case BLOCK_ID:
         return Integer.valueOf(getBlockID());
 
-      case BLOCK_VERSION:
-        return Integer.valueOf(getBlockVersion());
+      case HASH:
+        return getHash();
 
       }
       throw new IllegalStateException();
@@ -1114,8 +1114,8 @@ public class DataTransfer {
         return isSetFilename();
       case BLOCK_ID:
         return isSetBlockID();
-      case BLOCK_VERSION:
-        return isSetBlockVersion();
+      case HASH:
+        return isSetHash();
       }
       throw new IllegalStateException();
     }
@@ -1151,12 +1151,12 @@ public class DataTransfer {
           return false;
       }
 
-      boolean this_present_blockVersion = true;
-      boolean that_present_blockVersion = true;
-      if (this_present_blockVersion || that_present_blockVersion) {
-        if (!(this_present_blockVersion && that_present_blockVersion))
+      boolean this_present_hash = true && this.isSetHash();
+      boolean that_present_hash = true && that.isSetHash();
+      if (this_present_hash || that_present_hash) {
+        if (!(this_present_hash && that_present_hash))
           return false;
-        if (this.blockVersion != that.blockVersion)
+        if (!this.hash.equals(that.hash))
           return false;
       }
 
@@ -1196,12 +1196,12 @@ public class DataTransfer {
           return lastComparison;
         }
       }
-      lastComparison = Boolean.valueOf(isSetBlockVersion()).compareTo(typedOther.isSetBlockVersion());
+      lastComparison = Boolean.valueOf(isSetHash()).compareTo(typedOther.isSetHash());
       if (lastComparison != 0) {
         return lastComparison;
       }
-      if (isSetBlockVersion()) {
-        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.blockVersion, typedOther.blockVersion);
+      if (isSetHash()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.hash, typedOther.hash);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -1238,8 +1238,12 @@ public class DataTransfer {
       sb.append(this.blockID);
       first = false;
       if (!first) sb.append(", ");
-      sb.append("blockVersion:");
-      sb.append(this.blockVersion);
+      sb.append("hash:");
+      if (this.hash == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.hash);
+      }
       first = false;
       sb.append(")");
       return sb.toString();
@@ -1301,10 +1305,10 @@ public class DataTransfer {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
-            case 3: // BLOCK_VERSION
-              if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-                struct.blockVersion = iprot.readI32();
-                struct.setBlockVersionIsSet(true);
+            case 3: // HASH
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                struct.hash = iprot.readString();
+                struct.setHashIsSet(true);
               } else { 
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
@@ -1332,9 +1336,11 @@ public class DataTransfer {
         oprot.writeFieldBegin(BLOCK_ID_FIELD_DESC);
         oprot.writeI32(struct.blockID);
         oprot.writeFieldEnd();
-        oprot.writeFieldBegin(BLOCK_VERSION_FIELD_DESC);
-        oprot.writeI32(struct.blockVersion);
-        oprot.writeFieldEnd();
+        if (struct.hash != null) {
+          oprot.writeFieldBegin(HASH_FIELD_DESC);
+          oprot.writeString(struct.hash);
+          oprot.writeFieldEnd();
+        }
         oprot.writeFieldStop();
         oprot.writeStructEnd();
       }
@@ -1359,7 +1365,7 @@ public class DataTransfer {
         if (struct.isSetBlockID()) {
           optionals.set(1);
         }
-        if (struct.isSetBlockVersion()) {
+        if (struct.isSetHash()) {
           optionals.set(2);
         }
         oprot.writeBitSet(optionals, 3);
@@ -1369,8 +1375,8 @@ public class DataTransfer {
         if (struct.isSetBlockID()) {
           oprot.writeI32(struct.blockID);
         }
-        if (struct.isSetBlockVersion()) {
-          oprot.writeI32(struct.blockVersion);
+        if (struct.isSetHash()) {
+          oprot.writeString(struct.hash);
         }
       }
 
@@ -1387,8 +1393,8 @@ public class DataTransfer {
           struct.setBlockIDIsSet(true);
         }
         if (incoming.get(2)) {
-          struct.blockVersion = iprot.readI32();
-          struct.setBlockVersionIsSet(true);
+          struct.hash = iprot.readString();
+          struct.setHashIsSet(true);
         }
       }
     }

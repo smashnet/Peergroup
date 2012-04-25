@@ -18,6 +18,7 @@ import java.util.LinkedList;
 import java.util.Arrays;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
 /**
  * A FileHandle includes all information needed to work with
@@ -381,7 +382,21 @@ public class FileHandle {
 	* @param data The data as byte array
 	*/
 	public void setChunkData(int id, byte[] data){
-		// TODO
+		if(this.chunks == null){
+			Constants.log.addMsg("Cannot set chunkData -> no chunk list available",1);
+			return;
+		}
+		
+		FileChunk recent = this.chunks.get(id);
+		
+		try{
+			RandomAccessFile stream = new RandomAccessFile(this.file,"rwd");
+			stream.seek(recent.getOffset()); // Jump to correct part of the file
+			stream.write(data);
+			stream.close();
+		}catch(IOException ioe){
+			Constants.log.addMsg("Error writing to file:" + ioe, 1);
+		}
 	}
 	
 	/**
@@ -391,12 +406,15 @@ public class FileHandle {
 	* @return the hex string
 	*/
     public static String toHexHash(byte[] in){
-        StringBuilder hexString = new StringBuilder();
+        /*StringBuilder hexString = new StringBuilder();
     	for (int i=0;i<in.length;i++) {
     	  hexString.append(Integer.toHexString(0xFF & in[i]));
     	}
         
-        return hexString.toString();
+        return hexString.toString();*/
+		HexBinaryAdapter adapter = new HexBinaryAdapter();
+	    String hash = adapter.marshal(in);
+	    return hash;
     }
     
 	/**
@@ -404,12 +422,15 @@ public class FileHandle {
 	* @return the hex string
 	*/
     public String getHexHash(){
-        StringBuilder hexString = new StringBuilder();
+        /*StringBuilder hexString = new StringBuilder();
     	for (int i=0;i<this.hash.length;i++) {
     	  hexString.append(Integer.toHexString(0xFF & this.hash[i]));
     	}
         
-        return hexString.toString();
+        return hexString.toString();*/
+		HexBinaryAdapter adapter = new HexBinaryAdapter();
+	    String hash = adapter.marshal(this.hash);
+	    return hash;
     }
 	
 	/**

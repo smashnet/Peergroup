@@ -34,6 +34,7 @@ public class Constants {
 	* requests to, which are then processed by the MainWorker.
 	*/
 	public static LinkedBlockingQueue<Request> requestQueue = new LinkedBlockingQueue<Request>();
+	public static LinkedBlockingQueue<Request> downloadQueue = new LinkedBlockingQueue<Request>();
 	
 	/*
 	* Use extra queue for modify events to prevent modify-flooding on large files
@@ -58,6 +59,7 @@ public class Constants {
 	public static StorageWorker storage;
 	public static NetworkWorker network;
 	public static ThriftServerWorker thrift;
+	public static ThriftClientWorker thriftClient;
 	public static ModifyQueueWorker modQueue;
 	    
 	/*
@@ -89,6 +91,8 @@ public class Constants {
 	public final static int REMOTE_ENTRY_DELETE = 21;
 	public final static int REMOTE_ENTRY_MODIFY = 22;
 	public final static int REMOTE_ENTRY_COMPLETE = 23;
+	
+	public final static int DOWNLOAD_BLOCK = 30;
 		
 	public final static int STH_EVIL_HAPPENED = 666;
 	

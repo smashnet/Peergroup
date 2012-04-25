@@ -425,7 +425,7 @@ public class ThriftStorage implements org.apache.thrift.TBase<ThriftStorage, Thr
                 struct.files = new ArrayList<ThriftFileHandle>(_list16.size);
                 for (int _i17 = 0; _i17 < _list16.size; ++_i17)
                 {
-                  ThriftFileHandle _elem18; // required
+                  ThriftFileHandle _elem18; // optional
                   _elem18 = new ThriftFileHandle();
                   _elem18.read(iprot);
                   struct.files.add(_elem18);
@@ -520,7 +520,7 @@ public class ThriftStorage implements org.apache.thrift.TBase<ThriftStorage, Thr
           struct.files = new ArrayList<ThriftFileHandle>(_list21.size);
           for (int _i22 = 0; _i22 < _list21.size; ++_i22)
           {
-            ThriftFileHandle _elem23; // required
+            ThriftFileHandle _elem23; // optional
             _elem23 = new ThriftFileHandle();
             _elem23.read(iprot);
             struct.files.add(_elem23);

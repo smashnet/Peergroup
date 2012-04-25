@@ -44,6 +44,7 @@ public class Peergroup {
 				Constants.storage.stopStorageWorker();
 				Constants.network.stopNetworkWorker();
 				Constants.thrift.stopThriftWorker();
+				Constants.thriftClient.stopThriftWorker();
 				if(Constants.enableModQueue){
 					Constants.modQueue.interrupt();
 				}
@@ -74,10 +75,12 @@ public class Peergroup {
 		Constants.storage = new StorageWorker();
 		Constants.network = new NetworkWorker();
 		Constants.thrift = new ThriftServerWorker();
+		Constants.thriftClient = new ThriftClientWorker();
 		// -- Start Threads
 		Constants.storage.start();
 		Constants.network.start();
 		Constants.thrift.start();
+		Constants.thriftClient.start();
 		Constants.main.start();
 		
 		if(Constants.enableModQueue){
@@ -90,6 +93,7 @@ public class Peergroup {
 			Constants.storage.join();
 			Constants.network.join();
 			Constants.thrift.join();
+			Constants.thriftClient.join();
 			Constants.main.join();
 			if(Constants.enableModQueue){
 				Constants.modQueue.join();
@@ -145,7 +149,16 @@ public class Peergroup {
 					Constants.log.addMsg("Invalid port!",1);
 					System.exit(1);
 				}
-				Constants.log.addMsg("Set port to: " + Constants.port,3);
+				Constants.log.addMsg("Set XMPP port to: " + Constants.port,3);
+			}
+			if(last.equals("-P2Pport")){
+				try{
+					Constants.p2pPort = Integer.parseInt(s);
+				}catch(NumberFormatException nan){
+					Constants.log.addMsg("Invalid port!",1);
+					System.exit(1);
+				}
+				Constants.log.addMsg("Set P2P port to: " + Constants.port,3);
 			}
 			if(last.equals("-limit")){
 				try{
@@ -179,16 +192,16 @@ public class Peergroup {
 	*/
 	private static String getHelpString(){
 		String out = "";
-		out += "\t-h\t\t\tprints this help\n";
-		out += "\t-dir\t[DIR]\t\tset the shared files directory (default: ./share/)\n";
-		out += "\t-jid\t[JID]\t\tset your jabber ID (e.g. foo@jabber.bar.com)\n";
-		out += "\t-pass\t[PASS]\t\tset the password for your JID\n";
-		out += "\t-XMPPport\t[PORT]\tset the XMPP server port (default: 5222)\n";
-		out += "\t-chan\t[CHANNEL]\tset the conference channel to join (e.g. foo@conference.jabber.bar.com)\n";
-		out += "\t-ip\t[IP]\t\tmanually set your external IP (the IP is usually guessed by the program)\n";
-		out += "\t-port\t[PORT]\t\tset the port for P2P data exchange (default: 43334)\n";
-		out += "\t-limit\t[LIMIT]\t\tset the amount of space you want to share in MB (default: 2048MB)\n";
-		out += "\t-modQueue\t\tforce ModifyEvent Queue (default: only on linux and windows OS)\n";
+		out += "\t-h\t\t\t\tprints this help\n";
+		out += "\t-dir\t\t[DIR]\t\tset the shared files directory (default: ./share/)\n";
+		out += "\t-jid\t\t[JID]\t\tset your jabber ID (e.g. foo@jabber.bar.com)\n";
+		out += "\t-pass\t\t[PASS]\t\tset the password for your JID\n";
+		out += "\t-XMPPport\t[PORT]\t\tset the XMPP server port (default: 5222)\n";
+		out += "\t-chan\t\t[CHANNEL]\tset the conference channel to join (e.g. foo@conference.jabber.bar.com)\n";
+		out += "\t-ip\t\t[IP]\t\tmanually set your external IP (the IP is usually guessed by the program)\n";
+		out += "\t-P2Pport\t[PORT]\t\tset the port for P2P data exchange (default: 43334)\n";
+		out += "\t-limit\t\t[LIMIT]\t\tset the amount of space you want to share in MB (default: 2048MB)\n";
+		out += "\t-modQueue\t\t\tforce ModifyEvent Queue (default: only on linux and windows OS)\n";
 		return out;
 	}
     

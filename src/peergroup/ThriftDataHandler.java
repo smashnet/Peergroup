@@ -30,11 +30,15 @@ public class ThriftDataHandler implements DataTransfer.Iface {
 		return toThriftStorage(Storage.getInstance());
 	}
 
-    public ByteBuffer getDataBlock(String filename, int blockID, int blockVersion) throws org.apache.thrift.TException{
-		for(FileHandle f : Storage.getInstance().getFileList()){
-			//TODO
+    public ByteBuffer getDataBlock(String filename, int blockID, String hash) throws org.apache.thrift.TException{
+		FileHandle tmp;
+		if((tmp = Storage.getInstance().getFileHandle(filename)) == null){
+			return null;
+		}else{
+			byte[] swap = tmp.getChunkData(blockID);
+			ByteBuffer buffer = ByteBuffer.wrap(swap);
+			return buffer;
 		}
-		return null;
 	}
 	
 	/**
