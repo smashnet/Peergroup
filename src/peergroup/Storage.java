@@ -51,7 +51,7 @@ public class Storage {
 	* @param filename the filename
 	* @return The FileHandle added to the list
 	*/
-	public FileHandle addFileFromLocal(String filename){
+	public FileHandle newFileFromLocal(String filename){
 		try{
 			FileHandle newFile = new FileHandle(Constants.rootDirectory + filename);
 			this.files.add(newFile);
@@ -136,6 +136,45 @@ public class Storage {
 	}
 	
 	/**
+	* Adds a remote file to the storage list
+	*
+	* @param filename the filename+path (e.g. subdir/file.txt)
+	* @param fileHash the SHA256 value of the file
+	* @param fileSize the size of the file in bytes
+	* @param chunks the list of chunks for this file
+	*/
+	public void newFileFromXMPP(String filename, byte[] fileHash, long fileSize, LinkedList<String> blocks, int cSize, P2Pdevice node){
+		try{
+			LinkedList<FileChunk> chunks = new LinkedList<FileChunk>();
+			
+			//unparse ID and hashes and handle them
+			for(String s : blocks){
+				String[] tmp = s.split(":");
+				int id = (Integer.valueOf(tmp[0])).intValue();
+				//int vers = (Integer.valueOf(tmp[1])).intValue();
+				String hash = tmp[2];
+				
+				chunks.add(new FileChunk(id,0,hash,node));
+			}
+			
+			FileHandle newFile = new FileHandle(filename,fileHash,fileSize,chunks,cSize);
+			newFile.createEmptyLocalFile();
+			this.files.add(newFile);
+			this.fileListVersion++;
+			
+			for(String s : blocks){
+				String[] tmp = s.split(":");
+				int id = (Integer.valueOf(tmp[0])).intValue();
+				String hash = tmp[2];
+				
+				Constants.downloadQueue.offer(new DLRequest(Constants.DOWNLOAD_BLOCK,1,filename,id,hash,node));
+			}
+		}catch(Exception e){
+			Constants.log.addMsg("Couldn't create FileHandle for new file from XMPP!",2);
+		}
+	}
+	
+	/**
 	* Applies a file change received via XMPP
 	*
 	* @param name The filename of the updated file
@@ -144,7 +183,7 @@ public class Storage {
 	* @param blocks The list of blocks that need to be downloaded
 	* @param hash The SHA256 of the updated file
 	*/
-	public void modifyFileFromXMPP(String name, int vers, long size, LinkedList<String> blocks, byte[] hash, P2Pdevice node){
+	public void modifiedFileFromXMPP(String name, int vers, long size, LinkedList<String> blocks, byte[] hash, P2Pdevice node){
 		FileHandle tmp;
 		int i = 0;
 		while(i < this.files.size()){
@@ -154,9 +193,17 @@ public class Storage {
 				tmp.setVersion(vers);
 				tmp.setSize(size);
 				tmp.setByteHash(hash);
-				tmp.updateChunkList(blocks,node);
+				tmp.incrVersOnUnchangedBlocks(blocks,vers);
 								
 				this.fileListVersion++;
+				
+				for(String s : blocks){
+					String[] tmp1 = s.split(":");
+					int id = (Integer.valueOf(tmp1[0])).intValue();
+					String hash1 = tmp1[2];
+				
+					Constants.downloadQueue.offer(new DLRequest(Constants.DOWNLOAD_BLOCK,vers,name,id,hash1,node));
+				}
 				
 				return;
 			}
@@ -205,45 +252,6 @@ public class Storage {
 				return;
 			}
 			i++;
-		}
-	}
-	
-	/**
-	* Adds a remote file to the storage list
-	*
-	* @param filename the filename+path (e.g. subdir/file.txt)
-	* @param fileHash the SHA256 value of the file
-	* @param fileSize the size of the file in bytes
-	* @param chunks the list of chunks for this file
-	*/
-	public void xmppNewFile(String filename, byte[] fileHash, long fileSize, LinkedList<String> blocks, int cSize, P2Pdevice node){
-		try{
-			LinkedList<FileChunk> chunks = new LinkedList<FileChunk>();
-			
-			//unparse ID and hashes and handle them
-			for(String s : blocks){
-				String[] tmp = s.split(":");
-				int id = (Integer.valueOf(tmp[0])).intValue();
-				String hash = tmp[1];
-				
-				chunks.add(new FileChunk(id,cSize,hash,node));
-			}
-			
-			FileHandle newFile = new FileHandle(filename,fileHash,fileSize,chunks,cSize);
-			newFile.createEmptyLocalFile();
-			this.files.add(newFile);
-			this.fileListVersion++;
-			newFile.setUpdating(true);
-			
-			for(String s : blocks){
-				String[] tmp = s.split(":");
-				int id = (Integer.valueOf(tmp[0])).intValue();
-				String hash = tmp[1];
-				
-				Constants.downloadQueue.offer(new DLRequest(Constants.DOWNLOAD_BLOCK,filename,id,hash,node));
-			}
-		}catch(Exception e){
-			Constants.log.addMsg("Couldn't create FileHandle for new file from XMPP!",2);
 		}
 	}
 	

@@ -77,7 +77,9 @@ public class ThriftClientWorker extends Thread {
 			return;
 		}else{
 			byte[] swap = getBlock(request.getName(),request.getBlockID(),request.getHash(),request.getNode());
+			Constants.log.addMsg("Downloaded block " + request.getBlockID() + " - " + request.getName(),2);
 			tmp.setChunkData(request.getBlockID(),swap);
+			tmp.setChunkVersion(request.getBlockID(),request.getVersion());
 		}
 	}
 	

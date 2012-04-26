@@ -16,6 +16,8 @@ String myIP = (String)tmp.getProperty("ip");
 Stuff
 =====
 
+* on filechange set all unchanged blocks to new fileversion, set changed blocks _after_ they are downloaded!
+
 * on filechange clear P2Pdevice list
 
 * remote modify -> remote affected items -> when try to delete locally -> item in list -> no deletion

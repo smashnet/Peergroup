@@ -60,10 +60,6 @@ public class FileHandle {
 	* This boolean is set true while the file is being updated from network
 	*/
 	private boolean updating;
-	/**
-	* An indicator if the file is completely available on the local storage
-	*/
-    private boolean complete;
         
     /**
      * Use this constructor for complete files located on your device
@@ -71,10 +67,9 @@ public class FileHandle {
     public FileHandle(String filename) throws Exception{ 
         this.file = new File(filename);
 		this.updating = true;
-		this.fileVersion = 0;
+		this.fileVersion = 1;
         this.hash = this.calcHash(this.file);
         this.size = this.file.length();
-        this.complete = true;
 		this.updatedBlocks = new LinkedList<Integer>();
 		Constants.log.addMsg("FileHandle: New file from storage: " + this.getPath() 
 								+ " (Size: " + this.size + ", Hash: " + this.getHexHash() + ")", 3);
@@ -93,39 +88,7 @@ public class FileHandle {
 		*}
 		*/
 			
-		this.createChunks(this.chunkSize);
-		this.updating = false;
-    }
-	
-    /**
-     * Use this constructor for complete files located on your device
-     */
-    public FileHandle(File newFile) throws Exception{ 
-        this.file = newFile;
-		this.updating = true;
-		this.fileVersion = 0;
-        this.hash = this.calcHash(this.file);
-        this.size = this.file.length();
-        this.complete = true;
-		this.updatedBlocks = new LinkedList<Integer>();
-		Constants.log.addMsg("FileHandle: New file from storage: " + this.getPath() 
-								+ " (Size: " + this.size + ", Hash: " + this.getHexHash() + ")", 3);
-		
-		// Use fixed chunk size for testing
-		this.chunkSize = 512000;
-		/*
-        *if(this.size <= 512000){								// size <= 500kByte 				-> 100kByte Chunks
-		*	this.chunkSize = 102400;
-		*}else if(this.size > 512000 && this.size <= 5120000){	// 500kByte < size <= 5000kByte 	-> 200kByte Chunks
-		*	this.chunkSize = 204800;
-		*}else if(this.size > 5120000 && this.size <= 51200000){	// 5000kByte < size <= 50000kByte 	-> 1000kByte Chunks
-		*	this.chunkSize = 1024000;
-		*}else if(this.size > 51200000){							// 50000kByte < size 				-> 2000kByte Chunks
-		*	this.chunkSize = 2048000;
-		*}
-		*/
-        
-		this.createChunks(this.chunkSize);
+		this.createChunks(this.chunkSize,1);
 		this.updating = false;
     }
     
@@ -141,7 +104,6 @@ public class FileHandle {
         this.size = fileSize;
 		this.chunks = chunks;
 		this.chunkSize = chunkSize;
-		this.complete = false;
 		this.updatedBlocks = new LinkedList<Integer>();
         Constants.log.addMsg("FileHandle: New file from network: " + filename
 								+ " (Size: " + this.size + ", Hash: " + this.getHexHash() + ")", 3);
@@ -153,7 +115,7 @@ public class FileHandle {
 	* 
 	* @param size the size of a chunk (last one might be smaller)
 	*/
-    private void createChunks(int size){
+    private void createChunks(int size, int vers){
         if(!(this.chunks == null)){
             Constants.log.addMsg("(" + this.file.getName() + ") Chunklist not empty!", 4);
             return;
@@ -167,14 +129,14 @@ public class FileHandle {
 	        byte[] buffer = new byte[size];
         
 	        while((bytesRead = stream.read(buffer)) != -1){
-	            FileChunk next = new FileChunk(id,calcHash(buffer),bytesRead,id*size,true);
+	            FileChunk next = new FileChunk(id,vers,calcHash(buffer),bytesRead,id*size,true);
 	            this.chunks.add(next);
 	            id++;
 	        }
 			
 			//On empty file, also create one empty chunk
 			if(bytesRead == -1 && id == 0){
-	            FileChunk next = new FileChunk(id,calcHash(buffer),0,id*size,true);
+	            FileChunk next = new FileChunk(id,vers,calcHash(buffer),0,id*size,true);
 	            this.chunks.add(next);
 			}
 			
@@ -288,20 +250,26 @@ public class FileHandle {
 	}
 	
 	/**
-	* Insert new hashes on changed blocks
+	* Insert new hashes and version on changed blocks
 	*
 	* @param blocks The list of blocks that need to be downloaded
 	*/
 	public void updateChunkList(LinkedList<String> blocks, P2Pdevice node){
 		for(String s : blocks){
-			String[] tmp = s.split(":");
-			int id = (Integer.valueOf(tmp[0])).intValue();
-			String hash = tmp[1];
-			if(id < this.chunks.size()){
-				this.chunks.get(id).setHexHash(hash);
-			}else{
-				this.chunks.add(new FileChunk(id,hash,node));
-			}
+			updateChunk(s,node);
+		}
+	}
+	
+	public void updateChunk(String chunk, P2Pdevice node){
+		String[] tmp = chunk.split(":");
+		int id = (Integer.valueOf(tmp[0])).intValue();
+		int vers = (Integer.valueOf(tmp[1])).intValue();
+		String hash = tmp[2];
+		if(id < this.chunks.size()){
+			this.chunks.get(id).setHexHash(hash);
+			this.chunks.get(id).setVersion(vers);
+		}else{
+			this.chunks.add(new FileChunk(id,vers,hash,node));
 		}
 	}
 	
@@ -410,12 +378,6 @@ public class FileHandle {
 	* @return the hex string
 	*/
     public static String toHexHash(byte[] in){
-        /*StringBuilder hexString = new StringBuilder();
-    	for (int i=0;i<in.length;i++) {
-    	  hexString.append(Integer.toHexString(0xFF & in[i]));
-    	}
-        
-        return hexString.toString();*/
 		HexBinaryAdapter adapter = new HexBinaryAdapter();
 	    String hash = adapter.marshal(in);
 	    return hash;
@@ -426,12 +388,6 @@ public class FileHandle {
 	* @return the hex string
 	*/
     public String getHexHash(){
-        /*StringBuilder hexString = new StringBuilder();
-    	for (int i=0;i<this.hash.length;i++) {
-    	  hexString.append(Integer.toHexString(0xFF & this.hash[i]));
-    	}
-        
-        return hexString.toString();*/
 		HexBinaryAdapter adapter = new HexBinaryAdapter();
 	    String hash = adapter.marshal(this.hash);
 	    return hash;
@@ -458,6 +414,15 @@ public class FileHandle {
 	
 	public LinkedList<FileChunk> getChunks(){
 		return this.chunks;
+	}
+	
+	public void setChunkVersion(int id, int vers){
+		for(FileChunk f : this.chunks){
+			if(id == f.getID()){
+				f.setVersion(vers);
+				return;
+			}
+		}
 	}
 	
 	/**
@@ -487,11 +452,15 @@ public class FileHandle {
 	public LinkedList<String> getBlockIDwithHash(){
 		LinkedList<String> tmp = new LinkedList<String>();
 		for(FileChunk f : this.chunks){
-			String newBlock = f.getID() + ":" + f.getHexHash();
+			String newBlock = f.getID() + ":" + f.getVersion() + ":" + f.getHexHash();
 			System.out.println(newBlock);
 			tmp.add(newBlock);
 		}
 		return tmp;
+	}
+	
+	public void incrVersOnUnchangedBlocks(LinkedList<String> blocks,int vers){
+		poll
 	}
 	
 	/**
@@ -516,7 +485,12 @@ public class FileHandle {
 	}
 	
 	public boolean isComplete(){
-		return this.complete;
+		for(FileChunk f : this.chunks){
+			if(f.getVersion() != this.getVersion()){
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	public File getFile(){

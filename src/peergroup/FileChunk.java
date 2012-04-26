@@ -34,14 +34,20 @@ public class FileChunk {
         
     }
     
-    public FileChunk(int no, int cSize, String newHash,P2Pdevice newNode){
-        this.id = no;
-		this.size = cSize;
-		this.offset = no*cSize;
-		this.chunkHash = toByteHash(newHash);
+	public FileChunk(int no, String hash, P2Pdevice node){
+		this.id = no;
+		this.chunkHash = toByteHash(hash);
 		this.peers = new LinkedList<P2Pdevice>();
-		this.peers.add(newNode);
-    }
+		this.peers.add(node);
+	}
+	
+	public FileChunk(int no, int vers, String hash, P2Pdevice node){
+		this.id = no;
+		this.version = vers;
+		this.chunkHash = toByteHash(hash);
+		this.peers = new LinkedList<P2Pdevice>();
+		this.peers.add(node);
+	}
 	
     public FileChunk(int no, byte[] digest, long s, long off, boolean compl){
         this.id = no;
@@ -52,13 +58,6 @@ public class FileChunk {
 		this.complete = compl;
 		this.peers = new LinkedList<P2Pdevice>();
     }
-	
-	public FileChunk(int no, String hash, P2Pdevice node){
-		this.id = no;
-		this.chunkHash = toByteHash(hash);
-		this.peers = new LinkedList<P2Pdevice>();
-		this.peers.add(node);
-	}
 	
     public FileChunk(int no, int vers, byte[] digest, long s, long off, boolean compl){
         this.id = no;
@@ -95,12 +94,6 @@ public class FileChunk {
 	* @return the hex string
 	*/
     public String getHexHash(){
-        /*StringBuilder hexString = new StringBuilder();
-    	for (int i=0;i<this.chunkHash.length;i++) {
-    	  hexString.append(Integer.toHexString(0xFF & this.chunkHash[i]));
-    	}
-        
-        return hexString.toString();*/
 		HexBinaryAdapter adapter = new HexBinaryAdapter();
 	    String hash = adapter.marshal(this.chunkHash);
 	    return hash;

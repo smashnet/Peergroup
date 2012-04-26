@@ -40,7 +40,7 @@ public class ThriftServerWorker extends Thread {
 		
 		this.startServer(Constants.p2pPort);
 		
-		Constants.log.addMsg("ThriftServer thread interrupted. Closing...",4);
+		Constants.log.addMsg("Thrift-Server-Thread interrupted. Closing...",4);
 	}
 	
 	private void startServer(int port){

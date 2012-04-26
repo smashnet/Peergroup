@@ -22,16 +22,18 @@ public class DLRequest extends Request{
 	
 	private String name;
 	private int blockID;
+	private int version;
 	private String hash;
 	private P2Pdevice node;
     
 	/**
 	* Constructor to use if no lamport time is given or necessary
 	*/
-	public DLRequest(int newID, String newName, int newBlockID, String newHash, P2Pdevice newNode){
+	public DLRequest(int newID, int vers, String newName, int newBlockID, String newHash, P2Pdevice newNode){
 		super(newID);
 		this.name = newName;
 		this.blockID = newBlockID;
+		this.version = vers;
 		this.hash = newHash;
 		this.node = newNode;
 	}
@@ -39,10 +41,11 @@ public class DLRequest extends Request{
 	/**
 	* Constructor to use if lamport timestamps are needed
 	*/
-	public DLRequest(int newID, long newLamp, String newName, int newBlockID, String newHash, P2Pdevice newNode){
+	public DLRequest(int newID, int vers, String newName, int newBlockID, String newHash, P2Pdevice newNode, long newLamp){
 		super(newID,newLamp);
 		this.name = newName;
 		this.blockID = newBlockID;
+		this.version = vers;
 		this.hash = newHash;
 		this.node = newNode;
 	}
@@ -77,5 +80,13 @@ public class DLRequest extends Request{
 	
 	public P2Pdevice getNode(){
 		return this.node;
+	}
+	
+	public int getVersion(){
+		return this.version;
+	}
+	
+	public void setVersion(int vers){
+		this.version = vers;
 	}
 }

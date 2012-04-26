@@ -131,7 +131,7 @@ public class MainWorker extends Thread {
 		if(myStorage.fileExists(request.getContent()) != null){
 			return;
 		}
-		FileHandle newFile = this.myStorage.addFileFromLocal(request.getContent());
+		FileHandle newFile = this.myStorage.newFileFromLocal(request.getContent());
 		if(newFile != null)
 			this.myNetwork.sendMUCNewFile(newFile.getPath(),newFile.getSize(),newFile.getByteHash(),newFile.getBlockIDwithHash());
 	}
@@ -180,6 +180,7 @@ public class MainWorker extends Thread {
 			for(Integer i : updated){
 				String tmp = "";
 				tmp += i.intValue() + ":";
+				tmp += newFile.getVersion() + ":";
 				tmp += newFile.getChunkHash(i.intValue());
 				updatedWithHash.add(tmp);
 			}
@@ -217,7 +218,7 @@ public class MainWorker extends Thread {
 		
 		P2Pdevice remoteNode = new P2Pdevice(jid,ip,port);
 		
-		myStorage.xmppNewFile(name,hash,size,blocks, 512000,remoteNode);
+		myStorage.newFileFromXMPP(name,hash,size,blocks,512000,remoteNode);
 	}
 	
 	/**
@@ -259,7 +260,7 @@ public class MainWorker extends Thread {
 		LinkedList<String> blocks = (LinkedList<String>)in.getProperty("blocks");
 		byte[] hash = (byte[])in.getProperty("sha256");
 		
-		myStorage.modifyFileFromXMPP(name, vers, size, blocks, hash, new P2Pdevice(jid,ip,port));
+		myStorage.modifiedFileFromXMPP(name, vers, size, blocks, hash, new P2Pdevice(jid,ip,port));
 	}
 	
 	/**
