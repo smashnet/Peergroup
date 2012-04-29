@@ -354,7 +354,7 @@ public class FileHandle {
 	* @param id The chunk ID
 	* @param data The data as byte array
 	*/
-	public void setChunkData(int id, byte[] data){
+	public void setChunkData(int id, String hash, byte[] data){
 		if(this.chunks == null){
 			Constants.log.addMsg("Cannot set chunkData -> no chunk list available",1);
 			return;
@@ -367,6 +367,8 @@ public class FileHandle {
 			stream.seek(recent.getOffset()); // Jump to correct part of the file
 			stream.write(data);
 			stream.close();
+			
+			recent.setHexHash(hash);
 		}catch(IOException ioe){
 			Constants.log.addMsg("Error writing to file:" + ioe, 1);
 		}

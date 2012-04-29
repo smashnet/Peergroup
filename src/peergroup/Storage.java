@@ -204,11 +204,10 @@ public class Storage {
 				this.fileListVersion++;
 				
 				for(String s : blocks){
-					String[] tmp1 = s.split(":");
-					int id = (Integer.valueOf(tmp1[0])).intValue();
-					String hash1 = tmp1[2];
-				
-					Constants.downloadQueue.offer(new DLRequest(Constants.DOWNLOAD_BLOCK,vers,name,id,hash1,node));
+					String tmp1[] = s.split(":");
+					int blockID = (Integer.valueOf(tmp1[0])).intValue();
+					String blockHash = tmp1[2];
+					Constants.downloadQueue.offer(new DLRequest(Constants.DOWNLOAD_BLOCK,vers,name,blockID,blockHash,node));
 				}
 				
 				return;
