@@ -40,7 +40,7 @@ public class ModifyQueueWorker extends Thread {
 				long curTime = System.currentTimeMillis();
 				for(ModifyEvent e : Constants.modifyQueue){
 					if(curTime - e.getTime() > 1000){
-						Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_ENTRY_MODIFY,e.getName()));
+						Constants.requestQueue.offer(new FSRequest(e.getType(),e.getName()));
 						Constants.modifyQueue.remove(e);
 					}
 				}

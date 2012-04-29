@@ -115,11 +115,16 @@ public class Storage {
 			if(this.files.get(i).getPath().equals(file)){
 				try{
 					tmp = this.files.get(i);
+					if(tmp.isUpdating()){
+						Constants.log.addMsg("Ignoring FS update event. File gets remote updates!",4);
+						return null;
+					}
 					if(tmp.localUpdate()){
 						Constants.log.addMsg("Updated " + this.files.get(i).getPath(),4);
 						this.fileListVersion++;
 					}else{
 						Constants.log.addMsg("No need to update something.",4);
+						return null;
 					}
 					
 					return tmp;
@@ -154,10 +159,11 @@ public class Storage {
 				//int vers = (Integer.valueOf(tmp[1])).intValue();
 				String hash = tmp[2];
 				
-				chunks.add(new FileChunk(id,0,hash,node));
+				chunks.add(new FileChunk(id,cSize,0,hash,node));
 			}
 			
 			FileHandle newFile = new FileHandle(filename,fileHash,fileSize,chunks,cSize);
+			newFile.setUpdating(true);
 			newFile.createEmptyLocalFile();
 			this.files.add(newFile);
 			this.fileListVersion++;

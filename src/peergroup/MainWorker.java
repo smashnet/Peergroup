@@ -129,6 +129,7 @@ public class MainWorker extends Thread {
 	*/
 	private void handleLocalEntryCreate(FSRequest request){
 		if(myStorage.fileExists(request.getContent()) != null){
+			Constants.log.addMsg("MainWorker: File already exists, ignoring!",4);
 			return;
 		}
 		FileHandle newFile = this.myStorage.newFileFromLocal(request.getContent());

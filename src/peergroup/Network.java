@@ -341,7 +341,7 @@ public class Network {
 	* @param size The filesize of the completed file
 	* @param hash The new SHA256 value of the file
 	*/
-	public void sendMUCCompletedFile(String filename, int vers, int size, String hash){
+	public void sendMUCCompletedFile(String filename, int vers, int size, byte[] hash){
 		if(!this.joinedAChannel){
 			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
 			return;

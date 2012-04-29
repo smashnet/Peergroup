@@ -98,7 +98,11 @@ public class StorageWorker extends Thread {
 		    for(WatchEvent e : list){
 				if(e.kind() == StandardWatchEventKind.ENTRY_CREATE){
 					Path context = (Path)e.context();
-					Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_ENTRY_CREATE,context.toString()));
+					if(Constants.enableModQueue){
+						insertElement(Constants.modifyQueue,new ModifyEvent(Constants.LOCAL_ENTRY_CREATE,context.toString()));
+					}else{
+						Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_ENTRY_CREATE,context.toString()));
+					}
 				} else if(e.kind() == StandardWatchEventKind.ENTRY_DELETE){
 					Path context = (Path)e.context();
 					Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_ENTRY_DELETE,context.toString()));

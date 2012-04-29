@@ -26,30 +26,25 @@ public class FileChunk {
 	private int version;
     private byte[] chunkHash;
 	private long offset;
-	private long size;
+	private int size;
 	private boolean complete;
     private LinkedList<P2Pdevice> peers;
     
     public FileChunk(){
         
     }
-    
-	public FileChunk(int no, String hash, P2Pdevice node){
-		this.id = no;
-		this.chunkHash = toByteHash(hash);
-		this.peers = new LinkedList<P2Pdevice>();
-		this.peers.add(node);
-	}
 	
-	public FileChunk(int no, int vers, String hash, P2Pdevice node){
+	public FileChunk(int no, int size, int vers, String hash, P2Pdevice node){
 		this.id = no;
+		this.size = size;
+		this.offset = id*size;
 		this.version = vers;
 		this.chunkHash = toByteHash(hash);
 		this.peers = new LinkedList<P2Pdevice>();
 		this.peers.add(node);
 	}
 	
-    public FileChunk(int no, byte[] digest, long s, long off, boolean compl){
+    public FileChunk(int no, byte[] digest, int s, long off, boolean compl){
         this.id = no;
 		this.version = 0;
         this.chunkHash = digest;
@@ -59,7 +54,7 @@ public class FileChunk {
 		this.peers = new LinkedList<P2Pdevice>();
     }
 	
-    public FileChunk(int no, int vers, byte[] digest, long s, long off, boolean compl){
+    public FileChunk(int no, int vers, byte[] digest, int s, long off, boolean compl){
         this.id = no;
 		this.version = vers;
         this.chunkHash = digest;
@@ -68,26 +63,6 @@ public class FileChunk {
 		this.complete = compl;
 		this.peers = new LinkedList<P2Pdevice>();
     }
-	
-	public FileChunk(int no, byte[] digest, long s, long off, boolean compl, LinkedList<P2Pdevice> peers){
-		this.id = no;
-		this.version = 0;
-		this.chunkHash = digest;
-		this.size = s;
-		this.offset = off;
-		this.peers = peers;
-		this.complete = compl;
-	}
-	
-	public FileChunk(int no, int vers, byte[] digest, long s, long off, boolean compl, LinkedList<P2Pdevice> peers){
-		this.id = no;
-		this.version = vers;
-		this.chunkHash = digest;
-		this.size = s;
-		this.offset = off;
-		this.peers = peers;
-		this.complete = compl;
-	}
 	
 	/**
 	* Returns the hash of this chunk as readable hex string
@@ -103,28 +78,16 @@ public class FileChunk {
 	* Converts the hex string to byte[] and sets variable.
 	*/
 	public void setHexHash(String s){
-		int len = s.length();
-		byte[] data = new byte[len / 2];
-		for (int i = 0; i < len; i += 2) {
-		    data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
-		                         + Character.digit(s.charAt(i+1), 16));
-		}
-		
-		this.chunkHash = data;
+		HexBinaryAdapter adapter = new HexBinaryAdapter();
+		this.chunkHash = adapter.unmarshal(s);
 	}
 	
 	/**
 	* Converts the hex string to a byte[].
 	*/
 	public static byte[] toByteHash(String s){
-		int len = s.length();
-		byte[] data = new byte[len / 2];
-		for (int i = 0; i < len; i += 2) {
-		    data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
-		                         + Character.digit(s.charAt(i+1), 16));
-		}
-		
-		return data;
+		HexBinaryAdapter adapter = new HexBinaryAdapter();
+		return adapter.unmarshal(s);
 	}
 	
 	public int getID(){

@@ -21,13 +21,18 @@ package peergroup;
  */
 public class ModifyEvent{
 	
+	private int type;
 	private String filename;
 	private long time;
 	
-	/**
-	* Creates a ModifyEvent.
-	*/
+	public ModifyEvent(int newType, String name){
+		this.type = newType;
+		this.filename = name;
+		this.time = System.currentTimeMillis();
+	}
+	
 	public ModifyEvent(String name){
+		this.type = Constants.LOCAL_ENTRY_MODIFY;
 		this.filename = name;
 		this.time = System.currentTimeMillis();
 	}
@@ -38,6 +43,10 @@ public class ModifyEvent{
 	
 	public void setTime(long timestamp){
 		this.time = timestamp;
+	}
+	
+	public int getType(){
+		return this.type;
 	}
 	
 	public String getName(){

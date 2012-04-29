@@ -80,6 +80,11 @@ public class ThriftClientWorker extends Thread {
 			Constants.log.addMsg("Downloaded block " + request.getBlockID() + " - " + request.getName(),2);
 			tmp.setChunkData(request.getBlockID(),swap);
 			tmp.setChunkVersion(request.getBlockID(),request.getVersion());
+			if(tmp.isComplete()){
+				Constants.log.addMsg("Completed download: " + request.getName() + " - Version " + request.getVersion(),2);
+				tmp.trimFile();
+				tmp.setUpdating(false);
+			}
 		}
 	}
 	

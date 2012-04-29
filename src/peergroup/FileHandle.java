@@ -99,7 +99,7 @@ public class FileHandle {
     throws Exception{ 
         this.file = new File(Constants.rootDirectory + filename);
 		this.updating = true;
-		this.fileVersion = 0;
+		this.fileVersion = 1;
         this.hash = fileHash;
         this.size = fileSize;
 		this.chunks = chunks;
@@ -191,7 +191,7 @@ public class FileHandle {
 	* @return true if file has changed, else false
 	*/
 	public boolean localUpdate() throws Exception{
-		Constants.log.addMsg("FileHandle: Local update triggered for " + this.file.getName()	+ " Scanning for changes!",3);
+		Constants.log.addMsg("FileHandle: Local update triggered for " + this.file.getName()	+ ". Scanning for changes!",3);
 		boolean changed = false;
 		FileInputStream stream = new FileInputStream(this.file);
         int bytesRead = 0;
@@ -208,7 +208,8 @@ public class FileHandle {
 			//change is within existent chunks
             if(id < this.chunks.size()){ 
 				// new chunk hash != old chunk hash
-				if(!(Arrays.equals(calcHash(buffer),this.chunks.get(id).getHash()))){ 
+				if(!(Arrays.equals(calcHash(buffer),this.chunks.get(id).getHash()))){
+					System.out.println(calcHash(buffer) + " " + this.chunks.get(id).getHash());
 					Constants.log.addMsg("FileHandle: Chunk " + id + " changed! Updating chunklist...",3);
 					FileChunk updated = new FileChunk(id,this.chunks.get(id).getVersion()+1,calcHash(buffer),bytesRead,id*chunkSize,true);
 					this.updatedBlocks.add(new Integer(id));
@@ -269,7 +270,7 @@ public class FileHandle {
 			this.chunks.get(id).setHexHash(hash);
 			this.chunks.get(id).setVersion(vers);
 		}else{
-			this.chunks.add(new FileChunk(id,vers,hash,node));
+			this.chunks.add(new FileChunk(id,512000,vers,hash,node));
 		}
 	}
 	
@@ -338,7 +339,7 @@ public class FileHandle {
 			bytesRead = stream.read(buffer);
 			
 			if(bytesRead == -1)
-				Constants.log.addMsg("FileHandle: getChunkData EOF",4);
+				Constants.log.addMsg("FileHandle: getChunkData EOF - ID: " + id,4);
 			
 			return buffer;
 		}catch(IOException ioe){
@@ -449,6 +450,10 @@ public class FileHandle {
 		return equal;
 	}
 	
+	/**
+	* Returns a list of strings looking like this: "id:version:hash"
+	* @return the list
+	*/
 	public LinkedList<String> getBlockIDwithHash(){
 		LinkedList<String> tmp = new LinkedList<String>();
 		for(FileChunk f : this.chunks){
@@ -460,7 +465,31 @@ public class FileHandle {
 	}
 	
 	public void incrVersOnUnchangedBlocks(LinkedList<String> blocks,int vers){
-		poll
+		if(blocks.size() == this.chunks.size()){
+			// Do nothing if all blocks have changed
+			return;
+		}
+		int i = 0;
+		for(FileChunk f : this.chunks){
+			if(f.getID() != blocks.get(i).charAt(0)-48){
+				f.setVersion(vers);
+			}else{
+				if(i < blocks.size()-1)
+					i++;
+			}
+		}
+	}
+	
+	public void trimFile(){
+		try{
+			RandomAccessFile thisFile = new RandomAccessFile(this.file,"rws");
+			thisFile.setLength(this.size);
+			thisFile.close();
+		}catch(FileNotFoundException e){
+			Constants.log.addMsg("No file to trim, this should not happen!! (" + e + ")",1);
+		}catch(IOException ioe){
+			Constants.log.addMsg("Error trimming file, this should not happen!! (" + ioe + ")",1);
+		}
 	}
 	
 	/**

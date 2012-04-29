@@ -158,7 +158,7 @@ public class Peergroup {
 					Constants.log.addMsg("Invalid port!",1);
 					System.exit(1);
 				}
-				Constants.log.addMsg("Set P2P port to: " + Constants.port,3);
+				Constants.log.addMsg("Set P2P port to: " + Constants.p2pPort,3);
 			}
 			if(last.equals("-limit")){
 				try{
