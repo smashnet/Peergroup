@@ -236,9 +236,8 @@ public class FileHandle {
 				}
 			}else{
 				// file is grown and needs more chunks
-				// TODO: What to do with the Chunk Version here?? 
 				Constants.log.addMsg("FileHandle: File needs more chunks than before! Adding new chunks...",3);
-				FileChunk next = new FileChunk(id,calcHash(buffer),bytesRead,id*chunkSize,true);
+				FileChunk next = new FileChunk(id,this.fileVersion,calcHash(buffer),bytesRead,id*chunkSize,true);
 				this.chunks.add(next);
 				this.updatedBlocks.add(new Integer(id));
 				changed = true;
