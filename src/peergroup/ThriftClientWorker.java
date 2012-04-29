@@ -68,7 +68,7 @@ public class ThriftClientWorker extends Thread {
 			}
 		}
 		
-		Constants.log.addMsg("ThriftClient-Thread " + this.id + " interrupted/finished. Closing...",4);
+		Constants.log.addMsg("Thrift-Client-Thread interrupted/finished. Closing...",4);
 	}
 	
 	private void handleDownloadBlock(DLRequest request){
