@@ -354,13 +354,17 @@ public class FileHandle {
 	* @param id The chunk ID
 	* @param data The data as byte array
 	*/
-	public void setChunkData(int id, String hash, byte[] data){
+	public void setChunkData(int id, String hash, P2Pdevice node, byte[] data){
 		if(this.chunks == null){
 			Constants.log.addMsg("Cannot set chunkData -> no chunk list available",1);
 			return;
 		}
-		
-		FileChunk recent = this.chunks.get(id);
+		FileChunk recent;
+		if(id >= this.chunks.size()){
+			recent = new FileChunk(id,512000,this.fileVersion,hash,node);
+		}else{
+			recent = this.chunks.get(id);
+		}
 		
 		try{
 			RandomAccessFile stream = new RandomAccessFile(this.file,"rwd");
@@ -487,6 +491,17 @@ public class FileHandle {
 			RandomAccessFile thisFile = new RandomAccessFile(this.file,"rws");
 			thisFile.setLength(this.size);
 			thisFile.close();
+			
+			double fileSize = (double)this.size;
+			double cSize = (double)this.chunkSize;
+			int blocks = (int)Math.ceil(fileSize/cSize);
+			
+			int diff = this.chunks.size() - blocks;
+			if(diff > 0){
+				for(int i = 0; i < diff; i++){
+					this.chunks.removeLast();
+				}
+			}
 		}catch(FileNotFoundException e){
 			Constants.log.addMsg("No file to trim, this should not happen!! (" + e + ")",1);
 		}catch(IOException ioe){
