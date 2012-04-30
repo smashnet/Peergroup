@@ -37,9 +37,7 @@ public class ThriftServerWorker extends Thread {
 	*/
 	public void run(){
 		this.setName("THRIFT-Handling Thread");
-		
 		this.startServer(Constants.p2pPort);
-		
 		Constants.log.addMsg("Thrift-Server-Thread interrupted. Closing...",4);
 	}
 	
@@ -50,7 +48,6 @@ public class ThriftServerWorker extends Thread {
 			this.server = new TThreadPoolServer(new TThreadPoolServer.Args(serverTransport).processor(processor));
 			
 			Constants.log.addMsg("Starting thrift handler on port " + port);
-			
 			this.server.serve();
 		}catch(TTransportException e){
 			Constants.log.addMsg("Error in thrift handler: " + e);

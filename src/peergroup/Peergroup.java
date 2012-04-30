@@ -177,9 +177,9 @@ public class Peergroup {
 				Constants.ipAddress = s;
 				Constants.log.addMsg("Set external IP to: " + Constants.ipAddress,3);
 			}
-			if(s.equals("-modQueue")){
-				Constants.enableModQueue = true;
-				Constants.log.addMsg("Manually enabled ModifyEvent Queue",3);
+			if(s.equals("-noEventQueue")){
+				Constants.enableModQueue = false;
+				Constants.log.addMsg("Manually disabled Event-Queue",3);
 			}
 			last = s;
         }
@@ -201,7 +201,7 @@ public class Peergroup {
 		out += "\t-ip\t\t[IP]\t\tmanually set your external IP (the IP is usually guessed by the program)\n";
 		out += "\t-P2Pport\t[PORT]\t\tset the port for P2P data exchange (default: 43334)\n";
 		out += "\t-limit\t\t[LIMIT]\t\tset the amount of space you want to share in MB (default: 2048MB)\n";
-		out += "\t-modQueue\t\t\tforce ModifyEvent Queue (default: only on linux and windows OS)\n";
+		out += "\t-noEventQueue\t\tdisable Event-Queue (default: enabled)\n";
 		return out;
 	}
     

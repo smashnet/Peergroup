@@ -190,29 +190,25 @@ public class Storage {
 	* @param hash The SHA256 of the updated file
 	*/
 	public void modifiedFileFromXMPP(String name, int vers, long size, LinkedList<String> blocks, byte[] hash, P2Pdevice node){
-		FileHandle tmp;
-		int i = 0;
-		while(i < this.files.size()){
-			if(this.files.get(i).getPath().equals(name)){
-				tmp = this.files.get(i);
-				tmp.setUpdating(true);
-				tmp.setVersion(vers);
-				tmp.setSize(size);
-				tmp.setByteHash(hash);
-				tmp.incrVersOnUnchangedBlocks(blocks,vers);
+		for(FileHandle h : this.files){
+			if(h.getPath().equals(name)){
+				h.setUpdating(true);
+				h.setVersion(vers);
+				h.setSize(size);
+				h.setByteHash(hash);
+				h.incrVersOnUnchangedBlocks(blocks,vers);
 								
 				this.fileListVersion++;
 				
 				for(String s : blocks){
-					String tmp1[] = s.split(":");
-					int blockID = (Integer.valueOf(tmp1[0])).intValue();
-					String blockHash = tmp1[2];
+					String tmp[] = s.split(":");
+					int blockID = (Integer.valueOf(tmp[0])).intValue();
+					String blockHash = tmp[2];
 					Constants.downloadQueue.offer(new DLRequest(Constants.DOWNLOAD_BLOCK,vers,name,blockID,blockHash,node));
 				}
 				
 				return;
 			}
-			i++;
 		}
 	}
 	
@@ -222,18 +218,14 @@ public class Storage {
 	* @param fileName The filename
 	* @param node The P2Pdevice
 	*/
-	public void addP2PdeviceToFile(String fileName, P2Pdevice node){
-		FileHandle tmp;
-		int i = 0;
-		while(i < this.files.size()){
-			if(this.files.get(i).getPath().equals(fileName)){
-				tmp = this.files.get(i);
-				
-				tmp.addP2PdeviceToAllBlocks(node);
-				
+	public void addP2PdeviceToFile(String fileName, int vers, P2Pdevice node){
+		for(FileHandle h : this.files){
+			if(h.getPath().equals(fileName)){
+				if(h.getVersion() == vers){
+					h.addP2PdeviceToAllBlocks(node);
+				}
 				return;
 			}
-			i++;
 		}
 	}
 	
@@ -244,19 +236,22 @@ public class Storage {
 	* @param node The P2Pdevice
 	*/
 	public void addP2PdeviceToBlocks(String fileName, LinkedList<Integer> list, P2Pdevice node){
-		FileHandle tmp;
-		int i = 0;
-		while(i < this.files.size()){
-			if(this.files.get(i).getPath().equals(fileName)){
-				tmp = this.files.get(i);
-				
+		for(FileHandle h : this.files){
+			if(h.getPath().equals(fileName)){
 				for(Integer no : list){
-					tmp.addP2PdeviceToBlock(no.intValue(),node);
+					h.addP2PdeviceToBlock(no.intValue(),node);
 				}
-				
 				return;
 			}
-			i++;
+		}
+	}
+	
+	public void addP2PdeviceToBlock(String fileName, int id, P2Pdevice node){
+		for(FileHandle h : this.files){
+			if(h.getPath().equals(fileName)){
+				h.addP2PdeviceToBlock(id,node);
+				return;
+			}
 		}
 	}
 	
@@ -273,6 +268,26 @@ public class Storage {
 			}
 		}
 		return null;
+	}
+	
+	/**
+	* Find the rarest chunk in the network and return its object
+	*
+	* @return The first found FileChunk with the rarest distribution, or null if no files exist
+	*/
+	public FileChunk getRarestChunk(){
+		int min = Integer.MAX_VALUE;
+		FileChunk res = null;
+		for(FileHandle h : this.files){
+			for(FileChunk c : h.getChunks()){
+				int peers = c.noOfPeers();
+				if(peers < min && peers > 0){
+					min = peers;
+					res = c;
+				}
+			}
+		}
+		return res;
 	}
 	
 	/**

@@ -91,6 +91,7 @@ public class Constants {
 	public final static int REMOTE_ENTRY_DELETE = 21;
 	public final static int REMOTE_ENTRY_MODIFY = 22;
 	public final static int REMOTE_ENTRY_COMPLETE = 23;
+	public final static int REMOTE_CHUNK_COMPLETE = 24;
 	
 	public final static int DOWNLOAD_BLOCK = 30;
 		
@@ -99,10 +100,11 @@ public class Constants {
 	/*
 	* Stuff
 	*/
-	public static boolean enableModQueue = false;
+	public static boolean enableModQueue = true;
 	public static String ipAddress = "";
 	public static int p2pPort = 43334;
 	public static boolean caughtSignal = false;
+	public final int chunkSize = 512000;	//In bytes
 	
 	public static String getJID(){
 		return user + "@" + server + "/" + resource;

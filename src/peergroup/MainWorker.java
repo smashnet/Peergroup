@@ -91,6 +91,10 @@ public class MainWorker extends Thread {
 						handleRemoteEntryModify((XMPPRequest)nextRequest);
 						Constants.log.addMsg(myStorage.toString());
 						break;
+					case Constants.REMOTE_CHUNK_COMPLETE:
+						//Constants.log.addMsg("MainWorker: Handling REMOTE_CHUNK_COMPLETE");
+						handleRemoteChunkComplete((XMPPRequest)nextRequest);
+						break;
 					case Constants.REMOTE_ENTRY_COMPLETE:
 						Constants.log.addMsg("MainWorker: Handling REMOTE_ENTRY_COMPLETE");
 						handleRemoteEntryComplete((XMPPRequest)nextRequest);
@@ -116,6 +120,8 @@ public class MainWorker extends Thread {
 		
 		Constants.storage.stopStorageWorker();
 		Constants.network.stopNetworkWorker();
+		Constants.thrift.stopThriftWorker();
+		Constants.thriftClient.stopThriftWorker();
 		if(Constants.enableModQueue){
 			Constants.modQueue.interrupt();
 		}
@@ -264,6 +270,20 @@ public class MainWorker extends Thread {
 		myStorage.modifiedFileFromXMPP(name, vers, size, blocks, hash, new P2Pdevice(jid,ip,port));
 	}
 	
+	private void handleRemoteChunkComplete(XMPPRequest request){
+		//Available: "JID","IP","Port","name","chunkID","chunkVers"
+		Message in = request.getContent();
+		
+		String jid 		= (String)in.getProperty("JID");
+		String ip 		= (String)in.getProperty("IP");
+		int port 		= ((Integer)in.getProperty("Port")).intValue();
+		String name 	= (String)in.getProperty("name");
+		int chunkID		= ((Integer)in.getProperty("chunkID")).intValue();
+		int chunkVers	= ((Integer)in.getProperty("chunkVers")).intValue();
+		
+		myStorage.addP2PdeviceToBlock(name,chunkID,new P2Pdevice(jid,ip,port));
+	}
+	
 	/**
 	* Note that a remote node completed the download of a file. This especially means,
 	* that this node has all recent blocks available for upload.
@@ -271,12 +291,7 @@ public class MainWorker extends Thread {
 	* @param request The request containing the XMPP Message object, including its properties
 	*/
 	private void handleRemoteEntryComplete(XMPPRequest request){
-		/*
-		* Someone announced that a file download is completed
-		* Available information:
-		* "JID","IP","Port","name","version","size","sha256"
-		*/
-		
+		//Available: "JID","IP","Port","name","version"
 		Message in = request.getContent();
 		
 		String jid 	= (String)in.getProperty("JID");
@@ -284,9 +299,7 @@ public class MainWorker extends Thread {
 		int port 	= ((Integer)in.getProperty("Port")).intValue();
 		String name = (String)in.getProperty("name");
 		int vers	= ((Integer)in.getProperty("version")).intValue();
-		long size 	= ((Long)in.getProperty("size")).longValue();
-		byte[] hash = (byte[])in.getProperty("sha256");
 		
-		myStorage.addP2PdeviceToFile(name,new P2Pdevice(jid,ip,port));
+		myStorage.addP2PdeviceToFile(name,vers,new P2Pdevice(jid,ip,port));
 	}
 }

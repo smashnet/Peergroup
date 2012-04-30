@@ -118,6 +118,10 @@ public class FileChunk {
 		return this.peers;
 	}
 	
+	public int noOfPeers(){
+		return this.peers.size();
+	}
+	
 	public void setPeers(LinkedList<P2Pdevice> newPeers){
 		this.peers = newPeers;
 	}

@@ -333,15 +333,7 @@ public class Network {
 		}
 	}
 	
-	/**
-	* This sends completed-file information to other participants
-	*
-	* @param filename The filename of the completed file
-	* @param vers The fileversion of the completed file
-	* @param size The filesize of the completed file
-	* @param hash The new SHA256 value of the file
-	*/
-	public void sendMUCCompletedFile(String filename, int vers, int size, byte[] hash){
+	public void sendMUCCompletedChunk(String filename, int chunkID, int chunkVers){
 		if(!this.joinedAChannel){
 			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
 			return;
@@ -356,13 +348,46 @@ public class Network {
 		newMessage.setProperty("IP",Constants.ipAddress);
 		newMessage.setProperty("Port",Constants.p2pPort);
 		newMessage.setProperty("name",filename);
-		newMessage.setProperty("version",vers);
-		newMessage.setProperty("size",size);
-		newMessage.setProperty("sha256",hash);
+		newMessage.setProperty("chunkID",chunkID);
+		newMessage.setProperty("chunkVers",chunkVers);
 		
 		try{
 			this.muc.sendMessage(newMessage);
-			Constants.log.addMsg("Sending XMPP: -COMPLETED- " + filename + " - Version " + vers + " - " + size + "Bytes - " + hash,2);	
+			Constants.log.addMsg("Sending XMPP: -CHUNK_COMPLETED- " + filename + ": Chunk " + chunkID + " - Version " 
+								+ chunkVers,2);	
+		}catch(XMPPException xe){
+			Constants.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe,4);
+		}
+	}
+	
+	/**
+	* This sends completed-file information to other participants
+	*
+	* @param filename The filename of the completed file
+	* @param vers The fileversion of the completed file
+	* @param size The filesize of the completed file
+	* @param hash The new SHA256 value of the file
+	*/
+	public void sendMUCCompletedFile(String filename, int vers){
+		if(!this.joinedAChannel){
+			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
+			return;
+		}
+		Message newMessage = this.createMessageObject();
+		
+		/*
+		* Set message properties
+		*/
+		newMessage.setProperty("Type",5);
+		newMessage.setProperty("JID",Constants.getJID());
+		newMessage.setProperty("IP",Constants.ipAddress);
+		newMessage.setProperty("Port",Constants.p2pPort);
+		newMessage.setProperty("name",filename);
+		newMessage.setProperty("version",vers);
+		
+		try{
+			this.muc.sendMessage(newMessage);
+			Constants.log.addMsg("Sending XMPP: -COMPLETED- " + filename + " - Version " + vers ,2);	
 		}catch(XMPPException xe){
 			Constants.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe,4);
 		}
@@ -381,7 +406,7 @@ public class Network {
 		/*
 		* Set message properties
 		*/
-		newMessage.setProperty("Type",5);
+		newMessage.setProperty("Type",6);
 		newMessage.setProperty("JID",Constants.getJID());
 		
 		try{
@@ -405,7 +430,7 @@ public class Network {
 		/*
 		* Set message properties
 		*/
-		newMessage.setProperty("Type",6);
+		newMessage.setProperty("Type",7);
 		newMessage.setProperty("JID",Constants.getJID());
 		newMessage.setProperty("IP",Constants.ipAddress);
 		newMessage.setProperty("Port",Constants.p2pPort);
