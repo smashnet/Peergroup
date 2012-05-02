@@ -90,15 +90,13 @@ public class Storage {
 	* @param file the filename+path (e.g. subdir/file.txt)
 	*/
 	public void remoteRemoveFile(String file){
-		int i = 0;
-		while(i < this.files.size()){
-			if(this.files.get(i).getPath().equals(file)){
-				this.files.get(i).getFile().delete();
-				this.files.remove(i);
+		for(FileHandle h : this.files){
+			if(h.getPath().equals(file)){
+				h.getFile().delete();
+				this.files.remove(h);
 				Constants.log.addMsg("Deleted " + file,4);
 				break;
 			}
-			i++;
 		}
 		this.fileListVersion++;
 	}
@@ -159,7 +157,7 @@ public class Storage {
 				//int vers = (Integer.valueOf(tmp[1])).intValue();
 				String hash = tmp[2];
 				
-				chunks.add(new FileChunk(id,cSize,0,hash,node));
+				chunks.add(new FileChunk(filename,id,cSize,0,hash,node,false));
 			}
 			
 			FileHandle newFile = new FileHandle(filename,fileHash,fileSize,chunks,cSize);
@@ -168,13 +166,13 @@ public class Storage {
 			this.files.add(newFile);
 			this.fileListVersion++;
 			
-			for(String s : blocks){
+			/*for(String s : blocks){
 				String[] tmp = s.split(":");
 				int id = (Integer.valueOf(tmp[0])).intValue();
 				String hash = tmp[2];
 				
 				Constants.downloadQueue.offer(new DLRequest(Constants.DOWNLOAD_BLOCK,1,filename,id,hash,node));
-			}
+			}*/
 		}catch(Exception e){
 			Constants.log.addMsg("Couldn't create FileHandle for new file from XMPP!",2);
 		}
@@ -200,12 +198,12 @@ public class Storage {
 								
 				this.fileListVersion++;
 				
-				for(String s : blocks){
+				/*for(String s : blocks){
 					String tmp[] = s.split(":");
 					int blockID = (Integer.valueOf(tmp[0])).intValue();
 					String blockHash = tmp[2];
 					Constants.downloadQueue.offer(new DLRequest(Constants.DOWNLOAD_BLOCK,vers,name,blockID,blockHash,node));
-				}
+				}*/
 				
 				return;
 			}
@@ -280,6 +278,8 @@ public class Storage {
 		FileChunk res = null;
 		for(FileHandle h : this.files){
 			for(FileChunk c : h.getChunks()){
+				if(c.isComplete())
+					continue;
 				int peers = c.noOfPeers();
 				if(peers < min && peers > 0){
 					min = peers;

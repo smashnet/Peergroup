@@ -129,14 +129,14 @@ public class FileHandle {
 	        byte[] buffer = new byte[size];
         
 	        while((bytesRead = stream.read(buffer)) != -1){
-	            FileChunk next = new FileChunk(id,vers,calcHash(buffer),bytesRead,id*size,true);
+	            FileChunk next = new FileChunk(this.getPath(),id,vers,calcHash(buffer),bytesRead,id*size,true);
 	            this.chunks.add(next);
 	            id++;
 	        }
 			
 			//On empty file, also create one empty chunk
 			if(bytesRead == -1 && id == 0){
-	            FileChunk next = new FileChunk(id,vers,calcHash(buffer),0,id*size,true);
+	            FileChunk next = new FileChunk(this.getPath(),id,vers,calcHash(buffer),0,id*size,true);
 	            this.chunks.add(next);
 			}
 			
@@ -211,7 +211,7 @@ public class FileHandle {
 				if(!(Arrays.equals(calcHash(buffer),this.chunks.get(id).getHash()))){
 					System.out.println(calcHash(buffer) + " " + this.chunks.get(id).getHash());
 					Constants.log.addMsg("FileHandle: Chunk " + id + " changed! Updating chunklist...",3);
-					FileChunk updated = new FileChunk(id,this.chunks.get(id).getVersion()+1,calcHash(buffer),bytesRead,id*chunkSize,true);
+					FileChunk updated = new FileChunk(this.getPath(),id,this.chunks.get(id).getVersion()+1,calcHash(buffer),bytesRead,id*chunkSize,true);
 					this.updatedBlocks.add(new Integer(id));
 					this.chunks.set(id,updated);
 					changed = true;
@@ -229,7 +229,7 @@ public class FileHandle {
 				// Last chunk got bigger
 				if(bytesRead > this.chunks.get(id).getSize() && id == this.chunks.size()-1){
 					Constants.log.addMsg("FileHandle: Chunk " + id + " changed! Updating chunklist...",3);
-					FileChunk updated = new FileChunk(id,this.chunks.get(id).getVersion()+1,calcHash(buffer),bytesRead,id*chunkSize,true);
+					FileChunk updated = new FileChunk(this.getPath(),id,this.chunks.get(id).getVersion()+1,calcHash(buffer),bytesRead,id*chunkSize,true);
 					this.chunks.set(id,updated);
 					this.updatedBlocks.add(new Integer(id));
 					changed = true;
@@ -237,7 +237,7 @@ public class FileHandle {
 			}else{
 				// file is grown and needs more chunks
 				Constants.log.addMsg("FileHandle: File needs more chunks than before! Adding new chunks...",3);
-				FileChunk next = new FileChunk(id,this.fileVersion,calcHash(buffer),bytesRead,id*chunkSize,true);
+				FileChunk next = new FileChunk(this.getPath(),id,this.fileVersion,calcHash(buffer),bytesRead,id*chunkSize,true);
 				this.chunks.add(next);
 				this.updatedBlocks.add(new Integer(id));
 				changed = true;
@@ -269,7 +269,7 @@ public class FileHandle {
 			this.chunks.get(id).setHexHash(hash);
 			this.chunks.get(id).setVersion(vers);
 		}else{
-			this.chunks.add(new FileChunk(id,512000,vers,hash,node));
+			this.chunks.add(new FileChunk(this.getPath(),id,512000,vers,hash,node,false));
 		}
 	}
 	
@@ -296,9 +296,6 @@ public class FileHandle {
 		// Create empty file on disk
 		try{
 			this.file.createNewFile();
-			/*RandomAccessFile out = new RandomAccessFile(this.file,"rwd");
-			out.setLength(this.size);
-			out.close();*/
 		}catch(IOException ioe){
 			Constants.log.addMsg("FileHandle: Cannot create new file from network: " + ioe,4);
 		}
@@ -360,7 +357,7 @@ public class FileHandle {
 		}
 		FileChunk recent;
 		if(id >= this.chunks.size()){
-			recent = new FileChunk(id,512000,this.fileVersion,hash,node);
+			recent = new FileChunk(this.getPath(),id,512000,this.fileVersion,hash,node,true);
 		}else{
 			recent = this.chunks.get(id);
 		}
@@ -372,6 +369,7 @@ public class FileHandle {
 			stream.close();
 			
 			recent.setHexHash(hash);
+			recent.setComplete(true);
 		}catch(IOException ioe){
 			Constants.log.addMsg("Error writing to file:" + ioe, 1);
 		}

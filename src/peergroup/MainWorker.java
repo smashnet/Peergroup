@@ -44,16 +44,6 @@ public class MainWorker extends Thread {
 		this.setName("Main Thread");
 		Constants.log.addMsg("Main thread started...");
 		
-		//Do initial scan of share directory
-		Constants.log.addMsg("Doing initial scan of share directory...");
-		File test = this.myStorage.getDirHandle();
-		for(File newFile : test.listFiles() ){
-			if(newFile.isFile()){
-				Constants.log.addMsg("Found: " + newFile.getName(),2);
-				Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_ENTRY_CREATE,newFile.getName()));
-			}
-		}
-		
 		/*
 		* Main loop, takes requests from the queue and processes them
 		*/

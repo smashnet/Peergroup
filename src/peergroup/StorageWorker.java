@@ -98,6 +98,9 @@ public class StorageWorker extends Thread {
 		    for(WatchEvent e : list){
 				if(e.kind() == StandardWatchEventKind.ENTRY_CREATE){
 					Path context = (Path)e.context();
+					if(context.toString().charAt(0) == '.'){
+						continue;
+					}
 					if(Constants.enableModQueue){
 						insertElement(Constants.modifyQueue,new ModifyEvent(Constants.LOCAL_ENTRY_CREATE,context.toString()));
 					}else{
@@ -105,9 +108,15 @@ public class StorageWorker extends Thread {
 					}
 				} else if(e.kind() == StandardWatchEventKind.ENTRY_DELETE){
 					Path context = (Path)e.context();
+					if(context.toString().charAt(0) == '.'){
+						continue;
+					}
 					Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_ENTRY_DELETE,context.toString()));
 				} else if(e.kind() == StandardWatchEventKind.ENTRY_MODIFY){
 					Path context = (Path)e.context();
+					if(context.toString().charAt(0) == '.'){
+						continue;
+					}
 					/*
 					* Linux and Windows support instant events on file changes. Copying a big file into the share folder
 					* will result in one "create" event and loooots of "modify" events. So we will handle this here to

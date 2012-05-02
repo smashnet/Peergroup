@@ -78,9 +78,6 @@ public class NetworkWorker extends Thread {
 			int type = ((Integer)newMessage.getProperty("Type")).intValue();
 			String filename;
 			
-			/*
-			* TODO: Proper handling of cases
-			*/
 			switch(type){
 				case 1: 
 					/*

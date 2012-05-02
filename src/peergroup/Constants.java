@@ -29,6 +29,8 @@ public class Constants {
     
 	public final static Logger log = new Logger();
 	
+	public static CyclicBarrier myBarrier = new CyclicBarrier(2);
+	
 	/*
 	* Request queue where StorageWorker and NetworkWorker push their
 	* requests to, which are then processed by the MainWorker.

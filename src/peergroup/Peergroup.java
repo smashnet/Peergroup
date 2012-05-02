@@ -19,6 +19,7 @@ import java.io.*;
 import java.net.*;
 import sun.misc.Signal;
 import sun.misc.SignalHandler;
+import java.util.concurrent.CyclicBarrier;
 
 /**
  * This processes cmd-line args, initializes all needed settings
@@ -58,17 +59,14 @@ public class Peergroup {
 		String os = System.getProperty("os.name");
         Constants.log.addMsg("Starting " + Constants.PROGNAME + " " 
 			+ Constants.VERSION + " on " + os + " " + System.getProperty("os.version"),2);
-        
-		if(os.equals("Linux") || os.equals("Windows 7"))
-				Constants.enableModQueue = true;
-		
+        		
         getCmdArgs(args);
 		getExternalIP();
+		doInitialDirectoryScan();
+		joinXMPP();
 		
-		// Join XMPP Channel
-		Network.getInstance().joinMUC(Constants.user, Constants.pass, 
-			Constants.conference_channel + "@" + Constants.conference_server);
-		Network.getInstance().sendMUCmessage("Hi, I'm a peergroup client. I do awesome things :-)");
+		if(os.equals("Linux") || os.equals("Windows 7"))
+				Constants.enableModQueue = true;
 		
 		// -- Create Threads
 		Constants.main = new MainWorker();		
@@ -226,5 +224,22 @@ public class Peergroup {
 			Constants.log.addMsg("Couldn't get external IP! " + e + " Try setting it manually!",1);
 			System.exit(1);
 		}
+	}
+	
+	private static void doInitialDirectoryScan(){
+		Constants.log.addMsg("Doing initial scan of share directory...");
+		File test = Storage.getInstance().getDirHandle();
+		for(File newFile : test.listFiles() ){
+			if(newFile.isFile()){
+				Constants.log.addMsg("Found: " + newFile.getName(),2);
+				Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_ENTRY_CREATE,newFile.getName()));
+			}
+		}
+	}
+	
+	private static void joinXMPP(){
+		Network.getInstance().joinMUC(Constants.user, Constants.pass, 
+			Constants.conference_channel + "@" + Constants.conference_server);
+		Network.getInstance().sendMUCmessage("Hi, I'm a peergroup client. I do awesome things :-)");
 	}
 }

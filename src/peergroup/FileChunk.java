@@ -14,6 +14,7 @@
 package peergroup;
 
 import java.util.LinkedList;
+import java.util.Random;
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
 /**
@@ -22,6 +23,7 @@ import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
  */
 public class FileChunk {
     
+	private String file;
     private int id;
 	private int version;
     private byte[] chunkHash;
@@ -34,17 +36,20 @@ public class FileChunk {
         
     }
 	
-	public FileChunk(int no, int size, int vers, String hash, P2Pdevice node){
+	public FileChunk(String name, int no, int size, int vers, String hash, P2Pdevice node, boolean comp){
+		this.file = name;
 		this.id = no;
 		this.size = size;
 		this.offset = id*size;
 		this.version = vers;
 		this.chunkHash = toByteHash(hash);
+		this.complete = comp;
 		this.peers = new LinkedList<P2Pdevice>();
 		this.peers.add(node);
 	}
 	
-    public FileChunk(int no, byte[] digest, int s, long off, boolean compl){
+    public FileChunk(String name, int no, byte[] digest, int s, long off, boolean compl){
+		this.file = name;
         this.id = no;
 		this.version = 0;
         this.chunkHash = digest;
@@ -54,7 +59,8 @@ public class FileChunk {
 		this.peers = new LinkedList<P2Pdevice>();
     }
 	
-    public FileChunk(int no, int vers, byte[] digest, int s, long off, boolean compl){
+    public FileChunk(String name, int no, int vers, byte[] digest, int s, long off, boolean compl){
+		this.file = name;
         this.id = no;
 		this.version = vers;
         this.chunkHash = digest;
@@ -114,6 +120,10 @@ public class FileChunk {
 		return this.size;
 	}
 	
+	public String getName(){
+		return this.file;
+	}
+	
 	public LinkedList<P2Pdevice> getPeers(){
 		return this.peers;
 	}
@@ -130,11 +140,20 @@ public class FileChunk {
 		this.peers.add(node);
 	}
 	
+	public P2Pdevice getRandomPeer(){
+		Random gen = new Random(System.currentTimeMillis());
+		return this.peers.get(gen.nextInt(this.peers.size()));
+	}
+	
 	public void clearPeers(){
 		this.peers.clear();
 	}
 	
 	public boolean isComplete(){
 		return this.complete;
+	}
+	
+	public void setComplete(boolean bool){
+		this.complete = bool;
 	}
 }
