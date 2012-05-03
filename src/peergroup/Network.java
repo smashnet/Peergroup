@@ -354,8 +354,8 @@ public class Network {
 		
 		try{
 			this.muc.sendMessage(newMessage);
-			Constants.log.addMsg("Sending XMPP: -CHUNK_COMPLETED- " + filename + ": Chunk " + chunkID + " - Version " 
-								+ chunkVers,2);	
+			//Constants.log.addMsg("Sending XMPP: -CHUNK_COMPLETED- " + filename + ": Chunk " + chunkID + " - Version " 
+			//					+ chunkVers,2);	
 		}catch(XMPPException xe){
 			Constants.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe,4);
 		}

@@ -87,9 +87,9 @@ public class ThriftClientWorker extends Thread {
 		}else{
 			P2Pdevice device = chunk.getRandomPeer();
 			byte[] swap = getBlock(chunk.getName(),chunk.getID(),chunk.getHexHash(),device);
-			//Constants.log.addMsg("Downloaded block " + request.getBlockID() + " - " + request.getName(),2);
+			//Constants.log.addMsg("Downloaded block " + chunk.getID() + " at " + rate + "KByte/s",2);
 			tmp.setChunkData(chunk.getID(),chunk.getHexHash(),device,swap);
-			tmp.setChunkVersion(chunk.getID(),chunk.getVersion()+1);
+			tmp.updateChunkVersion(chunk.getID());
 			Network.getInstance().sendMUCCompletedChunk(chunk.getName(),chunk.getID(),chunk.getVersion());
 			if(tmp.isComplete()){
 				Constants.log.addMsg("Completed download: " + chunk.getName() + " - Version " + chunk.getVersion(),2);

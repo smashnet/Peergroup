@@ -1,6 +1,8 @@
 Ideas and brain tmp
 ===================
 
+* modified files don't get downloaded
+
 * hide incomplete files -> not recognized by jpathwatch
 * thrift connection handling
 

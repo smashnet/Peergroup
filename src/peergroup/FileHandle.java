@@ -209,7 +209,7 @@ public class FileHandle {
             if(id < this.chunks.size()){ 
 				// new chunk hash != old chunk hash
 				if(!(Arrays.equals(calcHash(buffer),this.chunks.get(id).getHash()))){
-					Constants.log.addMsg("FileHandle: Chunk " + id + " changed! Updating chunklist...",3);
+					Constants.log.addMsg("FileHandle: Chunk " + id + " changed! (Different Hashes) Updating chunklist...",3);
 					FileChunk updated = new FileChunk(this.getPath(),id,this.chunks.get(id).getVersion()+1,calcHash(buffer),bytesRead,id*chunkSize,true);
 					this.updatedBlocks.add(new Integer(id));
 					this.chunks.set(id,updated);
@@ -419,6 +419,15 @@ public class FileHandle {
 		return this.chunks;
 	}
 	
+	public void updateChunkVersion(int id){
+		for(FileChunk f : this.chunks){
+			if(id == f.getID()){
+				f.setVersion(this.fileVersion);
+				return;
+			}
+		}
+	}
+	
 	public void setChunkVersion(int id, int vers){
 		for(FileChunk f : this.chunks){
 			if(id == f.getID()){
@@ -459,13 +468,18 @@ public class FileHandle {
 	public LinkedList<String> getBlockIDwithHash(){
 		LinkedList<String> tmp = new LinkedList<String>();
 		for(FileChunk f : this.chunks){
-			String newBlock = f.getID() + ":" + f.getVersion() + ":" + f.getHexHash();
+			String newBlock = f.getID() + ":" + f.getVersion() + ":" 
+				+ f.getHexHash() + ":" + f.getSize();
 			tmp.add(newBlock);
 		}
 		return tmp;
 	}
 	
-	public void incrVersOnUnchangedBlocks(LinkedList<String> blocks,int vers){
+	public void updateBlocks(LinkedList<String> blocks,int vers){
+		for(String s : blocks){
+			//TODO: Change size
+			this.chunks.get(s.charAt(0)-48).setComplete(false);
+		}
 		if(blocks.size() == this.chunks.size()){
 			// Do nothing if all blocks have changed
 			return;

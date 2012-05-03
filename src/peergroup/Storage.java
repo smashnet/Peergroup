@@ -194,7 +194,7 @@ public class Storage {
 				h.setVersion(vers);
 				h.setSize(size);
 				h.setByteHash(hash);
-				h.incrVersOnUnchangedBlocks(blocks,vers);
+				h.updateBlocks(blocks,vers);
 								
 				this.fileListVersion++;
 				
