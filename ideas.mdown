@@ -24,3 +24,20 @@ Related Work
 * Groove
 * OneSwarm
 * old Wuala
+
+Tmp
+===
+
+Local:
+Mit neuem Verbindugsaufbau	: 4.081s
+Ohne neuen Verbindungsaufbau: 3,922s
+
+Remote (HD to NAS):
+Mit neuem Verbindugsaufbau	: 19,208s
+Ohne neuen Verbindungsaufbau: 15.988s
+
+Remote (HD to HD):
+Mit neuem Verbindugsaufbau	: 24.9s
+Ohne neuen Verbindungsaufbau: 24.04s
+
+-> Blöde Festplatte!!

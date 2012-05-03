@@ -83,7 +83,8 @@ public class Logger {
 		        + getDayOfMonth() + " " 
 		        + getHourOfDay() + ":" 
 		        + getMinute() + ":" 
-				+ getSecond() + "] - ";
+				+ getSecond() + "."
+				+ getMillis() + "] - ";
 		return tmp;
 	}
 	
@@ -232,6 +233,17 @@ public class Logger {
 	private String getSecond(){
 		String res;
 		int tmp = cal.get(Calendar.SECOND);
+		if(tmp < 10){
+			res = "0" + tmp;
+		}else{
+			res = "" + tmp;
+		}
+		return res;
+	}
+	
+	private String getMillis(){
+		String res;
+		int tmp = cal.get(Calendar.MILLISECOND);
 		if(tmp < 10){
 			res = "0" + tmp;
 		}else{

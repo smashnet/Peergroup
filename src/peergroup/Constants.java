@@ -29,6 +29,8 @@ public class Constants {
     
 	public final static Logger log = new Logger();
 	
+	public static LinkedList<P2Pdevice> p2pDevices = new LinkedList<P2Pdevice>();
+	
 	public static CyclicBarrier myBarrier = new CyclicBarrier(2);
 	
 	/*

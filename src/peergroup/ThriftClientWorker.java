@@ -120,27 +120,13 @@ public class ThriftClientWorker extends Thread {
 	}
 	
 	private byte[] getBlock(String name, int id, String hash, P2Pdevice node){
-		TTransport transport;
-		try{
-			transport = new TSocket(node.getIP(), node.getPort());
-			TProtocol protocol = new TBinaryProtocol(transport);
-			DataTransfer.Client client = new DataTransfer.Client(protocol);
-			transport.open();
-			
-			ByteBuffer block = client.getDataBlock(name,id,hash);
-			
-			transport.close();
-			
-			return block.array();
-		}catch(TTransportException e){
-		
-		}catch(TException e){
-		
-		}
-		return null;
+		return node.getDataBlock(name,id,hash);
 	}
 	
 	public void stopThriftWorker(){
+		for(P2Pdevice d : Constants.p2pDevices){
+			d.closeTransport();
+		}
 		this.interrupt();
 	}
 	

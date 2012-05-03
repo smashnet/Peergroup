@@ -58,10 +58,9 @@ namespace php peergroup
 namespace perl peergroup
 
 struct ThriftP2PDevice {
-	1: i32 id,
-	2: string ip,
-	3: i32 port,
-	4: string jid
+	1: string ip,
+	2: i32 port,
+	3: string jid
 }
 
 struct ThriftFileChunk {

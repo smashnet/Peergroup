@@ -213,7 +213,7 @@ public class MainWorker extends Thread {
 		LinkedList<String> blocks = (LinkedList<String>)in.getProperty("blocks");
 		byte[] hash = (byte[])in.getProperty("sha256");
 		
-		P2Pdevice remoteNode = new P2Pdevice(jid,ip,port);
+		P2Pdevice remoteNode = P2Pdevice.getDevice(jid,ip,port);
 		
 		myStorage.newFileFromXMPP(name,hash,size,blocks,512000,remoteNode);
 	}
@@ -257,7 +257,9 @@ public class MainWorker extends Thread {
 		LinkedList<String> blocks = (LinkedList<String>)in.getProperty("blocks");
 		byte[] hash = (byte[])in.getProperty("sha256");
 		
-		myStorage.modifiedFileFromXMPP(name, vers, size, blocks, hash, new P2Pdevice(jid,ip,port));
+		P2Pdevice remoteNode = P2Pdevice.getDevice(jid,ip,port);
+		
+		myStorage.modifiedFileFromXMPP(name, vers, size, blocks, hash, remoteNode);
 	}
 	
 	private void handleRemoteChunkComplete(XMPPRequest request){
@@ -271,7 +273,9 @@ public class MainWorker extends Thread {
 		int chunkID		= ((Integer)in.getProperty("chunkID")).intValue();
 		int chunkVers	= ((Integer)in.getProperty("chunkVers")).intValue();
 		
-		myStorage.addP2PdeviceToBlock(name,chunkID,new P2Pdevice(jid,ip,port));
+		P2Pdevice remoteNode = P2Pdevice.getDevice(jid,ip,port);
+		
+		myStorage.addP2PdeviceToBlock(name,chunkID,remoteNode);
 	}
 	
 	/**
@@ -290,6 +294,8 @@ public class MainWorker extends Thread {
 		String name = (String)in.getProperty("name");
 		int vers	= ((Integer)in.getProperty("version")).intValue();
 		
-		myStorage.addP2PdeviceToFile(name,vers,new P2Pdevice(jid,ip,port));
+		P2Pdevice remoteNode = P2Pdevice.getDevice(jid,ip,port);
+		
+		myStorage.addP2PdeviceToFile(name,vers,remoteNode);
 	}
 }

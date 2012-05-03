@@ -30,10 +30,9 @@ import org.slf4j.LoggerFactory;
 public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice, ThriftP2PDevice._Fields>, java.io.Serializable, Cloneable {
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("ThriftP2PDevice");
 
-  private static final org.apache.thrift.protocol.TField ID_FIELD_DESC = new org.apache.thrift.protocol.TField("id", org.apache.thrift.protocol.TType.I32, (short)1);
-  private static final org.apache.thrift.protocol.TField IP_FIELD_DESC = new org.apache.thrift.protocol.TField("ip", org.apache.thrift.protocol.TType.STRING, (short)2);
-  private static final org.apache.thrift.protocol.TField PORT_FIELD_DESC = new org.apache.thrift.protocol.TField("port", org.apache.thrift.protocol.TType.I32, (short)3);
-  private static final org.apache.thrift.protocol.TField JID_FIELD_DESC = new org.apache.thrift.protocol.TField("jid", org.apache.thrift.protocol.TType.STRING, (short)4);
+  private static final org.apache.thrift.protocol.TField IP_FIELD_DESC = new org.apache.thrift.protocol.TField("ip", org.apache.thrift.protocol.TType.STRING, (short)1);
+  private static final org.apache.thrift.protocol.TField PORT_FIELD_DESC = new org.apache.thrift.protocol.TField("port", org.apache.thrift.protocol.TType.I32, (short)2);
+  private static final org.apache.thrift.protocol.TField JID_FIELD_DESC = new org.apache.thrift.protocol.TField("jid", org.apache.thrift.protocol.TType.STRING, (short)3);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -41,17 +40,15 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
     schemes.put(TupleScheme.class, new ThriftP2PDeviceTupleSchemeFactory());
   }
 
-  public int id; // required
   public String ip; // required
   public int port; // required
   public String jid; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-    ID((short)1, "id"),
-    IP((short)2, "ip"),
-    PORT((short)3, "port"),
-    JID((short)4, "jid");
+    IP((short)1, "ip"),
+    PORT((short)2, "port"),
+    JID((short)3, "jid");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -66,13 +63,11 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
      */
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
-        case 1: // ID
-          return ID;
-        case 2: // IP
+        case 1: // IP
           return IP;
-        case 3: // PORT
+        case 2: // PORT
           return PORT;
-        case 4: // JID
+        case 3: // JID
           return JID;
         default:
           return null;
@@ -114,14 +109,11 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
   }
 
   // isset id assignments
-  private static final int __ID_ISSET_ID = 0;
-  private static final int __PORT_ISSET_ID = 1;
-  private BitSet __isset_bit_vector = new BitSet(2);
+  private static final int __PORT_ISSET_ID = 0;
+  private BitSet __isset_bit_vector = new BitSet(1);
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-    tmpMap.put(_Fields.ID, new org.apache.thrift.meta_data.FieldMetaData("id", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.IP, new org.apache.thrift.meta_data.FieldMetaData("ip", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.PORT, new org.apache.thrift.meta_data.FieldMetaData("port", org.apache.thrift.TFieldRequirementType.DEFAULT, 
@@ -136,14 +128,11 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
   }
 
   public ThriftP2PDevice(
-    int id,
     String ip,
     int port,
     String jid)
   {
     this();
-    this.id = id;
-    setIdIsSet(true);
     this.ip = ip;
     this.port = port;
     setPortIsSet(true);
@@ -156,7 +145,6 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
   public ThriftP2PDevice(ThriftP2PDevice other) {
     __isset_bit_vector.clear();
     __isset_bit_vector.or(other.__isset_bit_vector);
-    this.id = other.id;
     if (other.isSetIp()) {
       this.ip = other.ip;
     }
@@ -172,35 +160,10 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
 
   @Override
   public void clear() {
-    setIdIsSet(false);
-    this.id = 0;
     this.ip = null;
     setPortIsSet(false);
     this.port = 0;
     this.jid = null;
-  }
-
-  public int getId() {
-    return this.id;
-  }
-
-  public ThriftP2PDevice setId(int id) {
-    this.id = id;
-    setIdIsSet(true);
-    return this;
-  }
-
-  public void unsetId() {
-    __isset_bit_vector.clear(__ID_ISSET_ID);
-  }
-
-  /** Returns true if field id is set (has been assigned a value) and false otherwise */
-  public boolean isSetId() {
-    return __isset_bit_vector.get(__ID_ISSET_ID);
-  }
-
-  public void setIdIsSet(boolean value) {
-    __isset_bit_vector.set(__ID_ISSET_ID, value);
   }
 
   public String getIp() {
@@ -276,14 +239,6 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
 
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
-    case ID:
-      if (value == null) {
-        unsetId();
-      } else {
-        setId((Integer)value);
-      }
-      break;
-
     case IP:
       if (value == null) {
         unsetIp();
@@ -313,9 +268,6 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
 
   public Object getFieldValue(_Fields field) {
     switch (field) {
-    case ID:
-      return Integer.valueOf(getId());
-
     case IP:
       return getIp();
 
@@ -336,8 +288,6 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
     }
 
     switch (field) {
-    case ID:
-      return isSetId();
     case IP:
       return isSetIp();
     case PORT:
@@ -360,15 +310,6 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
   public boolean equals(ThriftP2PDevice that) {
     if (that == null)
       return false;
-
-    boolean this_present_id = true;
-    boolean that_present_id = true;
-    if (this_present_id || that_present_id) {
-      if (!(this_present_id && that_present_id))
-        return false;
-      if (this.id != that.id)
-        return false;
-    }
 
     boolean this_present_ip = true && this.isSetIp();
     boolean that_present_ip = true && that.isSetIp();
@@ -413,16 +354,6 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
     int lastComparison = 0;
     ThriftP2PDevice typedOther = (ThriftP2PDevice)other;
 
-    lastComparison = Boolean.valueOf(isSetId()).compareTo(typedOther.isSetId());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetId()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.id, typedOther.id);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
     lastComparison = Boolean.valueOf(isSetIp()).compareTo(typedOther.isSetIp());
     if (lastComparison != 0) {
       return lastComparison;
@@ -473,10 +404,6 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
     StringBuilder sb = new StringBuilder("ThriftP2PDevice(");
     boolean first = true;
 
-    sb.append("id:");
-    sb.append(this.id);
-    first = false;
-    if (!first) sb.append(", ");
     sb.append("ip:");
     if (this.ip == null) {
       sb.append("null");
@@ -540,15 +467,7 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
           break;
         }
         switch (schemeField.id) {
-          case 1: // ID
-            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.id = iprot.readI32();
-              struct.setIdIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 2: // IP
+          case 1: // IP
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
               struct.ip = iprot.readString();
               struct.setIpIsSet(true);
@@ -556,7 +475,7 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 3: // PORT
+          case 2: // PORT
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.port = iprot.readI32();
               struct.setPortIsSet(true);
@@ -564,7 +483,7 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 4: // JID
+          case 3: // JID
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
               struct.jid = iprot.readString();
               struct.setJidIsSet(true);
@@ -587,9 +506,6 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
-      oprot.writeFieldBegin(ID_FIELD_DESC);
-      oprot.writeI32(struct.id);
-      oprot.writeFieldEnd();
       if (struct.ip != null) {
         oprot.writeFieldBegin(IP_FIELD_DESC);
         oprot.writeString(struct.ip);
@@ -621,22 +537,16 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
     public void write(org.apache.thrift.protocol.TProtocol prot, ThriftP2PDevice struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
-      if (struct.isSetId()) {
+      if (struct.isSetIp()) {
         optionals.set(0);
       }
-      if (struct.isSetIp()) {
+      if (struct.isSetPort()) {
         optionals.set(1);
       }
-      if (struct.isSetPort()) {
+      if (struct.isSetJid()) {
         optionals.set(2);
       }
-      if (struct.isSetJid()) {
-        optionals.set(3);
-      }
-      oprot.writeBitSet(optionals, 4);
-      if (struct.isSetId()) {
-        oprot.writeI32(struct.id);
-      }
+      oprot.writeBitSet(optionals, 3);
       if (struct.isSetIp()) {
         oprot.writeString(struct.ip);
       }
@@ -651,20 +561,16 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, ThriftP2PDevice struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(4);
+      BitSet incoming = iprot.readBitSet(3);
       if (incoming.get(0)) {
-        struct.id = iprot.readI32();
-        struct.setIdIsSet(true);
-      }
-      if (incoming.get(1)) {
         struct.ip = iprot.readString();
         struct.setIpIsSet(true);
       }
-      if (incoming.get(2)) {
+      if (incoming.get(1)) {
         struct.port = iprot.readI32();
         struct.setPortIsSet(true);
       }
-      if (incoming.get(3)) {
+      if (incoming.get(2)) {
         struct.jid = iprot.readString();
         struct.setJidIsSet(true);
       }
