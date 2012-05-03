@@ -17,6 +17,7 @@ Stuff
 =====
 
 * hide incomplete files -> not recognized by jpathwatch
+* thrift connection handling
 
 * IN PROGRESS: XMPP getMessage blocks and cannot be interrupted -> need to use stop() to stop thread -> bad
 * IN PROGRESS: New peer, get current FileSystem and merge with local directory
