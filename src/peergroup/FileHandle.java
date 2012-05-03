@@ -209,7 +209,6 @@ public class FileHandle {
             if(id < this.chunks.size()){ 
 				// new chunk hash != old chunk hash
 				if(!(Arrays.equals(calcHash(buffer),this.chunks.get(id).getHash()))){
-					System.out.println(calcHash(buffer) + " " + this.chunks.get(id).getHash());
 					Constants.log.addMsg("FileHandle: Chunk " + id + " changed! Updating chunklist...",3);
 					FileChunk updated = new FileChunk(this.getPath(),id,this.chunks.get(id).getVersion()+1,calcHash(buffer),bytesRead,id*chunkSize,true);
 					this.updatedBlocks.add(new Integer(id));
@@ -461,7 +460,6 @@ public class FileHandle {
 		LinkedList<String> tmp = new LinkedList<String>();
 		for(FileChunk f : this.chunks){
 			String newBlock = f.getID() + ":" + f.getVersion() + ":" + f.getHexHash();
-			System.out.println(newBlock);
 			tmp.add(newBlock);
 		}
 		return tmp;

@@ -1,21 +1,6 @@
 Ideas and brain tmp
 ===================
 
-Use Smack "properties" to include information in Message objects
-
-Example:
-
-Sending
-Message newMessage = new Message();
-newMessage.setProperty("ip","137.226.12.86");
-
-Receiving
-Message tmp = chat.nextMessage();
-String myIP = (String)tmp.getProperty("ip");
-
-Stuff
-=====
-
 * hide incomplete files -> not recognized by jpathwatch
 * thrift connection handling
 

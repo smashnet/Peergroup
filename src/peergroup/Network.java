@@ -69,7 +69,7 @@ public class Network {
 			Constants.log.addMsg("Successfully logged into XMPP Server as: " +
 				Constants.user + "@" + Constants.server + "/" + Constants.resource);
 		}catch(XMPPException xe){
-			Constants.log.addMsg("Failed logging into XMPP Server: " + xe,4);
+			Constants.requestQueue.offer(new FSRequest(Constants.STH_EVIL_HAPPENED,"Unable to login to XMPP Server: " + xe));
 		}
 	}
 	
@@ -115,7 +115,8 @@ public class Network {
 			this.joinedAChannel = true;
 			Constants.log.addMsg("Successfully joined conference: " + roomAndServer);
 		}catch(XMPPException xe){
-			Constants.log.addMsg("Failed joining conference: " + roomAndServer + " " + xe,4);
+			Constants.requestQueue.offer(new FSRequest(Constants.STH_EVIL_HAPPENED,"Unable to join conference channel: "
+				+ roomAndServer + " " + xe));
 			this.joinedAChannel = false;
 		}
 	}
