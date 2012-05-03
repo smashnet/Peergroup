@@ -145,6 +145,7 @@ public class Logger {
 				this.bw.write(time + txt + '\n');
 				System.out.print(time + txt + '\n');
 			}
+			this.bw.flush();
 		}catch(IOException ioe){
 			System.out.println("Caught error: " + ioe);
 		}
