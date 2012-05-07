@@ -111,7 +111,7 @@ public class MainWorker extends Thread {
 		Constants.storage.stopStorageWorker();
 		Constants.network.stopNetworkWorker();
 		Constants.thrift.stopThriftWorker();
-		Constants.thriftClient.stopThriftWorker();
+		Constants.thriftClient.stopPoolExecutor();
 		if(Constants.enableModQueue){
 			Constants.modQueue.interrupt();
 		}

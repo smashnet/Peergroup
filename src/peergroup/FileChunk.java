@@ -30,6 +30,7 @@ public class FileChunk {
 	private long offset;
 	private int size;
 	private boolean complete;
+	private boolean downloading;
     private LinkedList<P2Pdevice> peers;
     
     public FileChunk(){
@@ -44,6 +45,7 @@ public class FileChunk {
 		this.version = vers;
 		this.chunkHash = toByteHash(hash);
 		this.complete = comp;
+		this.downloading = false;
 		this.peers = new LinkedList<P2Pdevice>();
 		this.peers.add(node);
 	}
@@ -56,6 +58,7 @@ public class FileChunk {
 		this.size = s;
 		this.offset = off;
 		this.complete = compl;
+		this.downloading = false;
 		this.peers = new LinkedList<P2Pdevice>();
     }
 	
@@ -67,6 +70,7 @@ public class FileChunk {
 		this.size = s;
 		this.offset = off;
 		this.complete = compl;
+		this.downloading = false;
 		this.peers = new LinkedList<P2Pdevice>();
     }
 	
@@ -156,4 +160,13 @@ public class FileChunk {
 	public void setComplete(boolean bool){
 		this.complete = bool;
 	}
+	
+	public boolean isDownloading(){
+		return this.downloading;
+	}
+	
+	public void setDownloading(boolean bool){
+		this.downloading = bool;
+	}
+	
 }

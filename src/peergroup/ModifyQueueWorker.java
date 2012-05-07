@@ -13,6 +13,8 @@
 
 package peergroup;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * This thread regularily checks the ModifyEventQueue if files
  * haven't been updated for more than one second. In this case
@@ -34,9 +36,37 @@ public class ModifyQueueWorker extends Thread {
 	public void run(){
 		this.setName("ModifyQueue Thread");
 		Constants.log.addMsg("ModifyQueue thread started...");
-		while(true){
+		while(!isInterrupted()){
 			try{
-				Thread.sleep(1000);
+				//Process data from storeQueue
+				long timeA,timeB;
+				timeA = System.currentTimeMillis();
+				do{
+					StoreBlock blockInfo = Constants.storeQueue.poll(100,TimeUnit.MILLISECONDS);
+					if(blockInfo == null){
+						timeB = System.currentTimeMillis();
+						continue;
+					}
+					FileHandle tmp = blockInfo.getFileHandle();
+					tmp.setChunkData(blockInfo.getID(),blockInfo.getHexHash(),
+						blockInfo.getDevice(),blockInfo.getData());
+					tmp.updateChunkVersion(blockInfo.getID());
+					
+					Network.getInstance().sendMUCCompletedChunk(blockInfo.getName(),blockInfo.getID(),blockInfo.getVersion());
+					
+					if(tmp.isComplete()){
+						Constants.log.addMsg("Completed download: " + blockInfo.getName() + " - Version " + blockInfo.getVersion(),2);
+						tmp.trimFile();
+						tmp.setUpdating(false);
+					}
+					
+					timeB = System.currentTimeMillis();
+				}while(timeB-timeA < 1000);
+				
+				if(timeB-timeA < 1000){
+					Thread.sleep(timeB-timeA);
+				}
+				//Do requestQueue
 				long curTime = System.currentTimeMillis();
 				for(ModifyEvent e : Constants.modifyQueue){
 					if(curTime - e.getTime() > 1000){

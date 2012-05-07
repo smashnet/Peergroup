@@ -30,6 +30,7 @@ public class Constants {
 	public final static Logger log = new Logger();
 	
 	public static LinkedList<P2Pdevice> p2pDevices = new LinkedList<P2Pdevice>();
+	public static LinkedBlockingQueue<StoreBlock> storeQueue = new LinkedBlockingQueue<StoreBlock>();
 	
 	public static CyclicBarrier myBarrier = new CyclicBarrier(2);
 	
@@ -63,7 +64,7 @@ public class Constants {
 	public static StorageWorker storage;
 	public static NetworkWorker network;
 	public static ThriftServerWorker thrift;
-	public static ThriftClientWorker thriftClient;
+	public static ThriftClientBase thriftClient;
 	public static ModifyQueueWorker modQueue;
 	    
 	/*

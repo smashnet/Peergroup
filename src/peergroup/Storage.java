@@ -278,7 +278,7 @@ public class Storage {
 		FileChunk res = null;
 		for(FileHandle h : this.files){
 			for(FileChunk c : h.getChunks()){
-				if(c.isComplete())
+				if(c.isComplete() || c.isDownloading())
 					continue;
 				int peers = c.noOfPeers();
 				if(peers < min && peers > 0){

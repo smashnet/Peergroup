@@ -369,6 +369,7 @@ public class FileHandle {
 			
 			recent.setHexHash(hash);
 			recent.setComplete(true);
+			recent.setDownloading(false);
 		}catch(IOException ioe){
 			Constants.log.addMsg("Error writing to file:" + ioe, 1);
 		}

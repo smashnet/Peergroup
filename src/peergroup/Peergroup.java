@@ -45,7 +45,7 @@ public class Peergroup {
 				Constants.storage.stopStorageWorker();
 				Constants.network.stopNetworkWorker();
 				Constants.thrift.stopThriftWorker();
-				Constants.thriftClient.stopThriftWorker();
+				Constants.thriftClient.stopPoolExecutor();
 				if(Constants.enableModQueue){
 					Constants.modQueue.interrupt();
 				}
@@ -73,7 +73,7 @@ public class Peergroup {
 		Constants.storage = new StorageWorker();
 		Constants.network = new NetworkWorker();
 		Constants.thrift = new ThriftServerWorker();
-		Constants.thriftClient = new ThriftClientWorker();
+		Constants.thriftClient = new ThriftClientBase();
 		// -- Start Threads
 		Constants.storage.start();
 		Constants.network.start();
@@ -96,6 +96,12 @@ public class Peergroup {
 			if(Constants.enableModQueue){
 				Constants.modQueue.join();
 			}
+			
+			for(P2Pdevice d : Constants.p2pDevices){
+				d.closeTransport();
+			}
+			
+			
 		}catch(InterruptedException ie){
 			Constants.log.addMsg("Couldn't wait for all threads to cleanly shut down! Oh what a mess... Bye!",1);
 		}

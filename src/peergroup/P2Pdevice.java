@@ -64,7 +64,7 @@ public class P2Pdevice {
 			this.transport.close();
 	}
 	
-	public byte[] getDataBlock(String name, int id, String hash){
+	public synchronized byte[] getDataBlock(String name, int id, String hash){
 		if(!this.transport.isOpen()){
 			openTransport();
 		}
