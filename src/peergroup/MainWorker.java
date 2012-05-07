@@ -178,7 +178,8 @@ public class MainWorker extends Thread {
 				String tmp = "";
 				tmp += i.intValue() + ":";
 				tmp += newFile.getVersion() + ":";
-				tmp += newFile.getChunkHash(i.intValue());
+				tmp += newFile.getChunkHash(i.intValue()) + ":";
+				tmp += newFile.getChunkSize(i.intValue());
 				updatedWithHash.add(tmp);
 			}
 			// Only send update, if updated blocks available

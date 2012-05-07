@@ -120,7 +120,7 @@ public class FileChunk {
 		return this.offset;
 	}
 	
-	public long getSize(){
+	public int getSize(){
 		return this.size;
 	}
 	
@@ -134,6 +134,10 @@ public class FileChunk {
 	
 	public int noOfPeers(){
 		return this.peers.size();
+	}
+	
+	public void setSize(int size){
+		this.size = size;
 	}
 	
 	public void setPeers(LinkedList<P2Pdevice> newPeers){

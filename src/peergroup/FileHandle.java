@@ -478,7 +478,9 @@ public class FileHandle {
 	
 	public void updateBlocks(LinkedList<String> blocks,int vers){
 		for(String s : blocks){
-			//TODO: Change size
+			String tmp[] = s.split(":");
+			this.chunks.get(s.charAt(0)-48).setHexHash(tmp[2]);
+			this.chunks.get(s.charAt(0)-48).setSize(Integer.valueOf(tmp[3]));
 			this.chunks.get(s.charAt(0)-48).setComplete(false);
 		}
 		if(blocks.size() == this.chunks.size()){
@@ -559,6 +561,10 @@ public class FileHandle {
 	
 	public int getChunkSize(){
 		return this.chunkSize;
+	}
+	
+	public int getChunkSize(int i){
+		return this.chunks.get(i).getSize();
 	}
 	
 	public void setSize(long newSize){
