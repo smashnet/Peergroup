@@ -42,4 +42,11 @@ Remote (HD to HD):
 Mit neuem Verbindugsaufbau	: 24.9s
 Ohne neuen Verbindungsaufbau: 24.04s
 
--> Blöde Festplatte!!
+Zuhause:
+Remote (HD to HD):
+Mit neuem Verbindugsaufbau	: 34.67s
+Ohne neuen Verbindungsaufbau: 34,54s 34,21s
+
+Local:
+Mit: 6,781s
+Ohne: 7,632s

@@ -66,8 +66,6 @@ public class ThriftClientWorker extends Thread {
 				}*/
 				FileChunk tmp;
 				if((tmp = Storage.getInstance().getRarestChunk()) != null){
-					Constants.log.addMsg("DOWNLOAD_BLOCK: " + tmp.getName() + " - Block " 
-										+ tmp.getID());
 					handleDownloadFileChunk(tmp);
 				}else{
 					Thread.sleep(1000);
@@ -86,6 +84,8 @@ public class ThriftClientWorker extends Thread {
 			return;
 		}else{
 			P2Pdevice device = chunk.getRandomPeer();
+			Constants.log.addMsg("DOWNLOAD_BLOCK: " + chunk.getName() + " - Block " 
+								+ chunk.getID() + " from " + device.getIP() + ":" + device.getPort());
 			byte[] swap = getBlock(chunk.getName(),chunk.getID(),chunk.getHexHash(),device);
 			//Constants.log.addMsg("Downloaded block " + chunk.getID() + " at " + rate + "KByte/s",2);
 			tmp.setChunkData(chunk.getID(),chunk.getHexHash(),device,swap);
