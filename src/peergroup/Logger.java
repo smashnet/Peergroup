@@ -246,6 +246,8 @@ public class Logger {
 		String res;
 		int tmp = cal.get(Calendar.MILLISECOND);
 		if(tmp < 10){
+			res = "00" + tmp;
+		}else if(tmp < 100 && tmp >= 10){
 			res = "0" + tmp;
 		}else{
 			res = "" + tmp;

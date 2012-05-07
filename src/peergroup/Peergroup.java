@@ -175,7 +175,6 @@ public class Peergroup {
 			}
 			if(last.equals("-pass")){
 				Constants.pass = s;
-				Constants.log.addMsg("Set pass for JID to: " + Constants.pass,3); //Maybe this should be hidden in the final version ;-)
 			}
 			if(last.equals("-ip")){
 				Constants.ipAddress = s;
