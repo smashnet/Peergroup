@@ -74,7 +74,7 @@ public class FileHandle {
 								+ " (Size: " + this.size + " Bytes)", 3);
 		
 		// Use fixed chunk size for testing
-		this.chunkSize = 512000;
+		this.chunkSize = Constants.chunkSize;
 		/*
         *if(this.size <= 512000){								// size <= 500kByte 				-> 100kByte Chunks
 		*	this.chunkSize = 102400;
@@ -274,30 +274,6 @@ public class FileHandle {
 		return changed;
 	}
 	
-	/**
-	* Insert new hashes and version on changed blocks
-	*
-	* @param blocks The list of blocks that need to be downloaded
-	*/
-	public void updateChunkList(LinkedList<String> blocks, P2Pdevice node){
-		for(String s : blocks){
-			updateChunk(s,node);
-		}
-	}
-	
-	public void updateChunk(String chunk, P2Pdevice node){
-		String[] tmp = chunk.split(":");
-		int id = (Integer.valueOf(tmp[0])).intValue();
-		int vers = (Integer.valueOf(tmp[1])).intValue();
-		String hash = tmp[2];
-		if(id < this.chunks.size()){
-			this.chunks.get(id).setHexHash(hash);
-			this.chunks.get(id).setVersion(vers);
-		}else{
-			this.chunks.add(new FileChunk(this.getPath(),id,512000,vers,hash,node,false));
-		}
-	}
-	
 	public void addP2PdeviceToBlock(int id, P2Pdevice node){
 		this.chunks.get(id).addPeer(node);
 	}
@@ -382,7 +358,7 @@ public class FileHandle {
 		}
 		FileChunk recent;
 		if(id >= this.chunks.size()){
-			recent = new FileChunk(this.getPath(),id,512000,this.fileVersion,hash,node,true);
+			recent = new FileChunk(this.getPath(),id,Constants.chunkSize,this.fileVersion,hash,node,true);
 		}else{
 			recent = this.chunks.get(id);
 		}
@@ -502,12 +478,14 @@ public class FileHandle {
 		return tmp;
 	}
 	
-	public void updateBlocks(LinkedList<String> blocks,int vers){
+	public void updateBlocks(LinkedList<String> blocks, int vers, P2Pdevice node){
 		for(String s : blocks){
 			String tmp[] = s.split(":");
-			this.chunks.get(s.charAt(0)-48).setHexHash(tmp[2]);
-			this.chunks.get(s.charAt(0)-48).setSize(Integer.valueOf(tmp[3]));
-			this.chunks.get(s.charAt(0)-48).setComplete(false);
+			int index = s.charAt(0)-48;
+			//TODO: Handle case if we have less or more blocks
+			this.chunks.get(index).setHexHash(tmp[2]);
+			this.chunks.get(index).setSize(Integer.valueOf(tmp[3]));
+			this.chunks.get(index).setComplete(false);
 		}
 		if(blocks.size() == this.chunks.size()){
 			// Do nothing if all blocks have changed

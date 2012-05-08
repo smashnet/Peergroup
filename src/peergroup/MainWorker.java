@@ -221,7 +221,7 @@ public class MainWorker extends Thread {
 		
 		P2Pdevice remoteNode = P2Pdevice.getDevice(jid,ip,port);
 		
-		myStorage.newFileFromXMPP(name,hash,size,blocks,512000,remoteNode);
+		myStorage.newFileFromXMPP(name,hash,size,blocks,Constants.chunkSize,remoteNode);
 	}
 	
 	/**
