@@ -78,6 +78,20 @@ public class P2Pdevice {
 		return null;
 	}
 	
+	public synchronized ThriftStorage getFileList(){
+		if(!this.transport.isOpen()){
+			openTransport();
+		}
+		try{
+			ThriftStorage list = client.getStorage();
+		
+			return list;
+		}catch(TException te){
+			Constants.log.addMsg("Thrift Error: " + te,1);
+		}
+		return null;
+	}
+	
 	public boolean transportOpen(){
 		return this.transport.isOpen();
 	}

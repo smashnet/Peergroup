@@ -1,5 +1,5 @@
 /*
-* Peergroup - ThriftClientWorker.java
+* Peergroup - ThriftClientGetData.java
 * 
 * Peergroup is a P2P Shared Storage System using XMPP for data- and 
 * participantmanagement and Apache Thrift for direct data-
@@ -24,11 +24,11 @@ import org.apache.thrift.transport.*;
  *
  * @author Nicolas Inden
  */
-public class ThriftClientWorker implements Runnable {
+public class ThriftClientGetData implements Runnable {
 	
 	private FileChunk chunk;
 	
-	public ThriftClientWorker(FileChunk chunk){
+	public ThriftClientGetData(FileChunk chunk){
 		this.chunk = chunk;
 	}
 	

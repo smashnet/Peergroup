@@ -97,6 +97,8 @@ public class Constants {
 	public final static int REMOTE_ENTRY_MODIFY = 22;
 	public final static int REMOTE_ENTRY_COMPLETE = 23;
 	public final static int REMOTE_CHUNK_COMPLETE = 24;
+	public final static int REMOTE_JOINED_CHANNEL = 25;
+	public final static int REMOTE_FILE_LIST_VERSION = 26;
 	
 	public final static int DOWNLOAD_BLOCK = 30;
 		
@@ -109,7 +111,8 @@ public class Constants {
 	public static String ipAddress = "";
 	public static int p2pPort = 43334;
 	public static boolean caughtSignal = false;
-	public final int chunkSize = 512000;	//In bytes
+	public static final int chunkSize = 512000;	//In bytes
+	public static boolean syncingFileList = false;
 	
 	public static String getJID(){
 		return user + "@" + server + "/" + resource;

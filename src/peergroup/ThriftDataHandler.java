@@ -85,8 +85,9 @@ public class ThriftDataHandler implements DataTransfer.Iface {
 		}
 		ThriftFileChunk thriftChunk = new ThriftFileChunk(
 															localChunk.getID(),
-															localChunk.getHexHash(),
 															localChunk.getVersion(),
+															localChunk.getSize(),
+															localChunk.getHexHash(),
 															newList
 															);
 		return thriftChunk;

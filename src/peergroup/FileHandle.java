@@ -91,6 +91,21 @@ public class FileHandle {
 		this.createChunks(this.chunkSize,1);
 		this.updating = false;
     }
+	
+	/**
+	* Use this constructor for merging
+	*/
+    public FileHandle(String filename, int vers, long fileSize, String hexHash, int cSize, LinkedList<FileChunk> chunks) 
+    throws Exception{ 
+        this.file = new File(Constants.rootDirectory + filename);
+		this.fileVersion = vers;
+        this.hash = toByteHash(hexHash);
+        this.size = fileSize;
+		this.chunks = chunks;
+		this.chunkSize = cSize;
+		this.updatedBlocks = new LinkedList<Integer>();
+		this.updating = false;
+    }
     
 	/**
 	* Use this constructor for files to be received via network
@@ -110,6 +125,11 @@ public class FileHandle {
 		this.updating = false;
     }
     
+	public static byte[] toByteHash(String s){
+		HexBinaryAdapter adapter = new HexBinaryAdapter();
+		return adapter.unmarshal(s);
+	}
+	
 	/**
 	* Creates a linked list of FileChunk for this FileHandle
 	* 

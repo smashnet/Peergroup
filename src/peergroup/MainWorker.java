@@ -89,6 +89,11 @@ public class MainWorker extends Thread {
 						Constants.log.addMsg("MainWorker: Handling REMOTE_ENTRY_COMPLETE");
 						handleRemoteEntryComplete((XMPPRequest)nextRequest);
 						break;
+					case Constants.REMOTE_JOINED_CHANNEL:
+						Constants.log.addMsg("MainWorker: Handling REMOTE_JOINED_CHANNEL");
+						handleRemoteJoinedChannel((XMPPRequest)nextRequest);
+						break;
+					
 					case Constants.STH_EVIL_HAPPENED:
 						handleEvilEvents((FSRequest)nextRequest);
 					default:
@@ -298,5 +303,14 @@ public class MainWorker extends Thread {
 		P2Pdevice remoteNode = P2Pdevice.getDevice(jid,ip,port);
 		
 		myStorage.addP2PdeviceToFile(name,vers,remoteNode);
+	}
+	
+	private void handleRemoteJoinedChannel(XMPPRequest request){
+		//Available: "JID"
+		Message in = request.getContent();
+		
+		String jid = (String)in.getProperty("JID");
+		
+		Network.getInstance().sendMUCFileListVersion();
 	}
 }

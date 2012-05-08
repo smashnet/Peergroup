@@ -1,11 +1,6 @@
 Ideas and brain tmp
 ===================
 
-* modified files don't get downloaded
-
-* hide incomplete files -> not recognized by jpathwatch
-* thrift connection handling
-
 * IN PROGRESS: XMPP getMessage blocks and cannot be interrupted -> need to use stop() to stop thread -> bad
 * IN PROGRESS: New peer, get current FileSystem and merge with local directory
 * IN PROGRESS: Conflicts:	- File has flag "updating" + File gets updated locally during update
@@ -14,11 +9,14 @@ Ideas and brain tmp
 * IN PROGRESS: Implement lamport boradcast (if inconsistencies occur)
 * TODO: Test Thrift overhead
 * PLANNED: have to handle directories
+* MAYBE: hide incomplete files -> not recognized by jpathwatch (don't know if necessary)
+* DONE: thrift connection handling
 * DONE: what if file grows drastically and chunksize is changed -> complete new upload -> bad (Fixed chunksize)
 * DONE: FileHandle ~line 253 What about chunk version in additional new chunks? Same version as fileVersion!
 * DONE: remote modify -> remote affected items -> when try to delete locally -> item in list -> no deletion
 * DONE: on filechange set all unchanged blocks to new fileversion, set changed blocks _after_ they are downloaded!
 * DONE: On filechange clear P2Pdevice list
+* DONE: modified files don't get downloaded
 
 Related Work
 ============

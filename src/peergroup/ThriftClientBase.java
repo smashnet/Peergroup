@@ -58,7 +58,7 @@ public class ThriftClientBase extends Thread {
 				FileChunk tmp;
 				if((tmp = Storage.getInstance().getRarestChunk()) != null){
 					tmp.setDownloading(true);
-					this.runTask(new ThriftClientWorker(tmp));
+					this.runTask(new ThriftClientGetData(tmp));
 				}else{
 					Thread.sleep(1000);
 				}

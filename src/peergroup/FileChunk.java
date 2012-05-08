@@ -41,13 +41,25 @@ public class FileChunk {
 		this.file = name;
 		this.id = no;
 		this.size = size;
-		this.offset = id*size;
+		this.offset = id*Constants.chunkSize;
 		this.version = vers;
 		this.chunkHash = toByteHash(hash);
 		this.complete = comp;
 		this.downloading = false;
 		this.peers = new LinkedList<P2Pdevice>();
 		this.peers.add(node);
+	}
+	
+	public FileChunk(String name, int no, int size, int vers, String hash, LinkedList<P2Pdevice> nodes, boolean comp){
+		this.file = name;
+		this.id = no;
+		this.size = size;
+		this.offset = id*Constants.chunkSize;
+		this.version = vers;
+		this.chunkHash = toByteHash(hash);
+		this.complete = comp;
+		this.downloading = false;
+		this.peers = nodes;
 	}
 	
     public FileChunk(String name, int no, byte[] digest, int s, long off, boolean compl){
@@ -60,6 +72,7 @@ public class FileChunk {
 		this.complete = compl;
 		this.downloading = false;
 		this.peers = new LinkedList<P2Pdevice>();
+		this.peers.add(new P2Pdevice(Constants.getJID(),Constants.ipAddress,Constants.p2pPort));
     }
 	
     public FileChunk(String name, int no, int vers, byte[] digest, int s, long off, boolean compl){
@@ -72,6 +85,7 @@ public class FileChunk {
 		this.complete = compl;
 		this.downloading = false;
 		this.peers = new LinkedList<P2Pdevice>();
+		this.peers.add(new P2Pdevice(Constants.getJID(),Constants.ipAddress,Constants.p2pPort));
     }
 	
 	/**
@@ -92,16 +106,24 @@ public class FileChunk {
 		this.chunkHash = adapter.unmarshal(s);
 	}
 	
-	/**
-	* Converts the hex string to a byte[].
-	*/
 	public static byte[] toByteHash(String s){
 		HexBinaryAdapter adapter = new HexBinaryAdapter();
 		return adapter.unmarshal(s);
 	}
 	
+	public void deletePeer(String jid){
+		for(int i = 0; i < this.peers.size();i++){
+			if(this.peers.get(i).getJID().equals(jid))
+				this.peers.remove(i);
+		}
+	}
+	
 	public int getID(){
 		return this.id;
+	}
+	
+	public void decrVersion(){
+		this.version--;
 	}
 	
 	public void setVersion(int vers){

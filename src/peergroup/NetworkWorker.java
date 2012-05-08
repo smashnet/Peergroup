@@ -35,6 +35,7 @@ public class NetworkWorker extends Thread {
 	}
 	
 	public void stopNetworkWorker(){
+		this.myNetwork.sendMUCleave();
 		this.myNetwork.leaveMUC();
 		this.myNetwork.xmppDisconnect();
 		Constants.log.addMsg("Networking thread stopped. Closing...",4);
@@ -48,6 +49,9 @@ public class NetworkWorker extends Thread {
 		this.setName("XMPP Thread");
 		Constants.log.addMsg("Networking thread started...");
 		this.myNetwork = Network.getInstance();
+		int listsReceived = 0;
+		int maxListVersion = 0;
+		P2Pdevice maxListNode = new P2Pdevice();
 		
 		while(!isInterrupted()){
 			// read next message from XMPP
@@ -76,7 +80,7 @@ public class NetworkWorker extends Thread {
 			
 			// extract message type from message
 			int type = ((Integer)newMessage.getProperty("Type")).intValue();
-			String filename;
+			String filename, jid;
 			
 			switch(type){
 				case 1: 
@@ -138,13 +142,52 @@ public class NetworkWorker extends Thread {
 					break;
 				case 6:
 					/*
-					* Someone sent his current file list version
+					* Someone joined the channel
 					* Available information:
-					* "JID","IP","FileListVersion"
+					* "JID"
 					*/
 			
-						//TODO
-			
+					jid = (String)newMessage.getProperty("JID");
+					Constants.log.addMsg(jid + " joined the channel. Lamport: " + msgLamp);
+					myNetwork.sendMUCFileListVersion();
+					break;
+				case 7:
+					/* 
+					* Someone posted his fileListVersion
+					* Available information:
+					* "JID","IP","Port","FileListVersion"
+					*/
+					
+					jid = (String)newMessage.getProperty("JID");
+					int vers = ((Integer)newMessage.getProperty("FileListVersion")).intValue();
+					String ip = (String)newMessage.getProperty("IP");
+					int port = ((Integer)newMessage.getProperty("Port")).intValue();
+					if(Constants.syncingFileList){
+						if(vers > maxListVersion){
+							maxListVersion = vers;
+							maxListNode = new P2Pdevice(jid,ip,port);
+						}
+						listsReceived++;
+						Constants.log.addMsg("Received file list version " + vers + " from " + jid + ". Lamport: " + msgLamp);
+						if(listsReceived == myNetwork.getUserCount()-1){
+							Constants.log.addMsg("Found newest file list: " + maxListVersion + " from " + maxListNode.getJID());
+							ThriftClientGetFileList getFileListThread = new ThriftClientGetFileList(maxListVersion,maxListNode);
+							getFileListThread.start();
+							listsReceived = 0;
+							Constants.syncingFileList = false;
+						}
+					}
+					break;
+				case 8:
+					// Someone left the channel (Available: "JID")
+					// Inefficient!!
+					jid = (String)newMessage.getProperty("JID");
+					Constants.log.addMsg(jid + " left the channel. Lamport: " + msgLamp);
+					for(FileHandle fh : Storage.getInstance().getFileList()){
+						for(FileChunk fc : fh.getChunkList()){
+							fc.deletePeer(jid);
+						}
+					}
 					break;
 				default:
 			}

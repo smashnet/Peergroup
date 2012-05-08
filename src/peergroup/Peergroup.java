@@ -68,6 +68,13 @@ public class Peergroup {
 		if(os.equals("Linux") || os.equals("Windows 7"))
 				Constants.enableModQueue = true;
 		
+		//wait for presence messages
+		try{
+			Thread.sleep(500);
+		}catch(InterruptedException ie){
+		
+		}
+		
 		// -- Create Threads
 		Constants.main = new MainWorker();		
 		Constants.storage = new StorageWorker();
@@ -246,5 +253,6 @@ public class Peergroup {
 		Network.getInstance().joinMUC(Constants.user, Constants.pass, 
 			Constants.conference_channel + "@" + Constants.conference_server);
 		Network.getInstance().sendMUCmessage("Hi, I'm a peergroup client. I do awesome things :-)");
+		Network.getInstance().sendMUCjoin();
 	}
 }

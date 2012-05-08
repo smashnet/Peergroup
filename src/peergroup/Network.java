@@ -185,6 +185,10 @@ public class Network {
 		return newMessage;
 	}
 	
+	public int getUserCount(){
+		return this.muc.getOccupantsCount();
+	}
+	
 	/**
 	* Sets the lamport clock to the given value
 	*
@@ -412,7 +416,8 @@ public class Network {
 		
 		try{
 			this.muc.sendMessage(newMessage);	
-			Constants.log.addMsg("Sending XMPP: -JOIN- ",2);	
+			Constants.log.addMsg("Sending XMPP: -JOIN- ",2);
+			Constants.syncingFileList = true;
 		}catch(XMPPException xe){
 			Constants.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe,4);
 		}
@@ -421,7 +426,7 @@ public class Network {
 	/**
 	* This posts your current file list version
 	*/	
-	public void sendMUCpostFileListVersion(){
+	public void sendMUCFileListVersion(){
 		if(!this.joinedAChannel){
 			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
 			return;
@@ -440,6 +445,31 @@ public class Network {
 		try{
 			this.muc.sendMessage(newMessage);	
 			Constants.log.addMsg("Sending XMPP: -SENDFILELIST- ",2);	
+		}catch(XMPPException xe){
+			Constants.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe,4);
+		}
+	}
+	
+	/**
+	* This requests others to post their file list version
+	*/	
+	public void sendMUCleave(){
+		if(!this.joinedAChannel){
+			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
+			return;
+		}
+		Message newMessage = this.createMessageObject();
+		
+		/*
+		* Set message properties
+		*/
+		newMessage.setProperty("Type",8);
+		newMessage.setProperty("JID",Constants.getJID());
+		
+		try{
+			this.muc.sendMessage(newMessage);	
+			Constants.log.addMsg("Sending XMPP: -LEAVE- ",2);
+			Constants.syncingFileList = true;
 		}catch(XMPPException xe){
 			Constants.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe,4);
 		}

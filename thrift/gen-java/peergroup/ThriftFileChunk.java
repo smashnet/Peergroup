@@ -31,9 +31,10 @@ public class ThriftFileChunk implements org.apache.thrift.TBase<ThriftFileChunk,
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("ThriftFileChunk");
 
   private static final org.apache.thrift.protocol.TField CHUNK_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("chunkID", org.apache.thrift.protocol.TType.I32, (short)1);
-  private static final org.apache.thrift.protocol.TField HASH_FIELD_DESC = new org.apache.thrift.protocol.TField("hash", org.apache.thrift.protocol.TType.STRING, (short)2);
-  private static final org.apache.thrift.protocol.TField BLOCK_VERSION_FIELD_DESC = new org.apache.thrift.protocol.TField("blockVersion", org.apache.thrift.protocol.TType.I32, (short)3);
-  private static final org.apache.thrift.protocol.TField DEVICES_FIELD_DESC = new org.apache.thrift.protocol.TField("devices", org.apache.thrift.protocol.TType.LIST, (short)4);
+  private static final org.apache.thrift.protocol.TField BLOCK_VERSION_FIELD_DESC = new org.apache.thrift.protocol.TField("blockVersion", org.apache.thrift.protocol.TType.I32, (short)2);
+  private static final org.apache.thrift.protocol.TField SIZE_FIELD_DESC = new org.apache.thrift.protocol.TField("size", org.apache.thrift.protocol.TType.I32, (short)3);
+  private static final org.apache.thrift.protocol.TField HASH_FIELD_DESC = new org.apache.thrift.protocol.TField("hash", org.apache.thrift.protocol.TType.STRING, (short)4);
+  private static final org.apache.thrift.protocol.TField DEVICES_FIELD_DESC = new org.apache.thrift.protocol.TField("devices", org.apache.thrift.protocol.TType.LIST, (short)5);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -42,16 +43,18 @@ public class ThriftFileChunk implements org.apache.thrift.TBase<ThriftFileChunk,
   }
 
   public int chunkID; // required
-  public String hash; // required
   public int blockVersion; // required
+  public int size; // required
+  public String hash; // required
   public List<ThriftP2PDevice> devices; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     CHUNK_ID((short)1, "chunkID"),
-    HASH((short)2, "hash"),
-    BLOCK_VERSION((short)3, "blockVersion"),
-    DEVICES((short)4, "devices");
+    BLOCK_VERSION((short)2, "blockVersion"),
+    SIZE((short)3, "size"),
+    HASH((short)4, "hash"),
+    DEVICES((short)5, "devices");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -68,11 +71,13 @@ public class ThriftFileChunk implements org.apache.thrift.TBase<ThriftFileChunk,
       switch(fieldId) {
         case 1: // CHUNK_ID
           return CHUNK_ID;
-        case 2: // HASH
-          return HASH;
-        case 3: // BLOCK_VERSION
+        case 2: // BLOCK_VERSION
           return BLOCK_VERSION;
-        case 4: // DEVICES
+        case 3: // SIZE
+          return SIZE;
+        case 4: // HASH
+          return HASH;
+        case 5: // DEVICES
           return DEVICES;
         default:
           return null;
@@ -116,16 +121,19 @@ public class ThriftFileChunk implements org.apache.thrift.TBase<ThriftFileChunk,
   // isset id assignments
   private static final int __CHUNKID_ISSET_ID = 0;
   private static final int __BLOCKVERSION_ISSET_ID = 1;
-  private BitSet __isset_bit_vector = new BitSet(2);
+  private static final int __SIZE_ISSET_ID = 2;
+  private BitSet __isset_bit_vector = new BitSet(3);
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
     tmpMap.put(_Fields.CHUNK_ID, new org.apache.thrift.meta_data.FieldMetaData("chunkID", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-    tmpMap.put(_Fields.HASH, new org.apache.thrift.meta_data.FieldMetaData("hash", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.BLOCK_VERSION, new org.apache.thrift.meta_data.FieldMetaData("blockVersion", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+    tmpMap.put(_Fields.SIZE, new org.apache.thrift.meta_data.FieldMetaData("size", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+    tmpMap.put(_Fields.HASH, new org.apache.thrift.meta_data.FieldMetaData("hash", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.DEVICES, new org.apache.thrift.meta_data.FieldMetaData("devices", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
             new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, ThriftP2PDevice.class))));
@@ -138,16 +146,19 @@ public class ThriftFileChunk implements org.apache.thrift.TBase<ThriftFileChunk,
 
   public ThriftFileChunk(
     int chunkID,
-    String hash,
     int blockVersion,
+    int size,
+    String hash,
     List<ThriftP2PDevice> devices)
   {
     this();
     this.chunkID = chunkID;
     setChunkIDIsSet(true);
-    this.hash = hash;
     this.blockVersion = blockVersion;
     setBlockVersionIsSet(true);
+    this.size = size;
+    setSizeIsSet(true);
+    this.hash = hash;
     this.devices = devices;
   }
 
@@ -158,10 +169,11 @@ public class ThriftFileChunk implements org.apache.thrift.TBase<ThriftFileChunk,
     __isset_bit_vector.clear();
     __isset_bit_vector.or(other.__isset_bit_vector);
     this.chunkID = other.chunkID;
+    this.blockVersion = other.blockVersion;
+    this.size = other.size;
     if (other.isSetHash()) {
       this.hash = other.hash;
     }
-    this.blockVersion = other.blockVersion;
     if (other.isSetDevices()) {
       List<ThriftP2PDevice> __this__devices = new ArrayList<ThriftP2PDevice>();
       for (ThriftP2PDevice other_element : other.devices) {
@@ -179,9 +191,11 @@ public class ThriftFileChunk implements org.apache.thrift.TBase<ThriftFileChunk,
   public void clear() {
     setChunkIDIsSet(false);
     this.chunkID = 0;
-    this.hash = null;
     setBlockVersionIsSet(false);
     this.blockVersion = 0;
+    setSizeIsSet(false);
+    this.size = 0;
+    this.hash = null;
     this.devices = null;
   }
 
@@ -208,6 +222,52 @@ public class ThriftFileChunk implements org.apache.thrift.TBase<ThriftFileChunk,
     __isset_bit_vector.set(__CHUNKID_ISSET_ID, value);
   }
 
+  public int getBlockVersion() {
+    return this.blockVersion;
+  }
+
+  public ThriftFileChunk setBlockVersion(int blockVersion) {
+    this.blockVersion = blockVersion;
+    setBlockVersionIsSet(true);
+    return this;
+  }
+
+  public void unsetBlockVersion() {
+    __isset_bit_vector.clear(__BLOCKVERSION_ISSET_ID);
+  }
+
+  /** Returns true if field blockVersion is set (has been assigned a value) and false otherwise */
+  public boolean isSetBlockVersion() {
+    return __isset_bit_vector.get(__BLOCKVERSION_ISSET_ID);
+  }
+
+  public void setBlockVersionIsSet(boolean value) {
+    __isset_bit_vector.set(__BLOCKVERSION_ISSET_ID, value);
+  }
+
+  public int getSize() {
+    return this.size;
+  }
+
+  public ThriftFileChunk setSize(int size) {
+    this.size = size;
+    setSizeIsSet(true);
+    return this;
+  }
+
+  public void unsetSize() {
+    __isset_bit_vector.clear(__SIZE_ISSET_ID);
+  }
+
+  /** Returns true if field size is set (has been assigned a value) and false otherwise */
+  public boolean isSetSize() {
+    return __isset_bit_vector.get(__SIZE_ISSET_ID);
+  }
+
+  public void setSizeIsSet(boolean value) {
+    __isset_bit_vector.set(__SIZE_ISSET_ID, value);
+  }
+
   public String getHash() {
     return this.hash;
   }
@@ -230,29 +290,6 @@ public class ThriftFileChunk implements org.apache.thrift.TBase<ThriftFileChunk,
     if (!value) {
       this.hash = null;
     }
-  }
-
-  public int getBlockVersion() {
-    return this.blockVersion;
-  }
-
-  public ThriftFileChunk setBlockVersion(int blockVersion) {
-    this.blockVersion = blockVersion;
-    setBlockVersionIsSet(true);
-    return this;
-  }
-
-  public void unsetBlockVersion() {
-    __isset_bit_vector.clear(__BLOCKVERSION_ISSET_ID);
-  }
-
-  /** Returns true if field blockVersion is set (has been assigned a value) and false otherwise */
-  public boolean isSetBlockVersion() {
-    return __isset_bit_vector.get(__BLOCKVERSION_ISSET_ID);
-  }
-
-  public void setBlockVersionIsSet(boolean value) {
-    __isset_bit_vector.set(__BLOCKVERSION_ISSET_ID, value);
   }
 
   public int getDevicesSize() {
@@ -304,19 +341,27 @@ public class ThriftFileChunk implements org.apache.thrift.TBase<ThriftFileChunk,
       }
       break;
 
-    case HASH:
-      if (value == null) {
-        unsetHash();
-      } else {
-        setHash((String)value);
-      }
-      break;
-
     case BLOCK_VERSION:
       if (value == null) {
         unsetBlockVersion();
       } else {
         setBlockVersion((Integer)value);
+      }
+      break;
+
+    case SIZE:
+      if (value == null) {
+        unsetSize();
+      } else {
+        setSize((Integer)value);
+      }
+      break;
+
+    case HASH:
+      if (value == null) {
+        unsetHash();
+      } else {
+        setHash((String)value);
       }
       break;
 
@@ -336,11 +381,14 @@ public class ThriftFileChunk implements org.apache.thrift.TBase<ThriftFileChunk,
     case CHUNK_ID:
       return Integer.valueOf(getChunkID());
 
-    case HASH:
-      return getHash();
-
     case BLOCK_VERSION:
       return Integer.valueOf(getBlockVersion());
+
+    case SIZE:
+      return Integer.valueOf(getSize());
+
+    case HASH:
+      return getHash();
 
     case DEVICES:
       return getDevices();
@@ -358,10 +406,12 @@ public class ThriftFileChunk implements org.apache.thrift.TBase<ThriftFileChunk,
     switch (field) {
     case CHUNK_ID:
       return isSetChunkID();
-    case HASH:
-      return isSetHash();
     case BLOCK_VERSION:
       return isSetBlockVersion();
+    case SIZE:
+      return isSetSize();
+    case HASH:
+      return isSetHash();
     case DEVICES:
       return isSetDevices();
     }
@@ -390,21 +440,30 @@ public class ThriftFileChunk implements org.apache.thrift.TBase<ThriftFileChunk,
         return false;
     }
 
-    boolean this_present_hash = true && this.isSetHash();
-    boolean that_present_hash = true && that.isSetHash();
-    if (this_present_hash || that_present_hash) {
-      if (!(this_present_hash && that_present_hash))
-        return false;
-      if (!this.hash.equals(that.hash))
-        return false;
-    }
-
     boolean this_present_blockVersion = true;
     boolean that_present_blockVersion = true;
     if (this_present_blockVersion || that_present_blockVersion) {
       if (!(this_present_blockVersion && that_present_blockVersion))
         return false;
       if (this.blockVersion != that.blockVersion)
+        return false;
+    }
+
+    boolean this_present_size = true;
+    boolean that_present_size = true;
+    if (this_present_size || that_present_size) {
+      if (!(this_present_size && that_present_size))
+        return false;
+      if (this.size != that.size)
+        return false;
+    }
+
+    boolean this_present_hash = true && this.isSetHash();
+    boolean that_present_hash = true && that.isSetHash();
+    if (this_present_hash || that_present_hash) {
+      if (!(this_present_hash && that_present_hash))
+        return false;
+      if (!this.hash.equals(that.hash))
         return false;
     }
 
@@ -443,22 +502,32 @@ public class ThriftFileChunk implements org.apache.thrift.TBase<ThriftFileChunk,
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetHash()).compareTo(typedOther.isSetHash());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetHash()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.hash, typedOther.hash);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
     lastComparison = Boolean.valueOf(isSetBlockVersion()).compareTo(typedOther.isSetBlockVersion());
     if (lastComparison != 0) {
       return lastComparison;
     }
     if (isSetBlockVersion()) {
       lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.blockVersion, typedOther.blockVersion);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetSize()).compareTo(typedOther.isSetSize());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetSize()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.size, typedOther.size);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetHash()).compareTo(typedOther.isSetHash());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetHash()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.hash, typedOther.hash);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -497,16 +566,20 @@ public class ThriftFileChunk implements org.apache.thrift.TBase<ThriftFileChunk,
     sb.append(this.chunkID);
     first = false;
     if (!first) sb.append(", ");
+    sb.append("blockVersion:");
+    sb.append(this.blockVersion);
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("size:");
+    sb.append(this.size);
+    first = false;
+    if (!first) sb.append(", ");
     sb.append("hash:");
     if (this.hash == null) {
       sb.append("null");
     } else {
       sb.append(this.hash);
     }
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("blockVersion:");
-    sb.append(this.blockVersion);
     first = false;
     if (!first) sb.append(", ");
     sb.append("devices:");
@@ -568,15 +641,7 @@ public class ThriftFileChunk implements org.apache.thrift.TBase<ThriftFileChunk,
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 2: // HASH
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.hash = iprot.readString();
-              struct.setHashIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 3: // BLOCK_VERSION
+          case 2: // BLOCK_VERSION
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
               struct.blockVersion = iprot.readI32();
               struct.setBlockVersionIsSet(true);
@@ -584,7 +649,23 @@ public class ThriftFileChunk implements org.apache.thrift.TBase<ThriftFileChunk,
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 4: // DEVICES
+          case 3: // SIZE
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.size = iprot.readI32();
+              struct.setSizeIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 4: // HASH
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+              struct.hash = iprot.readString();
+              struct.setHashIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 5: // DEVICES
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
                 org.apache.thrift.protocol.TList _list0 = iprot.readListBegin();
@@ -621,14 +702,17 @@ public class ThriftFileChunk implements org.apache.thrift.TBase<ThriftFileChunk,
       oprot.writeFieldBegin(CHUNK_ID_FIELD_DESC);
       oprot.writeI32(struct.chunkID);
       oprot.writeFieldEnd();
+      oprot.writeFieldBegin(BLOCK_VERSION_FIELD_DESC);
+      oprot.writeI32(struct.blockVersion);
+      oprot.writeFieldEnd();
+      oprot.writeFieldBegin(SIZE_FIELD_DESC);
+      oprot.writeI32(struct.size);
+      oprot.writeFieldEnd();
       if (struct.hash != null) {
         oprot.writeFieldBegin(HASH_FIELD_DESC);
         oprot.writeString(struct.hash);
         oprot.writeFieldEnd();
       }
-      oprot.writeFieldBegin(BLOCK_VERSION_FIELD_DESC);
-      oprot.writeI32(struct.blockVersion);
-      oprot.writeFieldEnd();
       if (struct.devices != null) {
         oprot.writeFieldBegin(DEVICES_FIELD_DESC);
         {
@@ -662,24 +746,30 @@ public class ThriftFileChunk implements org.apache.thrift.TBase<ThriftFileChunk,
       if (struct.isSetChunkID()) {
         optionals.set(0);
       }
-      if (struct.isSetHash()) {
+      if (struct.isSetBlockVersion()) {
         optionals.set(1);
       }
-      if (struct.isSetBlockVersion()) {
+      if (struct.isSetSize()) {
         optionals.set(2);
       }
-      if (struct.isSetDevices()) {
+      if (struct.isSetHash()) {
         optionals.set(3);
       }
-      oprot.writeBitSet(optionals, 4);
+      if (struct.isSetDevices()) {
+        optionals.set(4);
+      }
+      oprot.writeBitSet(optionals, 5);
       if (struct.isSetChunkID()) {
         oprot.writeI32(struct.chunkID);
       }
-      if (struct.isSetHash()) {
-        oprot.writeString(struct.hash);
-      }
       if (struct.isSetBlockVersion()) {
         oprot.writeI32(struct.blockVersion);
+      }
+      if (struct.isSetSize()) {
+        oprot.writeI32(struct.size);
+      }
+      if (struct.isSetHash()) {
+        oprot.writeString(struct.hash);
       }
       if (struct.isSetDevices()) {
         {
@@ -695,20 +785,24 @@ public class ThriftFileChunk implements org.apache.thrift.TBase<ThriftFileChunk,
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, ThriftFileChunk struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(4);
+      BitSet incoming = iprot.readBitSet(5);
       if (incoming.get(0)) {
         struct.chunkID = iprot.readI32();
         struct.setChunkIDIsSet(true);
       }
       if (incoming.get(1)) {
-        struct.hash = iprot.readString();
-        struct.setHashIsSet(true);
-      }
-      if (incoming.get(2)) {
         struct.blockVersion = iprot.readI32();
         struct.setBlockVersionIsSet(true);
       }
+      if (incoming.get(2)) {
+        struct.size = iprot.readI32();
+        struct.setSizeIsSet(true);
+      }
       if (incoming.get(3)) {
+        struct.hash = iprot.readString();
+        struct.setHashIsSet(true);
+      }
+      if (incoming.get(4)) {
         {
           org.apache.thrift.protocol.TList _list5 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
           struct.devices = new ArrayList<ThriftP2PDevice>(_list5.size);

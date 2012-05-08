@@ -65,9 +65,10 @@ struct ThriftP2PDevice {
 
 struct ThriftFileChunk {
 	1: i32 chunkID,
-	2: string hash,
-	3: i32 blockVersion,
-	4: list<ThriftP2PDevice> devices
+	2: i32 blockVersion,
+	3: i32 size,
+	4: string hash,
+	5: list<ThriftP2PDevice> devices
 }
 
 struct ThriftFileHandle {

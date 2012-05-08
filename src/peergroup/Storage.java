@@ -299,15 +299,14 @@ public class Storage {
 	public void mergeWithRemoteStorage(int remoteVersion, LinkedList<FileHandle> newList){
 		// Update FileList version number
 		if(remoteVersion > this.fileListVersion){
-			this.fileListVersion = remoteVersion+1;
-		}else{
-			this.fileListVersion++;
+			this.fileListVersion = remoteVersion;
 		}
 		
 		// Merge file lists (naive approach, better improve it!)
 		LinkedList<FileHandle> localOnlyFiles = new LinkedList<FileHandle>();
 		LinkedList<FileHandle> remoteOnlyFiles = new LinkedList<FileHandle>();
 		
+		//Find local only files
 		for(FileHandle localFH : this.files){
 			boolean exists = false;
 			for(FileHandle remoteFH : newList){
@@ -329,8 +328,6 @@ public class Storage {
 			for(FileHandle localFH : this.files){
 				if(remoteFH.equals(localFH)){
 					exists = true;
-				}else{
-				
 				}
 			}
 			if(!exists){
@@ -338,7 +335,17 @@ public class Storage {
 			}
 		}
 		
-		//TODO Rest
+		Network myNetwork = Network.getInstance();
+		for(FileHandle fh : localOnlyFiles){
+			myNetwork.sendMUCNewFile(fh.getPath(),fh.getSize(),fh.getByteHash(),fh.getBlockIDwithHash());
+		}
+		for(FileHandle fh : remoteOnlyFiles){
+			for(FileChunk fc : fh.getChunkList()){
+				fc.setComplete(false);
+				fc.setDownloading(false);
+			}
+			this.files.add(fh);
+		}
 	}
 	
 	public File getDirHandle(){
