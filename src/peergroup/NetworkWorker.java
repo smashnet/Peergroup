@@ -166,6 +166,8 @@ public class NetworkWorker extends Thread {
 						if(vers > maxListVersion){
 							maxListVersion = vers;
 							maxListNode = new P2Pdevice(jid,ip,port);
+						}else if(vers == 0){
+							break;
 						}
 						listsReceived++;
 						Constants.log.addMsg("Received file list version " + vers + " from " + jid + ". Lamport: " + msgLamp);
