@@ -55,7 +55,7 @@ public class Storage {
 		try{
 			FileHandle newFile = new FileHandle(Constants.rootDirectory + filename);
 			this.files.add(newFile);
-			Constants.log.addMsg("Adding " + newFile.toString(),4);
+			//Constants.log.addMsg("Adding " + newFile.toString(),4);
 			this.fileListVersion++;
 
 			return newFile;

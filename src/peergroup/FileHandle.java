@@ -68,11 +68,10 @@ public class FileHandle {
         this.file = new File(filename);
 		this.updating = true;
 		this.fileVersion = 1;
-        this.hash = this.calcHash(this.file);
         this.size = this.file.length();
 		this.updatedBlocks = new LinkedList<Integer>();
 		Constants.log.addMsg("FileHandle: New file from storage: " + this.getPath() 
-								+ " (Size: " + this.size + ", Hash: " + this.getHexHash() + ")", 3);
+								+ " (Size: " + this.size + " Bytes)", 3);
 		
 		// Use fixed chunk size for testing
 		this.chunkSize = 512000;
@@ -143,6 +142,7 @@ public class FileHandle {
         Constants.log.addMsg("FileHandle: Creating chunks for " + this.file.getName(), 3);
 		try{
 	        FileInputStream stream = new FileInputStream(this.file);
+			MessageDigest sha = MessageDigest.getInstance("SHA-256");
 	        this.chunks = new LinkedList<FileChunk>();
 	        int bytesRead = 0;
 	        int id = 0;
@@ -150,6 +150,7 @@ public class FileHandle {
         
 	        while((bytesRead = stream.read(buffer)) != -1){
 	            FileChunk next = new FileChunk(this.getPath(),id,vers,calcHash(buffer),bytesRead,id*size,true);
+				sha.update(buffer,0,bytesRead);
 	            this.chunks.add(next);
 	            id++;
 	        }
@@ -160,14 +161,19 @@ public class FileHandle {
 	            this.chunks.add(next);
 			}
 			
+			this.hash = sha.digest();
+			
 			Constants.log.addMsg("FileHandle: Successfully created chunks for " + this.getPath(),2);
 		}catch(IOException ioe){
 			Constants.log.addMsg("createChunks: IOException: " + ioe,1);
+		}catch(NoSuchAlgorithmException alge){
+			Constants.log.addMsg("calcHash Error: " + alge,1);
+			System.exit(1);
 		}
     }
     
 	/**
-	* General function to calculate the hash of a given file
+	* DEPRECATED!! General function to calculate the hash of a given file
 	* 
 	* @param in the file
 	* @return hash as byte array
