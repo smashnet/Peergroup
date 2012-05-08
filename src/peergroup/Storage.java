@@ -341,6 +341,7 @@ public class Storage {
 		}
 		for(FileHandle fh : remoteOnlyFiles){
 			for(FileChunk fc : fh.getChunkList()){
+				fc.decrVersion();
 				fc.setComplete(false);
 				fc.setDownloading(false);
 			}
