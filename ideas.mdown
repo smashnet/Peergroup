@@ -48,3 +48,8 @@ Ohne neuen Verbindungsaufbau: 34,54s 34,21s
 Local:
 Mit: 6,781s
 Ohne: 7,632s
+
+4 Teilnehmer 500MB
+==================
+
+38.390-23.502 = 14.888s

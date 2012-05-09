@@ -15,6 +15,7 @@ package peergroup;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 import java.io.*;
 
 /**
@@ -275,19 +276,25 @@ public class Storage {
 	*/
 	public FileChunk getRarestChunk(){
 		int min = Integer.MAX_VALUE;
+		Random gen = new Random(System.currentTimeMillis());
 		FileChunk res = null;
+		LinkedList<FileChunk> chunkList = new LinkedList<FileChunk>();
 		for(FileHandle h : this.files){
 			for(FileChunk c : h.getChunks()){
 				if(c.isComplete() || c.isDownloading())
 					continue;
 				int peers = c.noOfPeers();
-				if(peers < min && peers > 0){
+				if(peers < 4 && peers > 0){
+					chunkList.add(c);
+				}
+				/*if(peers < min && peers > 0){
 					min = peers;
 					res = c;
-				}
+				}*/
 			}
 		}
-		return res;
+		
+		return chunkList.get(gen.nextInt(chunkList.size()));
 	}
 	
 	/**
