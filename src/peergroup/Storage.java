@@ -293,8 +293,9 @@ public class Storage {
 				}*/
 			}
 		}
-		
-		return chunkList.get(gen.nextInt(chunkList.size()));
+		if(chunkList.size() > 0)
+			return chunkList.get(gen.nextInt(chunkList.size()));
+		return null;
 	}
 	
 	/**
