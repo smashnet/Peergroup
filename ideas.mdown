@@ -18,6 +18,14 @@ Ideas and brain tmp
 * DONE: On filechange clear P2Pdevice list
 * DONE: modified files don't get downloaded
 
+[2012/05/10 15:27:48.303] - Thrift Error: org.apache.thrift.transport.TTransportException: java.net.ConnectException: Connection timed out
+[2012/05/10 15:27:48.303] - Thrift Error: org.apache.thrift.transport.TTransportException: Cannot write to null outputStream
+[2012/05/10 15:27:48.303] - DOWNLOAD_BLOCK: test500.bin - Block 564 from 137.226.12.91:33334
+Exception in thread "ModifyQueue Thread" java.lang.NullPointerException
+	at java.io.RandomAccessFile.write(RandomAccessFile.java:486)
+	at peergroup.FileHandle.setChunkData(FileHandle.java:368)
+	at peergroup.ModifyQueueWorker.run(ModifyQueueWorker.java:51)
+
 Related Work
 ============
 
@@ -59,3 +67,8 @@ Ohne: 7,632s
 ==================
 
 38.390-23.502 = 14.888s
+
+3 Teilnehmer 500MB
+==================
+
+33.593-22.251 = 11.342s
