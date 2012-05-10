@@ -50,8 +50,9 @@ public class NetworkWorker extends Thread {
 		Constants.log.addMsg("Networking thread started...");
 		this.myNetwork = Network.getInstance();
 		int listsReceived = 0;
-		int maxListVersion = 0;
+		int maxListVersion = -1;
 		P2Pdevice maxListNode = new P2Pdevice();
+		myNetwork.sendMUCjoin();
 		
 		while(!isInterrupted()){
 			// read next message from XMPP
@@ -166,7 +167,7 @@ public class NetworkWorker extends Thread {
 						if(vers > maxListVersion){
 							maxListVersion = vers;
 							maxListNode = new P2Pdevice(jid,ip,port);
-						}else if(vers == 0){
+						}else if(vers == -1){
 							break;
 						}
 						listsReceived++;

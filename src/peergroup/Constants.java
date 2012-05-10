@@ -91,6 +91,7 @@ public class Constants {
 	public final static int LOCAL_ENTRY_CREATE = 10;
 	public final static int LOCAL_ENTRY_DELETE = 11;
 	public final static int LOCAL_ENTRY_MODIFY = 12;
+	public final static int LOCAL_ENTRY_INITSCAN = 13;
 	
 	public final static int REMOTE_ENTRY_CREATE = 20;
 	public final static int REMOTE_ENTRY_DELETE = 21;

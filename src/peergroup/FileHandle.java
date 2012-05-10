@@ -134,7 +134,7 @@ public class FileHandle {
 	* 
 	* @param size the size of a chunk (last one might be smaller)
 	*/
-    private void createChunks(int size, int vers){
+    private synchronized void createChunks(int size, int vers){
         if(!(this.chunks == null)){
             Constants.log.addMsg("(" + this.file.getName() + ") Chunklist not empty!", 4);
             return;
@@ -215,7 +215,7 @@ public class FileHandle {
 	*
 	* @return true if file has changed, else false
 	*/
-	public boolean localUpdate() throws Exception{
+	public synchronized boolean localUpdate() throws Exception{
 		Constants.log.addMsg("FileHandle: Local update triggered for " + this.file.getName()	+ ". Scanning for changes!");
 		boolean changed = false;
 		FileInputStream stream = new FileInputStream(this.file);
@@ -273,17 +273,17 @@ public class FileHandle {
 		return changed;
 	}
 	
-	public void addP2PdeviceToBlock(int id, P2Pdevice node){
+	public synchronized void addP2PdeviceToBlock(int id, P2Pdevice node){
 		this.chunks.get(id).addPeer(node);
 	}
 	
-	public void addP2PdeviceToAllBlocks(P2Pdevice node){
+	public synchronized void addP2PdeviceToAllBlocks(P2Pdevice node){
 		for(FileChunk f : this.chunks){
 			f.addPeer(node);
 		}
 	}
 	
-	public void clearP2Pdevices(){
+	public synchronized void clearP2Pdevices(){
 		for(FileChunk f : this.chunks){
 			f.clearPeers();
 		}
@@ -350,7 +350,7 @@ public class FileHandle {
 	* @param id The chunk ID
 	* @param data The data as byte array
 	*/
-	public void setChunkData(int id, String hash, P2Pdevice node, byte[] data){
+	public synchronized void setChunkData(int id, String hash, P2Pdevice node, byte[] data){
 		if(this.chunks == null){
 			Constants.log.addMsg("Cannot set chunkData -> no chunk list available",1);
 			return;
@@ -421,7 +421,7 @@ public class FileHandle {
 		return this.chunks;
 	}
 	
-	public void updateChunkVersion(int id){
+	public synchronized void updateChunkVersion(int id){
 		for(FileChunk f : this.chunks){
 			if(id == f.getID()){
 				f.setVersion(this.fileVersion);
@@ -477,7 +477,7 @@ public class FileHandle {
 		return tmp;
 	}
 	
-	public void updateBlocks(LinkedList<String> blocks, int vers, P2Pdevice node){
+	public synchronized void updateBlocks(LinkedList<String> blocks, int vers, P2Pdevice node){
 		for(String s : blocks){
 			String tmp[] = s.split(":");
 			int index = s.charAt(0)-48;

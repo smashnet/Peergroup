@@ -66,6 +66,10 @@ public class MainWorker extends Thread {
 						handleLocalEntryModify((FSRequest)nextRequest);
 						Constants.log.addMsg(myStorage.toString());
 						break;
+					case Constants.LOCAL_ENTRY_INITSCAN:
+						Constants.log.addMsg("MainWorker: Handling LOCAL_ENTRY_INITSCAN");
+						handleLocalEntryInitScan((FSRequest)nextRequest);
+						break;
 					case Constants.REMOTE_ENTRY_CREATE:
 						Constants.log.addMsg("MainWorker: Handling REMOTE_ENTRY_CREATE");
 						handleRemoteEntryCreate((XMPPRequest)nextRequest);
@@ -136,6 +140,19 @@ public class MainWorker extends Thread {
 		FileHandle newFile = this.myStorage.newFileFromLocal(request.getContent());
 		if(newFile != null)
 			this.myNetwork.sendMUCNewFile(newFile.getPath(),newFile.getSize(),newFile.getByteHash(),newFile.getBlockIDwithHash());
+	}
+	
+	/**
+	* Add new local file to file-list and propagate via XMPP
+	*
+	* @param request The request containing the new filename
+	*/
+	private void handleLocalEntryInitScan(FSRequest request){
+		if(myStorage.fileExists(request.getContent()) != null){
+			Constants.log.addMsg("MainWorker: File already exists, ignoring!",4);
+			return;
+		}
+		this.myStorage.newFileFromLocal(request.getContent());
 	}
 	
 	/**

@@ -305,6 +305,8 @@ public class Storage {
 	* @param remoteStorage The Storage object received from the network
 	*/
 	public void mergeWithRemoteStorage(int remoteVersion, LinkedList<FileHandle> newList){
+		
+		Constants.log.addMsg("Merging file lists - Local size: " + this.files.size() + ", Remote size: " + newList.size());
 		// Update FileList version number
 		if(remoteVersion > this.fileListVersion){
 			this.fileListVersion = remoteVersion;
@@ -345,9 +347,11 @@ public class Storage {
 		
 		Network myNetwork = Network.getInstance();
 		for(FileHandle fh : localOnlyFiles){
+			System.out.println("Local only: " +fh.getPath());
 			myNetwork.sendMUCNewFile(fh.getPath(),fh.getSize(),fh.getByteHash(),fh.getBlockIDwithHash());
 		}
 		for(FileHandle fh : remoteOnlyFiles){
+			System.out.println("Remote only: " +fh.getPath());
 			for(FileChunk fc : fh.getChunkList()){
 				fc.decrVersion();
 				fc.setComplete(false);

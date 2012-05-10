@@ -244,7 +244,7 @@ public class Peergroup {
 		for(File newFile : test.listFiles() ){
 			if(newFile.isFile()){
 				Constants.log.addMsg("Found: " + newFile.getName(),2);
-				Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_ENTRY_CREATE,newFile.getName()));
+				Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_ENTRY_INITSCAN,newFile.getName()));
 			}
 		}
 	}
@@ -253,6 +253,5 @@ public class Peergroup {
 		Network.getInstance().joinMUC(Constants.user, Constants.pass, 
 			Constants.conference_channel + "@" + Constants.conference_server);
 		Network.getInstance().sendMUCmessage("Hi, I'm a peergroup client. I do awesome things :-)");
-		Network.getInstance().sendMUCjoin();
 	}
 }
