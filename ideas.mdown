@@ -25,6 +25,12 @@ Related Work
 * OneSwarm
 * old Wuala
 
+Thrift Overhead
+===============
+19x512000Byte + 1x 245760Byte
+
+11497826/10485760 = 1.0965181351
+
 Tmp
 ===
 
