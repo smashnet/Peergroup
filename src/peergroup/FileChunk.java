@@ -171,8 +171,12 @@ public class FileChunk {
 	}
 	
 	public P2Pdevice getRandomPeer(){
-		Random gen = new Random(System.currentTimeMillis());
-		return this.peers.get(gen.nextInt(this.peers.size()));
+		if(this.peers.size() > 0){
+			Random gen = new Random(System.currentTimeMillis());
+			return this.peers.get(gen.nextInt(this.peers.size()));
+		}else{
+			return null;
+		}
 	}
 	
 	public void clearPeers(){

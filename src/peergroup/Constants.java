@@ -102,7 +102,8 @@ public class Constants {
 	public final static int REMOTE_FILE_LIST_VERSION = 26;
 	
 	public final static int DOWNLOAD_BLOCK = 30;
-		
+	
+	public final static int START_THREADS = 300;
 	public final static int STH_EVIL_HAPPENED = 666;
 	
 	/*

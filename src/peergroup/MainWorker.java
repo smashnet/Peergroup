@@ -14,6 +14,7 @@
 package peergroup;
 
 import java.util.*;
+import java.util.concurrent.BrokenBarrierException;
 import java.io.*;
 import name.pachler.nio.file.*;
 import org.jivesoftware.smack.packet.*;
@@ -51,6 +52,9 @@ public class MainWorker extends Thread {
 			try{
 				Request nextRequest = Constants.requestQueue.take();
 				switch(nextRequest.getID()){
+					case Constants.START_THREADS:
+						handleStartThreads();
+						break;
 					case Constants.LOCAL_ENTRY_CREATE:
 						Constants.log.addMsg("MainWorker: Handling LOCAL_ENTRY_CREATE");
 						handleLocalEntryCreate((FSRequest)nextRequest);
@@ -125,6 +129,31 @@ public class MainWorker extends Thread {
 			Constants.modQueue.interrupt();
 		}
 		Constants.main.interrupt();
+	}
+	
+	private void handleStartThreads(){
+		Constants.storage = new StorageWorker();
+		Constants.network = new NetworkWorker();
+		Constants.thrift = new ThriftServerWorker();
+		Constants.thriftClient = new ThriftClientBase();
+		
+		Constants.storage.start();
+		Constants.network.start();
+		Constants.thrift.start();
+		Constants.thriftClient.start();
+		
+		if(Constants.enableModQueue){
+			Constants.modQueue = new ModifyQueueWorker();
+			Constants.modQueue.start();
+		}
+		
+		try{
+			Constants.myBarrier.await();
+		}catch(InterruptedException ie){
+			
+		}catch(BrokenBarrierException bbe){
+			Constants.log.addMsg(bbe.toString(),4);
+		}
 	}
 	
 	/**

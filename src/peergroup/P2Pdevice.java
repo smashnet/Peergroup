@@ -73,7 +73,8 @@ public class P2Pdevice {
 		
 			return block.array();
 		}catch(TException te){
-			Constants.log.addMsg("Thrift Error: " + te,1);
+			Constants.log.addMsg("Error downloading chunk " + id + "! " + te,1);
+			Constants.log.addMsg("Enqueueing chunk for redownload.");
 		}
 		return null;
 	}

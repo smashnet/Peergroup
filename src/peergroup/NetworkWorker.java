@@ -192,6 +192,10 @@ public class NetworkWorker extends Thread {
 						}
 					}
 					break;
+				case 9:
+					// Someone reannounced a file (came back online after incomplete upload)
+					jid = (String)newMessage.getProperty("JID");
+					// TODO
 				default:
 			}
 		}

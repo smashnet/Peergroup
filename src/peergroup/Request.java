@@ -18,7 +18,7 @@ package peergroup;
  *
  * @author Nicolas Inden
  */
-public abstract class Request {
+public class Request {
 	
 	/**
 	* The type specifies what kind of request this is

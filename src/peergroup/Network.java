@@ -417,9 +417,13 @@ public class Network {
 		try{
 			this.muc.sendMessage(newMessage);	
 			Constants.log.addMsg("Sending XMPP: -JOIN- ",2);
-			Constants.syncingFileList = true;
+			Thread.sleep(500); // Wait for presence messages
+			if(this.getUserCount() > 1)
+				Constants.syncingFileList = true;
 		}catch(XMPPException xe){
 			Constants.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe,4);
+		}catch(InterruptedException ie){
+			Constants.log.addMsg("Wait for presence messages interrupted: User count may be inaccurate!",4);
 		}
 	}
 	
@@ -474,4 +478,32 @@ public class Network {
 			Constants.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe,4);
 		}
 	}
+	
+	public void sendMUCReannounceFile(String filename, long size, byte[] hash){
+		if(!this.joinedAChannel){
+			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
+			return;
+		}
+		Message newMessage = this.createMessageObject();
+		
+		/*
+		* Set message properties
+		*/
+		newMessage.setProperty("Type",9);
+		newMessage.setProperty("JID",Constants.getJID());
+		newMessage.setProperty("IP",Constants.ipAddress);
+		newMessage.setProperty("Port",Constants.p2pPort);
+		newMessage.setProperty("name",filename);
+		newMessage.setProperty("size",size);
+		newMessage.setProperty("sha256",hash);
+		
+		try{
+			this.muc.sendMessage(newMessage);
+			Constants.log.addMsg("Sending XMPP: -REANNOUNCE- " + filename + " - " + size + "Bytes - " 
+				+ FileHandle.toHexHash(hash),2);	
+		}catch(XMPPException xe){
+			Constants.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe,4);
+		}
+	}
+	
 }

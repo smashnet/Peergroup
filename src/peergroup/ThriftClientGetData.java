@@ -41,10 +41,15 @@ public class ThriftClientGetData implements Runnable {
 			return;
 		}else{
 			P2Pdevice device = chunk.getRandomPeer();
+			if(device == null){
+				return;
+			}
 			Constants.log.addMsg("DOWNLOAD_BLOCK: " + chunk.getName() + " - Block " 
 								+ chunk.getID() + " from " + device.getIP() + ":" + device.getPort());
 			byte[] swap = getBlock(chunk.getName(),chunk.getID(),chunk.getHexHash(),device);
-			Constants.storeQueue.offer(new StoreBlock(tmp,chunk.getID(),chunk.getHexHash(),device,swap));
+			if(swap != null){
+				Constants.storeQueue.offer(new StoreBlock(tmp,chunk.getID(),chunk.getHexHash(),device,swap));
+			}
 		}
 	}
 	

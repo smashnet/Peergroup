@@ -17,6 +17,7 @@ package peergroup;
 
 import java.io.*;
 import java.net.*;
+import java.util.concurrent.BrokenBarrierException;
 import sun.misc.Signal;
 import sun.misc.SignalHandler;
 import java.util.concurrent.CyclicBarrier;
@@ -64,34 +65,23 @@ public class Peergroup {
 		getExternalIP();
 		doInitialDirectoryScan();
 		joinXMPP();
+		enqueueThreadStart();
 		
 		if(os.equals("Linux") || os.equals("Windows 7"))
 				Constants.enableModQueue = true;
 		
-		//wait for presence messages
-		try{
-			Thread.sleep(500);
-		}catch(InterruptedException ie){
-		
-		}
-		
-		// -- Create Threads
+		// -- Create main thread
 		Constants.main = new MainWorker();		
-		Constants.storage = new StorageWorker();
-		Constants.network = new NetworkWorker();
-		Constants.thrift = new ThriftServerWorker();
-		Constants.thriftClient = new ThriftClientBase();
-		// -- Start Threads
-		Constants.storage.start();
-		Constants.network.start();
-		Constants.thrift.start();
-		Constants.thriftClient.start();
 		Constants.main.start();
 		
-		if(Constants.enableModQueue){
-			Constants.modQueue = new ModifyQueueWorker();
-			Constants.modQueue.start();
+		try{
+			Constants.myBarrier.await();
+		}catch(InterruptedException ie){
+		
+		}catch(BrokenBarrierException bbe){
+			Constants.log.addMsg(bbe.toString(),4);
 		}
+		
 		
 		// -- Wait for threads to terminate (only happens through SIGINT/SIGTERM see handler above)
 		try{
@@ -107,7 +97,6 @@ public class Peergroup {
 			for(P2Pdevice d : Constants.p2pDevices){
 				d.closeTransport();
 			}
-			
 			
 		}catch(InterruptedException ie){
 			Constants.log.addMsg("Couldn't wait for all threads to cleanly shut down! Oh what a mess... Bye!",1);
@@ -253,5 +242,9 @@ public class Peergroup {
 		Network.getInstance().joinMUC(Constants.user, Constants.pass, 
 			Constants.conference_channel + "@" + Constants.conference_server);
 		Network.getInstance().sendMUCmessage("Hi, I'm a peergroup client. I do awesome things :-)");
+	}
+	
+	private static void enqueueThreadStart(){
+		Constants.requestQueue.offer(new Request(Constants.START_THREADS));
 	}
 }

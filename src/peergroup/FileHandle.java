@@ -453,14 +453,12 @@ public class FileHandle {
 	* @return true if equal, else false
 	*/
 	public boolean equals(FileHandle compFH){
-		boolean equal = true;
-		
 		if(!this.getPath().equals(compFH.getPath()))
-			equal = false;
+			return false;
 		if(!Arrays.equals(this.hash,compFH.getByteHash()))
-			equal = false;
+			return false;
 		
-		return equal;
+		return true;
 	}
 	
 	/**

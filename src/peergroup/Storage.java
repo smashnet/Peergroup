@@ -315,6 +315,8 @@ public class Storage {
 		// Merge file lists (naive approach, better improve it!)
 		LinkedList<FileHandle> localOnlyFiles = new LinkedList<FileHandle>();
 		LinkedList<FileHandle> remoteOnlyFiles = new LinkedList<FileHandle>();
+		LinkedList<FileHandle> reannounceFiles = new LinkedList<FileHandle>();
+		LinkedList<FileHandle> incompleteFiles = new LinkedList<FileHandle>();
 		
 		//Find local only files
 		for(FileHandle localFH : this.files){
@@ -325,6 +327,14 @@ public class Storage {
 					// Update file version number for existing files
 					if(localFH.getVersion() < remoteFH.getVersion()){
 						localFH.setVersion(remoteFH.getVersion());
+					}
+					// Find: local complete, remote incomplete
+					if(localFH.isComplete() && !remoteFH.isComplete()){
+						reannounceFiles.add(localFH);
+					}
+					// Find: local incomplete, remote complete
+					if(!localFH.isComplete() && remoteFH.isComplete()){
+						incompleteFiles.add(localFH);
 					}
 				}
 			}
@@ -346,10 +356,12 @@ public class Storage {
 		}
 		
 		Network myNetwork = Network.getInstance();
+		// Handle local-only files
 		for(FileHandle fh : localOnlyFiles){
-			System.out.println("Local only: " +fh.getPath());
+			System.out.println("Local only: " + fh.getPath());
 			myNetwork.sendMUCNewFile(fh.getPath(),fh.getSize(),fh.getByteHash(),fh.getBlockIDwithHash());
 		}
+		// Handle remote-only files
 		for(FileHandle fh : remoteOnlyFiles){
 			System.out.println("Remote only: " +fh.getPath());
 			for(FileChunk fc : fh.getChunkList()){
@@ -358,6 +370,14 @@ public class Storage {
 				fc.setDownloading(false);
 			}
 			this.files.add(fh);
+		}
+		// Handle files to be reannounced
+		for(FileHandle fh : reannounceFiles){
+			myNetwork.sendMUCReannounceFile(fh.getPath(),fh.getSize(),fh.getByteHash());
+		}
+		// Handle incomplete files
+		for(FileHandle fh : incompleteFiles){
+			// TODO
 		}
 	}
 	
