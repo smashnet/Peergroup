@@ -167,6 +167,10 @@ public class FileChunk {
 	}
 	
 	public void addPeer(P2Pdevice node){
+		for(P2Pdevice dev : this.peers){
+			if(node.equals(dev))
+				return;
+		}
 		this.peers.add(node);
 	}
 	

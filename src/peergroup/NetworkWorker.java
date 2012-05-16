@@ -51,6 +51,8 @@ public class NetworkWorker extends Thread {
 		this.myNetwork = Network.getInstance();
 		int listsReceived = 0;
 		int maxListVersion = -1;
+		String ip;
+		int vers, port;
 		P2Pdevice maxListNode = new P2Pdevice();
 		myNetwork.sendMUCjoin();
 		
@@ -160,9 +162,9 @@ public class NetworkWorker extends Thread {
 					*/
 					
 					jid = (String)newMessage.getProperty("JID");
-					int vers = ((Integer)newMessage.getProperty("FileListVersion")).intValue();
-					String ip = (String)newMessage.getProperty("IP");
-					int port = ((Integer)newMessage.getProperty("Port")).intValue();
+					vers = ((Integer)newMessage.getProperty("FileListVersion")).intValue();
+					ip = (String)newMessage.getProperty("IP");
+					port = ((Integer)newMessage.getProperty("Port")).intValue();
 					if(Constants.syncingFileList){
 						if(vers > maxListVersion){
 							maxListVersion = vers;
@@ -194,8 +196,22 @@ public class NetworkWorker extends Thread {
 					break;
 				case 9:
 					// Someone reannounced a file (came back online after incomplete upload)
+					// Available: "JID","IP","Port","name","size","sha256"
 					jid = (String)newMessage.getProperty("JID");
-					// TODO
+					filename = (String)newMessage.getProperty("name");
+					ip = (String)newMessage.getProperty("IP");
+					port = ((Integer)newMessage.getProperty("Port")).intValue();
+					Constants.log.addMsg(jid + " reannounced: " + filename + " Lamport: " + msgLamp);
+					FileHandle reannounced = Storage.getInstance().getFileHandle(filename);
+					P2Pdevice reannouncer = P2Pdevice.getDevice(jid,ip,port);
+					reannounced.addP2PdeviceToAllBlocks(reannouncer);
+					if(!reannounced.isComplete()){
+						LinkedList<FileChunk> incomplete = reannounced.getIncomplete();
+						for(FileChunk fc : incomplete){
+							fc.setDownloading(false);
+							fc.setComplete(false);
+						} 
+					}
 				default:
 			}
 		}

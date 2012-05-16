@@ -552,6 +552,21 @@ public class FileHandle {
 		return true;
 	}
 	
+	/**
+	* Returns a list of chunks that need to be downloaded
+	*
+	* @return the list of chunks
+	*/
+	public LinkedList<FileChunk> getIncomplete(){
+		LinkedList<FileChunk> incomplete = new LinkedList<FileChunk>();
+		for(FileChunk f : this.chunks){
+			if(f.getVersion() != this.getVersion()){
+				incomplete.add(f);
+			}
+		}
+		return incomplete;
+	}
+	
 	public File getFile(){
 		return this.file;
 	}

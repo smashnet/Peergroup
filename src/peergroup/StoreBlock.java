@@ -13,10 +13,6 @@
 
 package peergroup;
 
-import java.util.LinkedList;
-import java.util.Random;
-import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
-
 /**
  *
  * @author Nicolas Inden

@@ -275,7 +275,6 @@ public class Storage {
 	* @return The first found FileChunk with the rarest distribution, or null if no files exist
 	*/
 	public FileChunk getRarestChunk(){
-		int min = Integer.MAX_VALUE;
 		Random gen = new Random(System.currentTimeMillis());
 		FileChunk res = null;
 		LinkedList<FileChunk> chunkList = new LinkedList<FileChunk>();
@@ -287,10 +286,6 @@ public class Storage {
 				if(peers < 4 && peers > 0){
 					chunkList.add(c);
 				}
-				/*if(peers < min && peers > 0){
-					min = peers;
-					res = c;
-				}*/
 			}
 		}
 		if(chunkList.size() > 0)

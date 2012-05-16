@@ -49,6 +49,9 @@ public class ThriftClientGetData implements Runnable {
 			byte[] swap = getBlock(chunk.getName(),chunk.getID(),chunk.getHexHash(),device);
 			if(swap != null){
 				Constants.storeQueue.offer(new StoreBlock(tmp,chunk.getID(),chunk.getHexHash(),device,swap));
+			}else{
+				chunk.setComplete(false);
+				chunk.setDownloading(false);
 			}
 		}
 	}
