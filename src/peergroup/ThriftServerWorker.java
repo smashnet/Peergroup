@@ -38,7 +38,7 @@ public class ThriftServerWorker extends Thread {
 	public void run(){
 		this.setName("THRIFT-Server Thread");
 		try{
-			this.serverTransport = new TServerSocket(port);
+			this.serverTransport = new TServerSocket(Constants.p2pPort);
 			this.processor = new DataTransfer.Processor(new ThriftDataHandler());
 			this.server = new TThreadPoolServer(new TThreadPoolServer.Args(serverTransport).processor(processor));
 			
