@@ -175,7 +175,7 @@ public class Storage {
 				Constants.downloadQueue.offer(new DLRequest(Constants.DOWNLOAD_BLOCK,1,filename,id,hash,node));
 			}*/
 		}catch(Exception e){
-			Constants.log.addMsg("Couldn't create FileHandle for new file from XMPP!",2);
+			Constants.log.addMsg("Couldn't create FileHandle for new file from XMPP! " + e,4);
 		}
 	}
 	

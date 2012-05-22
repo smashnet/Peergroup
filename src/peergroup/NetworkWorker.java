@@ -94,7 +94,7 @@ public class NetworkWorker extends Thread {
 					*/
 						
 					filename = (String)newMessage.getProperty("name");
-					Constants.log.addMsg("New file discovered via XMPP: " + filename + " Lamport: " + msgLamp);
+					Constants.log.addMsg("New file discovered via XMPP: " + filename);
 					Constants.requestQueue.offer(new XMPPRequest(Constants.REMOTE_ENTRY_CREATE,newMessage));
 					break;
 				case 2: 
@@ -105,7 +105,7 @@ public class NetworkWorker extends Thread {
 					*/
 					
 					filename = (String)newMessage.getProperty("name");
-					Constants.log.addMsg("File deletion discovered via XMPP: " + filename + " Lamport: " + msgLamp);
+					Constants.log.addMsg("File deletion discovered via XMPP: " + filename);
 					//Constants.remoteAffectedItems.add(filename);
 					Constants.requestQueue.offer(new XMPPRequest(Constants.REMOTE_ENTRY_DELETE,newMessage));
 					break;
@@ -117,7 +117,7 @@ public class NetworkWorker extends Thread {
 					*/
 					
 					filename = (String)newMessage.getProperty("name");
-					Constants.log.addMsg("File update discovered via XMPP: " + filename + " Lamport: " + msgLamp);
+					Constants.log.addMsg("File update discovered via XMPP: " + filename);
 					//Constants.remoteAffectedItems.add(filename);
 					Constants.requestQueue.offer(new XMPPRequest(Constants.REMOTE_ENTRY_MODIFY,newMessage));
 					break;
@@ -140,7 +140,7 @@ public class NetworkWorker extends Thread {
 					*/
 					
 					filename = (String)newMessage.getProperty("name");
-					Constants.log.addMsg("Completed file download discovered via XMPP: " + filename + " Lamport: " + msgLamp);
+					Constants.log.addMsg("Completed file download discovered via XMPP: " + filename);
 					Constants.requestQueue.offer(new XMPPRequest(Constants.REMOTE_ENTRY_COMPLETE,newMessage));
 					break;
 				case 6:
@@ -151,7 +151,7 @@ public class NetworkWorker extends Thread {
 					*/
 			
 					jid = (String)newMessage.getProperty("JID");
-					Constants.log.addMsg(jid + " joined the channel. Lamport: " + msgLamp);
+					Constants.log.addMsg(jid + " joined the channel.");
 					myNetwork.sendMUCFileListVersion();
 					break;
 				case 7:
@@ -173,7 +173,7 @@ public class NetworkWorker extends Thread {
 							break;
 						}
 						listsReceived++;
-						Constants.log.addMsg("Received file list version " + vers + " from " + jid + ". Lamport: " + msgLamp);
+						Constants.log.addMsg("Received file list version " + vers + " from " + jid);
 						if(listsReceived == myNetwork.getUserCount()-1){
 							Constants.log.addMsg("Found newest file list: " + maxListVersion + " from " + maxListNode.getJID());
 							ThriftClientGetFileList getFileListThread = new ThriftClientGetFileList(maxListVersion,maxListNode);
@@ -201,7 +201,7 @@ public class NetworkWorker extends Thread {
 					filename = (String)newMessage.getProperty("name");
 					ip = (String)newMessage.getProperty("IP");
 					port = ((Integer)newMessage.getProperty("Port")).intValue();
-					Constants.log.addMsg(jid + " reannounced: " + filename + " Lamport: " + msgLamp);
+					Constants.log.addMsg(jid + " reannounced: " + filename);
 					FileHandle reannounced = Storage.getInstance().getFileHandle(filename);
 					P2Pdevice reannouncer = P2Pdevice.getDevice(jid,ip,port);
 					reannounced.addP2PdeviceToAllBlocks(reannouncer);
