@@ -2,7 +2,7 @@ Peergroup
 =========
 A P2P Shared Storage System based on XMPP
 
-Status: _Development version, function not yet complete_
+Status: _Development version, evaluation functionality complete_
 
 (Paper)Introduction
 -------------------
