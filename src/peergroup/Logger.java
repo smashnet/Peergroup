@@ -45,11 +45,15 @@ public class Logger {
 			}else{
 				this.color = true;
 			}
-			this.output = new File(date + "_peergroup.log");
+			File directory = new File("log");
+			directory.mkdir();
+			this.output = new File("log/" + date + "_peergroup.log");
 			this.fw = new FileWriter(this.output);
 			this.bw = new BufferedWriter(this.fw);
 		}catch(IOException ioe){
 			System.out.println("Caught error: " + ioe);
+		}catch(SecurityException se){
+			System.out.println("Cannot create directory! " + se);
 		}
 	}
 	

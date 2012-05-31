@@ -42,6 +42,8 @@ Thrift Overhead
 Tmp
 ===
 
+XMPP Server on: glab050.i4.kit.german-lab.de
+
 Local:
 Mit neuem Verbindugsaufbau	: 4.081s
 Ohne neuen Verbindungsaufbau: 3,922s
