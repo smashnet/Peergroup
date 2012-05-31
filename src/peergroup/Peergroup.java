@@ -131,6 +131,10 @@ public class Peergroup {
 				Constants.server = jid[1];
 				Constants.log.addMsg("Set JID to: " + Constants.user + "@" + Constants.server,3);
 			}
+			if(last.equals("-res")){
+				Constants.resource = s;
+				Constants.log.addMsg("Set resource to: " + Constants.resource,3);
+			}
 			if(last.equals("-chan")){
 				String conf[] = s.split("@");
 				if(conf.length < 2){
@@ -191,16 +195,20 @@ public class Peergroup {
 	*/
 	private static String getHelpString(){
 		String out = "";
-		out += "\t-h\t\t\t\tprints this help\n";
-		out += "\t-dir\t\t[DIR]\t\tset the shared files directory (default: ./share/)\n";
-		out += "\t-jid\t\t[JID]\t\tset your jabber ID (e.g. foo@jabber.bar.com)\n";
-		out += "\t-pass\t\t[PASS]\t\tset the password for your JID\n";
-		out += "\t-XMPPport\t[PORT]\t\tset the XMPP server port (default: 5222)\n";
-		out += "\t-chan\t\t[CHANNEL]\tset the conference channel to join (e.g. foo@conference.jabber.bar.com)\n";
-		out += "\t-ip\t\t[IP]\t\tmanually set your external IP (the IP is usually guessed by the program)\n";
-		out += "\t-P2Pport\t[PORT]\t\tset the port for P2P data exchange (default: 43334)\n";
-		out += "\t-limit\t\t[LIMIT]\t\tset the amount of space you want to share in MB (default: 2048MB)\n";
-		out += "\t-noEventQueue\t\tdisable Event-Queue (default: enabled)\n";
+		out += "  -h                            prints this help\n";
+		out += "  -dir            [DIR]         set the shared files directory (default: ./share/)\n";
+		out += "  -jid            [JID]         set your jabber ID (e.g. foo@jabber.bar.com)\n";
+		out += "  -res            [RESOURCE]    set the resource (default: peergroup)\n";
+		out += "  -pass           [PASS]        set the password for your JID\n";
+		out += "  -XMPPport       [PORT]        set the XMPP server port (default: 5222)\n";
+		out += "  -chan           [CHANNEL]     set the conference channel to join\n";
+		out += "                                (e.g. foo@conference.jabber.bar.com)\n";
+		out += "  -ip             [IP]          manually set your external IP\n";
+		out += "                                (the IP is usually guessed by the program)\n";
+		out += "  -P2Pport        [PORT]        set the port for P2P data exchange (default: 43334)\n";
+		out += "  -limit          [LIMIT]       set the amount of space you want to share in MB\n";
+		out += "                                (default: 2048MB)\n";
+		out += "  -noEventQueue                 disable Event-Queue (default: enabled)\n";
 		return out;
 	}
     
