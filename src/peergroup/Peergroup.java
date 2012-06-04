@@ -249,8 +249,7 @@ public class Peergroup {
 	private static void joinXMPP(){
 		Network.getInstance().joinMUC(Constants.user, Constants.pass, 
 			Constants.conference_channel + "@" + Constants.conference_server);
-		Network.getInstance().sendMUCmessage("Hi, I'm peergroup client -" + Constants.getJID() 
-												+ "-. I do awesome things :-)");
+		Network.getInstance().sendMUCmessage("Hi, I'm a peergroup client. I do awesome things :-)");
 	}
 	
 	private static void enqueueThreadStart(){
