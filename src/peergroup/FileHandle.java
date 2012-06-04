@@ -358,6 +358,7 @@ public class FileHandle {
 		FileChunk recent;
 		if(id >= this.chunks.size()){
 			recent = new FileChunk(this.getPath(),id,Constants.chunkSize,this.fileVersion,hash,node,true);
+			this.chunks.add(recent);
 		}else{
 			recent = this.chunks.get(id);
 		}

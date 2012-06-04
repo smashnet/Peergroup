@@ -55,6 +55,8 @@ public class ModifyQueueWorker extends Thread {
 					Network.getInstance().sendMUCCompletedChunk(blockInfo.getName(),blockInfo.getID(),blockInfo.getVersion());
 					
 					if(tmp.isComplete()){
+						Network.getInstance().sendMUCmessage("Finished downloading >> " + tmp.getPath() + " (" + tmp.getSize()
+							+ "Bytes) <<");
 						Constants.log.addMsg("Completed download: " + blockInfo.getName() + " - Version " + blockInfo.getVersion(),2);
 						tmp.trimFile();
 						tmp.setUpdating(false);
