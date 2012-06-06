@@ -118,6 +118,9 @@ public class Peergroup {
 				System.exit(0);
 			}
 			if(last.equals("-dir")){
+				if(s.charAt(s.length()-1) != '/'){ //Probably need sth special for windows here
+					s = s.concat("/");
+				}
 				Constants.rootDirectory = s;
 				Constants.log.addMsg("Set share directory to: " + Constants.rootDirectory,3);
 			}

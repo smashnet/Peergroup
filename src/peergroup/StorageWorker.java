@@ -27,12 +27,14 @@ import name.pachler.nio.file.*;
 public class StorageWorker extends Thread {
 	
 	private WatchService watcher;
+	private Map<WatchKey,Path> keys;
 	
 	/**
 	* Creates a StorageWorker.
 	*/
 	public StorageWorker(){
 		this.watcher = FileSystems.getDefault().newWatchService();
+		this.keys = new HashMap<WatchKey,Path>();
 	}
 	
 	public void stopStorageWorker(){
@@ -55,6 +57,7 @@ public class StorageWorker extends Thread {
 		this.setName("Storage Thread");
 		Constants.log.addMsg("Storage thread started...");
 		String os = System.getProperty("os.name");
+		LinkedList<String> folders = new LinkedList<String>();
 		
 		//Init WatchService
 		
@@ -76,10 +79,10 @@ public class StorageWorker extends Thread {
 		}
 		
 		while(!isInterrupted()){
-		    WatchKey signalledKey;
+		    WatchKey signaledKey;
 		    try {
 				//here we are waiting for fs activities
-		        signalledKey = this.watcher.take(); 
+		        signaledKey = this.watcher.take(); 
 		    }catch(InterruptedException ix){
 		        interrupt();
 		        break;
@@ -89,7 +92,15 @@ public class StorageWorker extends Thread {
 		    }
 
 		    // get list of events from key
-		    List<WatchEvent<?>> list = signalledKey.pollEvents();
+		    List<WatchEvent<?>> list = signaledKey.pollEvents();
+			
+			Path dir = keys.get(signaledKey);
+			if(dir == null){
+				System.out.println("WatchKey not recognized!!");
+				continue;
+			}
+			
+			//TODO: Complete Directory Watching!!
 
 		    // VERY IMPORTANT! call reset() AFTER pollEvents() to allow the
 		    // key to be reported again by the watch service
@@ -97,40 +108,61 @@ public class StorageWorker extends Thread {
 
 		    for(WatchEvent e : list){
 				if(e.kind() == StandardWatchEventKind.ENTRY_CREATE){
+					// Entry created
 					Path context = (Path)e.context();
+					// Ignore hidden files and directories
 					if(context.toString().charAt(0) == '.'){
 						continue;
 					}
-					if(Constants.enableModQueue){
-						insertElement(Constants.modifyQueue,new ModifyEvent(Constants.LOCAL_ENTRY_CREATE,context.toString()));
-					}else{
-						Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_ENTRY_CREATE,context.toString()));
+					File newEntry = new File(Constants.rootDirectory + context.toString());
+					System.out.print("New: " + newEntry.getPath());
+					if(newEntry.isFile()){
+						System.out.println(" -- is a file!");
+						if(Constants.enableModQueue){
+							insertElement(Constants.modifyQueue,new ModifyEvent(Constants.LOCAL_ENTRY_CREATE,context.toString()));
+						}else{
+							Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_ENTRY_CREATE,context.toString()));
+						}
+					}else if(newEntry.isDirectory()){
+						System.out.println(" -- is a directory!");
+						folders.add(newEntry.getPath());
+						registerNewPath(newEntry.getPath());
+						if(Constants.enableModQueue){
+							insertElement(Constants.modifyQueue,new ModifyEvent(Constants.LOCAL_FOLDER_CREATE,context.toString()));
+						}else{
+							Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_FOLDER_CREATE,context.toString()));
+						}
 					}
 				} else if(e.kind() == StandardWatchEventKind.ENTRY_DELETE){
+					// Entry deleted
 					Path context = (Path)e.context();
 					if(context.toString().charAt(0) == '.'){
 						continue;
 					}
-					Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_ENTRY_DELETE,context.toString()));
+					File delEntry = new File(Constants.rootDirectory + context.toString());
+					System.out.println("Modified: " + delEntry.getPath());
+					if(delEntry.isFile()){
+						Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_ENTRY_DELETE,context.toString()));
+					}else if(delEntry.isDirectory()){
+						Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_FOLDER_DELETE,context.toString()));
+					}
 				} else if(e.kind() == StandardWatchEventKind.ENTRY_MODIFY){
+					// Entry modified
 					Path context = (Path)e.context();
 					if(context.toString().charAt(0) == '.'){
 						continue;
 					}
-					/*
-					* Linux and Windows support instant events on file changes. Copying a big file into the share folder
-					* will result in one "create" event and loooots of "modify" events. So we will handle this here to
-					* reduce update events to one per file. The ModifyQueueWorker checks the modifyQueue regularily
-					* if there are files that haven't got modified in the last second, these are then enqueued in the
-					* request queue.
-					*/
-					if(Constants.enableModQueue){
-						insertElement(Constants.modifyQueue,new ModifyEvent(context.toString()));						
-					}else{
-						Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_ENTRY_MODIFY,context.toString()));
+					File modEntry = new File(Constants.rootDirectory + context.toString());
+					System.out.println("Modified: " + modEntry.getPath());
+					if(modEntry.isFile()){
+						if(Constants.enableModQueue){
+							insertElement(Constants.modifyQueue,new ModifyEvent(context.toString()));						
+						}else{
+							Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_ENTRY_MODIFY,context.toString()));
+						}
 					}
 				} else if(e.kind() == StandardWatchEventKind.OVERFLOW){
-					Constants.log.addMsg("OVERFLOW: more changes happened than we could retreive",4);
+					Constants.log.addMsg("OVERFLOW: more changes happened than we could retrieve",4);
 				}
 			}
 		}
@@ -154,12 +186,21 @@ public class StorageWorker extends Thread {
 	* @param newPath the new path relative to the share directory to be registered for watching changes
 	*/
 	private void registerNewPath(String newPath){
-		Path path = Paths.get(Constants.rootDirectory + newPath);
+		Path path = Paths.get(newPath);
 		
 		WatchKey key = null;
 		try {
 		    key = path.register(this.watcher, StandardWatchEventKind.ENTRY_CREATE, 
 				StandardWatchEventKind.ENTRY_DELETE, StandardWatchEventKind.ENTRY_MODIFY);
+			Path prev = keys.get(key);
+			if (prev == null) {
+				System.out.format("register: %s\n", dir);
+			} else {
+				if (!path.equals(prev)) {
+					System.out.format("update: %s -> %s\n", prev, dir);
+				}
+			}
+			keys.put(key, dir);
 		} catch (UnsupportedOperationException uox){
 		    System.err.println("file watching not supported!");
 		    // handle this error here

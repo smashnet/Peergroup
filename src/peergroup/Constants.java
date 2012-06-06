@@ -42,8 +42,11 @@ public class Constants {
 	public static LinkedBlockingQueue<Request> downloadQueue = new LinkedBlockingQueue<Request>();
 	
 	/*
-	* Use extra queue for modify events to prevent modify-flooding on large files
-	* under Windows and Linux
+	* Linux and Windows support instant events on file changes. Copying a big file into the share folder
+	* will result in one "create" event and loooots of "modify" events. So we will handle this here to
+	* reduce update events to one per file. The ModifyQueueWorker checks the modifyQueue regularily
+	* if there are files that haven't got modified in the last seconds, these are then enqueued in the
+	* request queue.
 	*/
 	public static ConcurrentLinkedQueue<ModifyEvent> modifyQueue = new ConcurrentLinkedQueue<ModifyEvent>();
 	
@@ -93,15 +96,25 @@ public class Constants {
 	public final static int LOCAL_ENTRY_MODIFY = 12;
 	public final static int LOCAL_ENTRY_INITSCAN = 13;
 	
+	public final static int LOCAL_FOLDER_CREATE = 14;
+	public final static int LOCAL_FOLDER_DELETE = 15;
+	public final static int LOCAL_FOLDER_MODIFY = 16;
+	public final static int LOCAL_FOLDER_INITSCAN = 17;
+	
 	public final static int REMOTE_ENTRY_CREATE = 20;
 	public final static int REMOTE_ENTRY_DELETE = 21;
 	public final static int REMOTE_ENTRY_MODIFY = 22;
 	public final static int REMOTE_ENTRY_COMPLETE = 23;
-	public final static int REMOTE_CHUNK_COMPLETE = 24;
-	public final static int REMOTE_JOINED_CHANNEL = 25;
-	public final static int REMOTE_FILE_LIST_VERSION = 26;
 	
-	public final static int DOWNLOAD_BLOCK = 30;
+	public final static int REMOTE_FOLDER_CREATE = 24;
+	public final static int REMOTE_FOLDER_DELETE = 25;
+	public final static int REMOTE_FOLDER_MODIFY = 26;
+	
+	public final static int REMOTE_CHUNK_COMPLETE = 30;
+	public final static int REMOTE_JOINED_CHANNEL = 31;
+	public final static int REMOTE_FILE_LIST_VERSION = 32;
+	
+	public final static int DOWNLOAD_BLOCK = 40;
 	
 	public final static int START_THREADS = 300;
 	public final static int STH_EVIL_HAPPENED = 666;
