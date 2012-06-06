@@ -104,7 +104,7 @@ public class StorageWorker extends Thread {
 
 		    // VERY IMPORTANT! call reset() AFTER pollEvents() to allow the
 		    // key to be reported again by the watch service
-		    signalledKey.reset();
+		    signaledKey.reset();
 
 		    for(WatchEvent e : list){
 				if(e.kind() == StandardWatchEventKind.ENTRY_CREATE){
@@ -194,13 +194,13 @@ public class StorageWorker extends Thread {
 				StandardWatchEventKind.ENTRY_DELETE, StandardWatchEventKind.ENTRY_MODIFY);
 			Path prev = keys.get(key);
 			if (prev == null) {
-				System.out.format("register: %s\n", dir);
+				System.out.format("register: %s\n", path);
 			} else {
 				if (!path.equals(prev)) {
-					System.out.format("update: %s -> %s\n", prev, dir);
+					System.out.format("update: %s -> %s\n", prev, path);
 				}
 			}
-			keys.put(key, dir);
+			keys.put(key, path);
 		} catch (UnsupportedOperationException uox){
 		    System.err.println("file watching not supported!");
 		    // handle this error here
