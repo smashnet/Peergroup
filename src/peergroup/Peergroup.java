@@ -239,6 +239,9 @@ public class Peergroup {
 		Constants.log.addMsg("Doing initial scan of share directory...");
 		File test = Storage.getInstance().getDirHandle();
 		for(File newFile : test.listFiles() ){
+			if(test.getName().charAt(0) == '.'){
+				continue;
+			}
 			if(newFile.isFile()){
 				Constants.log.addMsg("Found: " + newFile.getName(),2);
 				Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_ENTRY_INITSCAN,newFile.getName()));

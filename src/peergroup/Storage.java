@@ -52,7 +52,7 @@ public class Storage {
 	* @param filename the filename
 	* @return The FileHandle added to the list
 	*/
-	public FileHandle newFileFromLocal(String filename){
+	public synchronized FileHandle newFileFromLocal(String filename){
 		try{
 			FileHandle newFile = new FileHandle(Constants.rootDirectory + filename);
 			this.files.add(newFile);
@@ -147,7 +147,7 @@ public class Storage {
 	* @param fileSize the size of the file in bytes
 	* @param chunks the list of chunks for this file
 	*/
-	public void newFileFromXMPP(String filename, byte[] fileHash, long fileSize, LinkedList<String> blocks, int cSize, P2Pdevice node){
+	public synchronized void newFileFromXMPP(String filename, byte[] fileHash, long fileSize, LinkedList<String> blocks, int cSize, P2Pdevice node){
 		try{
 			LinkedList<FileChunk> chunks = new LinkedList<FileChunk>();
 			
@@ -274,7 +274,7 @@ public class Storage {
 	*
 	* @return The first found FileChunk with the rarest distribution, or null if no files exist
 	*/
-	public FileChunk getRarestChunk(){
+	public synchronized FileChunk getRarestChunk(){
 		Random gen = new Random(System.currentTimeMillis());
 		FileChunk res = null;
 		LinkedList<FileChunk> chunkList = new LinkedList<FileChunk>();
@@ -299,7 +299,7 @@ public class Storage {
 	*
 	* @param remoteStorage The Storage object received from the network
 	*/
-	public void mergeWithRemoteStorage(int remoteVersion, LinkedList<FileHandle> newList){
+	public synchronized void mergeWithRemoteStorage(int remoteVersion, LinkedList<FileHandle> newList){
 		
 		Constants.log.addMsg("Merging file lists - Local size: " + this.files.size() + ", Remote size: " + newList.size());
 		// Update FileList version number
@@ -359,6 +359,7 @@ public class Storage {
 		// Handle remote-only files
 		for(FileHandle fh : remoteOnlyFiles){
 			System.out.println("Remote only: " +fh.getPath());
+			fh.setUpdating(true);
 			for(FileChunk fc : fh.getChunkList()){
 				fc.decrVersion();
 				fc.setComplete(false);
@@ -388,11 +389,11 @@ public class Storage {
 		this.fileListVersion = v;
 	}
 	
-	public LinkedList<FileHandle> getFileList(){
+	public synchronized LinkedList<FileHandle> getFileList(){
 		return this.files;
 	}
 	
-	public FileHandle getFileHandle(String name){
+	public synchronized FileHandle getFileHandle(String name){
 		for(FileHandle f : this.files){
 			if(f.getPath().equals(name)){
 				return f;
