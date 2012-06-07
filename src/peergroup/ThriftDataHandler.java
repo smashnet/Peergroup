@@ -36,6 +36,9 @@ public class ThriftDataHandler implements DataTransfer.Iface {
 			return null;
 		}else{
 			byte[] swap = tmp.getChunkData(blockID);
+			if(swap == null){
+				return null;
+			}
 			ByteBuffer buffer = ByteBuffer.wrap(swap);
 			return buffer;
 		}
