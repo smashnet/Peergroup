@@ -274,6 +274,10 @@ public class FileHandle {
 	}
 	
 	public synchronized void addP2PdeviceToBlock(int id, P2Pdevice node){
+		if(id >= this.chunks.size()){
+			Constants.log.addMsg("Cannot add node to not existing chunk! (ID: " + id
+								 + " Size: " + this.chunks.size(),4);
+		}
 		this.chunks.get(id).addPeer(node);
 	}
 	
