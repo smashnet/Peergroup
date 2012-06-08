@@ -485,13 +485,16 @@ public class FileHandle {
 		for(String s : blocks){
 			String tmp[] = s.split(":");
 			int index = s.charAt(0)-48;
+			FileChunk tmp1 = this.chunks.get(index);
 			//TODO: Handle case if we have less or more blocks
-			this.chunks.get(index).setHexHash(tmp[2]);
-			this.chunks.get(index).setSize(Integer.valueOf(tmp[3]));
-			this.chunks.get(index).setComplete(false);
+			tmp1.setHexHash(tmp[2]);
+			tmp1.setSize(Integer.valueOf(tmp[3]));
+			tmp1.clearPeers();
+			tmp1.addPeer(node);
+			tmp1.setComplete(false);
 		}
 		if(blocks.size() == this.chunks.size()){
-			// Do nothing if all blocks have changed
+			// Finished if all blocks have changed
 			return;
 		}
 		int i = 0;
