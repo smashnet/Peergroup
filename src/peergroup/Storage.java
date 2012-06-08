@@ -55,11 +55,13 @@ public class Storage {
 	public synchronized FileHandle newFileFromLocal(String filename){
 		try{
 			FileHandle newFile = new FileHandle(Constants.rootDirectory + filename);
-			this.files.add(newFile);
-			//Constants.log.addMsg("Adding " + newFile.toString(),4);
-			this.fileListVersion++;
+			if(newFile.isValid()){
+				this.files.add(newFile);
+				//Constants.log.addMsg("Adding " + newFile.toString(),4);
+				this.fileListVersion++;
 
-			return newFile;
+				return newFile;
+			}
 		}catch(Exception ioe){
 			Constants.log.addMsg("Local file does not exist anymore: " + ioe,4);
 		}

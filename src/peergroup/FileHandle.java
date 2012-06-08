@@ -60,6 +60,8 @@ public class FileHandle {
 	* This boolean is set true while the file is being updated from network
 	*/
 	private boolean updating;
+	
+	private boolean valid;
         
     /**
      * Use this constructor for complete files located on your device
@@ -87,7 +89,12 @@ public class FileHandle {
 		*}
 		*/
 			
-		this.createChunks(this.chunkSize,1);
+		int res = this.createChunks(this.chunkSize,1);
+		if(res == 0){
+			this.valid = true;
+		}else{
+			this.valid = false;
+		}
 		this.updating = false;
     }
 	
@@ -134,10 +141,10 @@ public class FileHandle {
 	* 
 	* @param size the size of a chunk (last one might be smaller)
 	*/
-    private synchronized void createChunks(int size, int vers){
+    private synchronized int createChunks(int size, int vers){
         if(!(this.chunks == null)){
             Constants.log.addMsg("(" + this.file.getName() + ") Chunklist not empty!", 4);
-            return;
+            return 1;
         }
 		try{
 	        FileInputStream stream = new FileInputStream(this.file);
@@ -163,12 +170,15 @@ public class FileHandle {
 			this.hash = sha.digest();
 			
 			Constants.log.addMsg("FileHandle: " + this.file.getPath() + " has " + this.chunks.size() + " chunks");
+			return 0;
 		}catch(IOException ioe){
 			Constants.log.addMsg("createChunks: IOException: " + ioe,1);
+			return 2;
 		}catch(NoSuchAlgorithmException alge){
 			Constants.log.addMsg("calcHash Error: " + alge,1);
 			System.exit(1);
 		}
+		return 3;
     }
     
 	/**
@@ -608,8 +618,16 @@ public class FileHandle {
 		this.updating = up;
 	}
 	
+	public void setValid(boolean val){
+		this.valid = val;
+	}
+	
 	public boolean isUpdating(){
 		return this.updating;
+	}
+	
+	public boolean isValid(){
+		return this.valid;
 	}
     
     @Override
