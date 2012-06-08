@@ -49,6 +49,7 @@ public class ThriftClientGetData implements Runnable {
 			byte[] swap = getBlock(chunk.getName(),chunk.getID(),chunk.getHexHash(),device);
 			if(swap != null){
 				chunk.setDownloading(false);
+				chunk.setComplete(true);
 				Constants.storeQueue.offer(new StoreBlock(tmp,chunk.getID(),chunk.getHexHash(),device,swap));
 				if(!tmp.isDownloading()){
 					Network.getInstance().sendMUCmessage("Finished downloading >> " + tmp.getPath() + " (" + tmp.getSize()
