@@ -68,7 +68,8 @@ public class NetworkWorker extends Thread {
 						
 			// messages with body are not from peergroup clients and are only displayed
 			if(newMessage.getBody() != null){
-				Constants.log.addMsg(newMessage.getFrom() + ": " + newMessage.getBody(),2);
+				String from[] = newMessage.getFrom().split("/");
+				Constants.log.addMsg(from[1] + ": " + newMessage.getBody(),2);
 				continue;
 			}
 			
