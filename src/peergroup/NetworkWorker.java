@@ -187,7 +187,7 @@ public class NetworkWorker extends Thread {
 					// Someone left the channel (Available: "JID")
 					// Inefficient!!
 					jid = (String)newMessage.getProperty("JID");
-					Constants.log.addMsg(jid + " left the channel. Lamport: " + msgLamp);
+					Constants.log.addMsg(jid + " left the channel.");
 					for(FileHandle fh : Storage.getInstance().getFileList()){
 						for(FileChunk fc : fh.getChunkList()){
 							fc.deletePeer(jid);

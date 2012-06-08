@@ -562,6 +562,21 @@ public class FileHandle {
 		this.hash = newHash;
 	}
 	
+	/**
+	* Returns if blocks of this file are currently downloaded
+	*/
+	public boolean isDownloading(){
+		for(FileChunk f : this.chunks){
+			if(f.isDownloading()){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	* Returns if all blocks are stored to the local storage
+	*/
 	public boolean isComplete(){
 		for(FileChunk f : this.chunks){
 			if(f.getVersion() != this.getVersion()){
