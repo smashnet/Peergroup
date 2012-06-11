@@ -164,6 +164,15 @@ public class Peergroup {
 				}
 				Constants.log.addMsg("Set P2P port to: " + Constants.p2pPort,3);
 			}
+			if(last.equals("-cSize")){
+				try{
+					Constants.chunkSize = Integer.parseInt(s);
+				}catch(NumberFormatException nan){
+					Constants.log.addMsg("Invalid chunkSize!",1);
+					System.exit(1);
+				}
+				Constants.log.addMsg("Set chunk size to: " + Constants.chunkSize,3);
+			}
 			if(last.equals("-limit")){
 				try{
 					Constants.shareLimit = Long.parseLong(s);
@@ -206,6 +215,7 @@ public class Peergroup {
 		out += "  -ip             [IP]          manually set your external IP\n";
 		out += "                                (the IP is usually guessed by the program)\n";
 		out += "  -P2Pport        [PORT]        set the port for P2P data exchange (default: 43334)\n";
+		out += "  -cSize          [SIZE]        set the chunk size for P2P data exchange (default: 512000Byte)\n";
 		out += "  -limit          [LIMIT]       set the amount of space you want to share in MB\n";
 		out += "                                (default: 2048MB)\n";
 		out += "  -noEventQueue                 disable Event-Queue (default: enabled)\n";
