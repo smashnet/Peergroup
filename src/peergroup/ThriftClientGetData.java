@@ -61,8 +61,7 @@ public class ThriftClientGetData implements Runnable {
 					tmp.setTimeBool(false);
 					long dlTime = System.currentTimeMillis() - tmp.getDLTime();
 					double res = ((double)dlTime)/1000;
-					Network.getInstance().sendMUCmessage("Finished downloading >> " + tmp.getPath() + " (" + tmp.getSize()
-						+ "Bytes in " + res + "s) <<");
+					Network.getInstance().sendMUCmessage(tmp.getPath() + "," + tmp.getSize() + "," + res);
 				}
 			}else{
 				chunk.setComplete(false);
