@@ -62,6 +62,10 @@ public class FileHandle {
 	private boolean updating;
 	
 	private boolean valid;
+	
+	private boolean timeBool;
+	
+	private long dlTime;
         
     /**
      * Use this constructor for complete files located on your device
@@ -95,6 +99,7 @@ public class FileHandle {
 		}else{
 			this.valid = false;
 		}
+		this.timeBool = false;
 		this.updating = false;
     }
 	
@@ -111,6 +116,7 @@ public class FileHandle {
 		this.chunkSize = cSize;
 		this.updatedBlocks = new LinkedList<Integer>();
 		this.updating = false;
+		this.timeBool = false;
     }
     
 	/**
@@ -129,6 +135,7 @@ public class FileHandle {
         Constants.log.addMsg("FileHandle: New file from network: " + filename
 								+ " (Size: " + this.size + ", Hash: " + this.getHexHash() + ")");
 		this.updating = false;
+		this.timeBool = false;
     }
     
 	public static byte[] toByteHash(String s){
@@ -644,7 +651,23 @@ public class FileHandle {
 	public boolean isValid(){
 		return this.valid;
 	}
+	
+	public boolean getTimeBool(){
+		return this.timeBool;
+	}
+	
+	public long getDLTime(){
+		return this.dlTime;
+	}
+	
+	public void setTimeBool(boolean value){
+		this.timeBool = value;
+	}
     
+	public void setDLTime(long value){
+		this.dlTime = value;
+	}
+	
     @Override
     public String toString(){
         String out = "\n---------- FileHandle toString ----------\n";

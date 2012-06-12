@@ -279,6 +279,7 @@ public class Storage {
 	public synchronized FileChunk getRarestChunk(){
 		Random gen = new Random(System.currentTimeMillis());
 		FileChunk res = null;
+		LinkedList<FileChunk> rareChunkList = new LinkedList<FileChunk>();
 		LinkedList<FileChunk> chunkList = new LinkedList<FileChunk>();
 		for(FileHandle h : this.files){
 			for(FileChunk c : h.getChunks()){
@@ -286,10 +287,14 @@ public class Storage {
 					continue;
 				int peers = c.noOfPeers();
 				if(peers < 4 && peers > 0){
+					rareChunkList.add(c);
+				}else if(peers >= 4){
 					chunkList.add(c);
 				}
 			}
 		}
+		if(rareChunkList.size() > 0)
+			return rareChunkList.get(gen.nextInt(rareChunkList.size()));
 		if(chunkList.size() > 0)
 			return chunkList.get(gen.nextInt(chunkList.size()));
 		return null;

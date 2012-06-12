@@ -46,14 +46,23 @@ public class ThriftClientGetData implements Runnable {
 			}
 			Constants.log.addMsg("DOWNLOAD_BLOCK: " + chunk.getName() + " - Block " 
 								+ chunk.getID() + " from " + device.getIP() + ":" + device.getPort());
+			
+			if(!tmp.getTimeBool()){
+				tmp.setDLTime(System.currentTimeMillis());
+				tmp.setTimeBool(true);
+			}
+			
 			byte[] swap = getBlock(chunk.getName(),chunk.getID(),chunk.getHexHash(),device);
 			if(swap != null){
 				chunk.setDownloading(false);
 				chunk.setComplete(true);
 				Constants.storeQueue.offer(new StoreBlock(tmp,chunk.getID(),chunk.getHexHash(),device,swap));
 				if(!tmp.isDownloading()){
+					tmp.setTimeBool(false);
+					long dlTime = System.currentTimeMillis() - tmp.getDLTime();
+					double res = ((double)dlTime)/1000;
 					Network.getInstance().sendMUCmessage("Finished downloading >> " + tmp.getPath() + " (" + tmp.getSize()
-						+ "Bytes) <<");
+						+ "Bytes in " + res + "s) <<");
 				}
 			}else{
 				chunk.setComplete(false);
