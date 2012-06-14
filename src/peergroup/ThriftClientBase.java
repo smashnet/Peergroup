@@ -34,7 +34,7 @@ public class ThriftClientBase extends Thread {
 	
 	public ThriftClientBase(){
 		this.corePoolSize = 2;
-		this.maxPoolSize = 5;
+		this.maxPoolSize = 10;
 		this.keepAliveTime = 10;
 		this.workQueue = new ArrayBlockingQueue<Runnable>(5000);
 		this.threadPool = new ThreadPoolExecutor(corePoolSize,maxPoolSize,keepAliveTime,TimeUnit.SECONDS,workQueue);
