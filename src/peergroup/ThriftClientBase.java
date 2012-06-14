@@ -60,7 +60,7 @@ public class ThriftClientBase extends Thread {
 					tmp.setDownloading(true);
 					this.runTask(new ThriftClientGetData(tmp));
 				}else{
-					Thread.sleep(1000);
+					Thread.sleep(400);
 				}
 			}catch(InterruptedException ie){
 				interrupt();

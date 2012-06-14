@@ -31,6 +31,7 @@ public class FileChunk {
 	private int size;
 	private boolean complete;
 	private boolean downloading;
+	private boolean failed;
     private LinkedList<P2Pdevice> peers;
     
     public FileChunk(){
@@ -46,6 +47,7 @@ public class FileChunk {
 		this.chunkHash = toByteHash(hash);
 		this.complete = comp;
 		this.downloading = false;
+		this.failed = false;
 		this.peers = new LinkedList<P2Pdevice>();
 		this.peers.add(node);
 	}
@@ -59,6 +61,7 @@ public class FileChunk {
 		this.chunkHash = toByteHash(hash);
 		this.complete = comp;
 		this.downloading = false;
+		this.failed = false;
 		this.peers = nodes;
 	}
 	
@@ -71,6 +74,7 @@ public class FileChunk {
 		this.offset = off;
 		this.complete = compl;
 		this.downloading = false;
+		this.failed = false;
 		this.peers = new LinkedList<P2Pdevice>();
 		this.peers.add(new P2Pdevice(Constants.getJID(),Constants.ipAddress,Constants.p2pPort));
     }
@@ -84,6 +88,7 @@ public class FileChunk {
 		this.offset = off;
 		this.complete = compl;
 		this.downloading = false;
+		this.failed = false;
 		this.peers = new LinkedList<P2Pdevice>();
 		this.peers.add(new P2Pdevice(Constants.getJID(),Constants.ipAddress,Constants.p2pPort));
     }
@@ -201,6 +206,14 @@ public class FileChunk {
 	
 	public void setDownloading(boolean bool){
 		this.downloading = bool;
+	}
+	
+	public void setFailed(boolean val){
+		this.failed = val;
+	}
+	
+	public boolean hasFailed(){
+		return this.failed;
 	}
 	
 }

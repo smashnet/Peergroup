@@ -56,8 +56,9 @@ public class ThriftClientGetData implements Runnable {
 			if(swap != null){
 				chunk.setDownloading(false);
 				chunk.setComplete(true);
+				chunk.setFailed(false);
 				Constants.storeQueue.offer(new StoreBlock(tmp,chunk.getID(),chunk.getHexHash(),device,swap));
-				if(!tmp.isDownloading()){
+				if(!tmp.isDownloading() && !tmp.hasFailed()){
 					tmp.setTimeBool(false);
 					long dlTime = System.currentTimeMillis() - tmp.getDLTime();
 					double res = ((double)dlTime)/1000;
@@ -66,6 +67,7 @@ public class ThriftClientGetData implements Runnable {
 			}else{
 				chunk.setComplete(false);
 				chunk.setDownloading(false);
+				chunk.setFailed(true);
 			}
 		}
 	}

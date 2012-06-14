@@ -76,8 +76,8 @@ public class P2Pdevice {
 			Constants.log.addMsg("Error downloading chunk " + id + "! " + te,1);
 			Constants.log.addMsg("Attempting to redownload.");
 			this.transport.close();
+			return null;
 		}
-		return null;
 	}
 	
 	public synchronized ThriftStorage getFileList(){

@@ -594,6 +594,18 @@ public class FileHandle {
 	}
 	
 	/**
+	* Returns if all blocks are stored to the local storage
+	*/
+	public boolean hasFailed(){
+		for(FileChunk f : this.chunks){
+			if(f.hasFailed()){
+				return true;
+			}
+		}
+		return false;
+	}	
+	
+	/**
 	* Returns a list of chunks that need to be downloaded
 	*
 	* @return the list of chunks
