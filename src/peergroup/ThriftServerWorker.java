@@ -41,7 +41,6 @@ public class ThriftServerWorker extends Thread {
 			this.serverTransport = new TServerSocket(Constants.p2pPort);
 			this.processor = new DataTransfer.Processor(new ThriftDataHandler());
 			TThreadPoolServer.Args tpsa = new TThreadPoolServer.Args(serverTransport).processor(processor);
-			tpsa.maxWorkerThreads(15);
 			this.server = new TThreadPoolServer(tpsa);
 			
 			Constants.log.addMsg("Starting thrift handler on port " + Constants.p2pPort);

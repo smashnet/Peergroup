@@ -140,7 +140,7 @@ public class MainWorker extends Thread {
 		Constants.storage = new StorageWorker();
 		Constants.network = new NetworkWorker();
 		Constants.thrift = new ThriftServerWorker();
-		Constants.thriftClient = new ThriftClientBase();
+		Constants.thriftClient = new ThriftClientWorker();
 		
 		Constants.storage.start();
 		Constants.network.start();

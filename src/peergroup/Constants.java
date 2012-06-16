@@ -64,7 +64,7 @@ public class Constants {
 	public static StorageWorker storage;
 	public static NetworkWorker network;
 	public static ThriftServerWorker thrift;
-	public static ThriftClientBase thriftClient;
+	public static ThriftClientWorker thriftClient;
 	public static ModifyQueueWorker modQueue;
 	    
 	/*

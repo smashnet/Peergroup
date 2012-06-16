@@ -1,5 +1,5 @@
 /*
-* Peergroup - ThriftClientBase.java
+* Peergroup - ThriftClientWorker.java
 * 
 * Peergroup is a P2P Shared Storage System using XMPP for data- and 
 * participantmanagement and Apache Thrift for direct data-
@@ -24,7 +24,7 @@ import org.apache.thrift.transport.*;
  *
  * @author Nicolas Inden
  */
-public class ThriftClientBase extends Thread {
+public class ThriftClientWorker extends Thread {
 	
 	private int corePoolSize;
 	private int maxPoolSize;
@@ -32,7 +32,7 @@ public class ThriftClientBase extends Thread {
 	private ThreadPoolExecutor threadPool;
 	private final ArrayBlockingQueue<Runnable> workQueue;
 	
-	public ThriftClientBase(){
+	public ThriftClientWorker(){
 		this.corePoolSize = 2;
 		this.maxPoolSize = 10;
 		this.keepAliveTime = 10;
@@ -40,7 +40,7 @@ public class ThriftClientBase extends Thread {
 		this.threadPool = new ThreadPoolExecutor(corePoolSize,maxPoolSize,keepAliveTime,TimeUnit.SECONDS,workQueue);
 	}
 		
-	public void stopThriftClientBase(){
+	public void stopThriftClientWorker(){
 		this.interrupt();
 	}
 	
