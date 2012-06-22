@@ -4,6 +4,7 @@
 *.class
 *.*~
 copyto
+pg_start
 export/
 doc/
 dist/

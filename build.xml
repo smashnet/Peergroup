@@ -131,4 +131,28 @@
 		<delete dir="${tmp}" />
 	</target>
 	
+	<target name="umlgraph-doc"
+	        description="Create integrated Javadoc and class diagrams">
+	    <javadoc
+	                classpathref="build.classpath"
+	                verbose="false"
+	                >
+	        <doclet name="org.umlgraph.doclet.UmlGraphDoc"
+	                path="${lib}/UmlGraph.jar"
+	                >
+	            <param name="-d" value="${docdir}"/>
+	            <param name="-private"/>
+	            <param name="-all"/>
+	            <param name="-inferrel"/>
+	            <param name="-qualify"/>
+	            <param name="-postfixpackage"/>
+	            <param name="-useimports"/>
+	            <param name="-collpackages" value="java.util.*"/>
+	            <param name="-hide" value="java.lang.String"/>
+	            <param name="-link" value="http://java.sun.com/j2se/1.5/docs/api"/>
+	        </doclet>
+	        <packageset dir="${src}" defaultexcludes="yes"/>
+	    </javadoc>
+	</target>
+	
 </project>
