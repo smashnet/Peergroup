@@ -33,7 +33,7 @@ import java.util.LinkedList;
 public class Constants {
     
 	public final static String PROGNAME    = "peergroup";
-	public final static String VERSION     = "0.01a";
+	public final static String VERSION     = "0.02 (development version)";
     
 	public final static Logger log = new Logger();
 	
