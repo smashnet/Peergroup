@@ -4,7 +4,8 @@
 *.class
 *.*~
 copyto
-pg_start
+deploy
+nodes
 export/
 doc/
 dist/
@@ -12,8 +13,5 @@ build/
 tmp/
 share/
 thrift/
-test1/
-test2/
-test3/
-test4/
 nico/
+eval/

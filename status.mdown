@@ -1,5 +1,4 @@
-Ideas and brain tmp
-===================
+#Status
 
 * IN PROGRESS: XMPP getMessage blocks and cannot be interrupted -> need to use stop() to stop thread -> bad
 * IN PROGRESS: New peer, get current FileSystem and merge with local directory
@@ -18,44 +17,3 @@ Ideas and brain tmp
 * DONE: on filechange set all unchanged blocks to new fileversion, set changed blocks _after_ they are downloaded!
 * DONE: On filechange clear P2Pdevice list
 * DONE: modified files don't get downloaded
-
-
-
-Related Work
-============
-
-* Groove
-* OneSwarm
-* old Wuala
-
-Thrift Overhead
-===============
-19x512000Byte + 1x 245760Byte
-
-11497826/10485760 = 1.0965181351
-
-Tmp
-===
-
-XMPP Server on: glab050.i4.kit.german-lab.de
-
-Local:
-Mit neuem Verbindugsaufbau	: 4.081s
-Ohne neuen Verbindungsaufbau: 3,922s
-
-Remote (HD to NAS):
-Mit neuem Verbindugsaufbau	: 19,208s
-Ohne neuen Verbindungsaufbau: 15.988s
-
-Remote (HD to HD):
-Mit neuem Verbindugsaufbau	: 24.9s
-Ohne neuen Verbindungsaufbau: 24.04s
-
-Zuhause:
-Remote (HD to HD):
-Mit neuem Verbindugsaufbau	: 34.67s
-Ohne neuen Verbindungsaufbau: 34,54s 34,21s
-
-Local:
-Mit: 6,781s
-Ohne: 7,632s

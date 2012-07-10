@@ -1,40 +1,60 @@
-Peergroup
-=========
+#Peergroup
 A P2P Shared Storage System based on XMPP
 
-Status: _Development version, evaluation functionality complete_
+Peergroup empowers you to synchronize data across multiple computers. You can use it to share data with your friends, you can use it as a convenient way of distributing contents, or you can set it up across multiple of your own machines to automatically sync data between them. It is also possible to use it as a way to distribute your backup data across your servers. Peergroup distributes your data in P2P fashion without the need of a central storage facility. Thus, you can be sure that all your data is only distributed to the devices that are in the same Peergroup-Channel (which is basically a XMPP Multi-User-Chat).
 
-(Paper)Introduction
--------------------
-Todays understanding of the term _storage_ has only few things in common with that term of _storage_ we knew several years ago. Storage is more than just a harddrive in a computer now. The time of cloud services lets users think of huge amounts of space and the possibility of sharing data and collaborative working. As the speed of end-user-internet-lines increases rapidly, which also includes upload bandwith, it seems feasable to make the sky of collaboration a little less cloudy and use a transparent shared storage system based on P2P.
+Whatever your intention is, the first thing you need to do is to determine the circle of users you want to use Peergroup with. Every user needs an XMPP (also known as Jabber) account at his/her favourite server. At last, start Peergroup providing it with your XMPP account and a XMPP conference channel. Of course all users that want to share with each other need to join the same conference channel.
 
-This paper proposes an approach of a P2P shared storage system based on XMPP. XMPP is used as a reliable protocol to manage groups of users to share storage with each other. We use Apache Thrift to have a clean interface for the direct data transfer between users. We do in-depth tests of the system, showing how it scales with a large number of users, and using different block sizes for file segmentation.
+##This is awesome! Where can I get it?
+Simply clone this git-repository and proceed with the "Build & Run" section.
 
-Design Principle
-----------------
-Basically Peergroup empowers you to share a directory on your computer with other users. You might use it to simply share data (be it a file based calendar, pictures, music or whatever comes to your mind), or you might use it as a redundant storage to upload your (encrypted) backups.
+	git clone git@github.com:/smashnet/Peergroup.git Peergroup
 
-Whatever your intention is, the first thing you need to do is to determine the circle of users you want to use Peergroup with. One princilple of Peergroup is, that you always know where your data is stored. Every user needs an XMPP (also known as Jabber) account at his/her favourite server. At last, start Peergroup providing it with your desired folder and a XMPP conference channel. Of course all users that want to share a folder need to join the same conference channel.
+##Build & Run
 
-This is awesome! Where can I get it?
-------------------------------------
-Simply clone this git-repository and procees with the "Build & Install" section.
+###Build
 
-<pre>git clone git@github.com:/smashnet/Peergroup.git Peergroup</pre>
-
-Build & Install
----------------
-This is simple :-)
-
-* cd into the peergroup directory
+* cd into the Peergroup directory
 * ant
-* java -jar export/peergroup.jar
 
-License
--------
+###Run
+
+To run Peergroup, you can either create your own startup command line, or you can simply modify the _pg-start_ script to your needs.
+
+Accepted commands are:
+
+	-h                            prints this help
+	-dir            [DIR]         set the shared files directory (default: ./share/)
+	-jid            [JID]         set your jabber ID (e.g. foo@jabber.bar.com)
+	-res            [RESOURCE]    set the resource (default: peergroup)
+	-pass           [PASS]        set the password for your JID
+	-XMPPport       [PORT]        set the XMPP server port (default: 5222)
+	-chan           [CHANNEL]     set the conference channel to join (e.g. foo@conference.jabber.bar.com)
+	-ip             [IP]          manually set your external IP (the IP is usually guessed by the program)
+	-P2Pport        [PORT]        set the port for P2P data exchange (default: 43334)
+	-cSize          [SIZE]        set the chunk size for P2P data exchange (default: 512000Byte)
+	-noEventQueue                 disable Event-Queue (default: enabled)
+
+An exemplary minimal commandline would be:
+
+	java -jar export/peergroup.jar -jid $USER@$XMPP_SERVER -pass $USER_PASS -chan $CHANNEL@$CONFERENCE_SERVER
+	
+To make your life easier, you can use the provided _pg-start_ script to start Peergroup. It looks like this:
+
+	#!/bin/bash
+	SERVER='<xmpp server here>'
+	USER='<xmpp username here>'
+	PASS='<xmpp password here>'
+	
+	CHANNEL='<conference channel here>'
+	CSERVER='<conference server here>'
+
+	java -Xms512M -Xmx2G -jar export/peergroup.jar -jid $USER@$SERVER -pass $PASS -chan $CHANNEL@$CSERVER
+	
+Enter your data, and have fun :)
+##License
 This project is not officially released yet. It is not meant for public distribution.
 
-Contact
-------
+##Contact
 * Mail: nicolas.inden@rwth-aachen.de
 * XMPP: nicolas.inden@jabber.rwth-aachen.de
