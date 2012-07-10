@@ -27,6 +27,9 @@ import java.util.concurrent.BrokenBarrierException;
 import sun.misc.Signal;
 import sun.misc.SignalHandler;
 import java.util.concurrent.CyclicBarrier;
+import net.sbbi.upnp.*;
+import net.sbbi.upnp.impls.InternetGatewayDevice;
+import net.sbbi.upnp.messages.UPNPResponseException;
 
 /**
  * This processes cmd-line args, initializes all needed settings
@@ -66,9 +69,10 @@ public class Peergroup {
 		String os = System.getProperty("os.name");
         Constants.log.addMsg("Starting " + Constants.PROGNAME + " " 
 			+ Constants.VERSION + " on " + os + " " + System.getProperty("os.version"),2);
-        		
+      		
         getCmdArgs(args);
-		getExternalIP();
+		getIPs();
+		doUPnP();
 		doInitialDirectoryScan();
 		joinXMPP();
 		enqueueThreadStart();
@@ -108,7 +112,7 @@ public class Peergroup {
 			Constants.log.addMsg("Couldn't wait for all threads to cleanly shut down! Oh what a mess... Bye!",1);
 		}
         
-        Constants.log.closeLog();
+        quit(0);
     }
     
 	/**
@@ -242,7 +246,16 @@ public class Peergroup {
 	* the external IP from http://cbyte.selfip.net/getIP.php
 	* If neither an IP was set nor one was detected, Peergroup exits.
 	*/
-	private static void getExternalIP(){
+	private static void getIPs(){
+		// Get local IP
+		try{
+			Constants.localIP = InetAddress.getLocalHost().getHostAddress();
+		}catch(UnknownHostException uhe){
+			Constants.log.addMsg("Cannot get local IP: " + uhe,4);
+		}
+		
+		
+		// Get external IP
 		if(!Constants.ipAddress.equals("")){
 			Constants.log.addMsg("External IP was manually set, skipping the guessing.");
 			return;
@@ -257,6 +270,32 @@ public class Peergroup {
 		}catch(Exception e){
 			Constants.log.addMsg("Couldn't get external IP! " + e + " Try setting it manually!",1);
 			quit(1);
+		}
+	}
+	
+	private static void doUPnP(){
+		int discoveryTimeout = 5000; // 5 secs to receive a response from devices
+		try {
+			InternetGatewayDevice[] IGDs = InternetGatewayDevice.getDevices( discoveryTimeout );
+			if ( IGDs != null ) {
+				// let's the the first device found
+				Constants.igd = IGDs[0];
+				Constants.log.addMsg( "Found device " + Constants.igd.getIGDRootDevice().getModelName() );
+				// now let's open the port
+				// we assume that localHostIP is something else than 127.0.0.1
+				boolean mapped = Constants.igd.addPortMapping( "Peergroup", 
+		        							   			null, Constants.p2pPort, Constants.p2pPort,
+		                                   				 Constants.localIP, 0, "TCP" );
+				if ( mapped ) {
+					Constants.log.addMsg( "Port 51234 mapped to " + Constants.localIP );
+				}
+			}
+		} catch ( IOException ex ) {
+			Constants.log.addMsg("Failed to open port: " + ex,4);
+			Constants.log.addMsg("Maybe the port is already open?",4);
+		} catch( UPNPResponseException respEx ) {
+			Constants.log.addMsg("Failed to open port: " + respEx,4);
+			Constants.log.addMsg("Maybe the port is already open?",4);
 		}
 	}
 	
@@ -285,6 +324,19 @@ public class Peergroup {
 	}
 	
 	public static void quit(int no){
+		if(Constants.igd != null){
+			try{
+				boolean unmapped = Constants.igd.deletePortMapping( null, Constants.p2pPort, "TCP" );
+				if ( unmapped ) {
+					Constants.log.addMsg("Released port mapping for Peergroup on port " + Constants.p2pPort);
+				}
+			}catch(IOException ioe){
+				Constants.log.addMsg("Error unmapping port: " + ioe,4);
+			}catch(UPNPResponseException respEx){
+				Constants.log.addMsg("Error unmapping port: " + respEx,4);
+			}
+		}
+		
 		Constants.log.closeLog();
 		System.exit(no);
 	}

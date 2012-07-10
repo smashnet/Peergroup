@@ -23,6 +23,7 @@ package peergroup;
 
 import java.util.concurrent.*;
 import java.util.LinkedList;
+import net.sbbi.upnp.impls.InternetGatewayDevice;
 
 /**
  * This class is the saving point for all globally used constants
@@ -84,6 +85,7 @@ public class Constants {
 	public static String rootDirectory = "./share/";
     public static String tmpDirectory = "./tmp/";
     public static long shareLimit = 2048;                //MegaBytes
+	public static InternetGatewayDevice igd;
 	
 	/*
 	* XMPP information
@@ -132,6 +134,7 @@ public class Constants {
 	*/
 	public static boolean enableModQueue = true;
 	public static String ipAddress = "";
+	public static String localIP = "";
 	public static int p2pPort = 43334;
 	public static boolean caughtSignal = false;
 	public static int chunkSize = 512000;	//In bytes
