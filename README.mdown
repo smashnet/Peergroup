@@ -57,7 +57,7 @@ Enter your data, and have fun :)
 
 ##Status
 
-See STATUS.mdown
+See Wiki: https://github.com/smashnet/Peergroup/wiki
 
 ##License
 	Peergroup is free software: you can redistribute it and/or modify
