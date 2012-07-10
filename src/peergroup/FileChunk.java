@@ -1,14 +1,22 @@
 /*
 * Peergroup - FileChunk.java
 * 
-* Peergroup is a P2P Shared Storage System using XMPP for data- and 
-* participantmanagement and Apache Thrift for direct data-
-* exchange between users.
+* This file is part of Peergroup.
+*
+* Peergroup is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Peergroup is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
 *
 * Author : Nicolas Inden
 * Contact: nicolas.inden@rwth-aachen.de
 *
-* License: Not for public distribution!
+* Copyright (c) 2012 Nicolas Inden
 */
 
 package peergroup;
@@ -31,6 +39,7 @@ public class FileChunk {
 	private int size;
 	private boolean complete;
 	private boolean downloading;
+	private boolean failed;
     private LinkedList<P2Pdevice> peers;
     
     public FileChunk(){
@@ -46,6 +55,7 @@ public class FileChunk {
 		this.chunkHash = toByteHash(hash);
 		this.complete = comp;
 		this.downloading = false;
+		this.failed = false;
 		this.peers = new LinkedList<P2Pdevice>();
 		this.peers.add(node);
 	}
@@ -59,6 +69,7 @@ public class FileChunk {
 		this.chunkHash = toByteHash(hash);
 		this.complete = comp;
 		this.downloading = false;
+		this.failed = false;
 		this.peers = nodes;
 	}
 	
@@ -71,6 +82,7 @@ public class FileChunk {
 		this.offset = off;
 		this.complete = compl;
 		this.downloading = false;
+		this.failed = false;
 		this.peers = new LinkedList<P2Pdevice>();
 		this.peers.add(new P2Pdevice(Constants.getJID(),Constants.ipAddress,Constants.p2pPort));
     }
@@ -84,6 +96,7 @@ public class FileChunk {
 		this.offset = off;
 		this.complete = compl;
 		this.downloading = false;
+		this.failed = false;
 		this.peers = new LinkedList<P2Pdevice>();
 		this.peers.add(new P2Pdevice(Constants.getJID(),Constants.ipAddress,Constants.p2pPort));
     }
@@ -201,6 +214,14 @@ public class FileChunk {
 	
 	public void setDownloading(boolean bool){
 		this.downloading = bool;
+	}
+	
+	public void setFailed(boolean val){
+		this.failed = val;
+	}
+	
+	public boolean hasFailed(){
+		return this.failed;
 	}
 	
 }

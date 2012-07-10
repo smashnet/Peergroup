@@ -1,0 +1,9 @@
+#!/bin/bash
+SERVER='<xmpp server here>'
+USER='<xmpp username here>'
+PASS='<xmpp password here>'
+	
+CHANNEL='<conference channel here>'
+CSERVER='<conference server here>'
+
+java -Xms512M -Xmx2G -jar export/peergroup.jar -jid $USER@$SERVER -pass $PASS -chan $CHANNEL@$CSERVER

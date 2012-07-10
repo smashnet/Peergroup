@@ -1,14 +1,22 @@
 /*
 * Peergroup - Constants.java
 * 
-* Peergroup is a P2P Shared Storage System using XMPP for data- and 
-* participantmanagement and Apache Thrift for direct data-
-* exchange between users.
+* This file is part of Peergroup.
+*
+* Peergroup is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Peergroup is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
 *
 * Author : Nicolas Inden
 * Contact: nicolas.inden@rwth-aachen.de
 *
-* License: Not for public distribution!
+* Copyright (c) 2012 Nicolas Inden
 */
 
 package peergroup;
@@ -25,7 +33,7 @@ import java.util.LinkedList;
 public class Constants {
     
 	public final static String PROGNAME    = "peergroup";
-	public final static String VERSION     = "0.01 (development version)";
+	public final static String VERSION     = "0.01a";
     
 	public final static Logger log = new Logger();
 	
@@ -67,7 +75,7 @@ public class Constants {
 	public static StorageWorker storage;
 	public static NetworkWorker network;
 	public static ThriftServerWorker thrift;
-	public static ThriftClientBase thriftClient;
+	public static ThriftClientWorker thriftClient;
 	public static ModifyQueueWorker modQueue;
 	    
 	/*
@@ -80,13 +88,13 @@ public class Constants {
 	/*
 	* XMPP information
 	*/
-	public static String user = "test1";
-	public static String pass = "test1";
+	public static String user = "";
+	public static String pass = "";
 	public static String resource = "peergroup";
-	public static String server = "vmhost1";
+	public static String server = "";
 	public static int port = 5222;
-	public static String conference_channel = "peergroup";
-	public static String conference_server = "localhost";
+	public static String conference_channel = "";
+	public static String conference_server = "";
 	
 	/*
 	* Constants defining request-types
@@ -126,7 +134,7 @@ public class Constants {
 	public static String ipAddress = "";
 	public static int p2pPort = 43334;
 	public static boolean caughtSignal = false;
-	public static final int chunkSize = 512000;	//In bytes
+	public static int chunkSize = 512000;	//In bytes
 	public static boolean syncingFileList = false;
 	
 	public static String getJID(){

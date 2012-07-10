@@ -1,14 +1,22 @@
 /*
 * Peergroup - MainWorker.java
 * 
-* Peergroup is a P2P Shared Storage System using XMPP for data- and 
-* participantmanagement and Apache Thrift for direct data-
-* exchange between users.
+* This file is part of Peergroup.
+*
+* Peergroup is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Peergroup is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
 *
 * Author : Nicolas Inden
 * Contact: nicolas.inden@rwth-aachen.de
 *
-* License: Not for public distribution!
+* Copyright (c) 2012 Nicolas Inden
 */
 
 package peergroup;
@@ -58,17 +66,17 @@ public class MainWorker extends Thread {
 					case Constants.LOCAL_ENTRY_CREATE:
 						Constants.log.addMsg("MainWorker: Handling LOCAL_ENTRY_CREATE");
 						handleLocalEntryCreate((FSRequest)nextRequest);
-						Constants.log.addMsg(myStorage.toString());
+						//Constants.log.addMsg(myStorage.toString());
 						break;
 					case Constants.LOCAL_ENTRY_DELETE:
 						Constants.log.addMsg("MainWorker: Handling LOCAL_ENTRY_DELETE");
 						handleLocalEntryDelete((FSRequest)nextRequest);
-						Constants.log.addMsg(myStorage.toString());
+						//Constants.log.addMsg(myStorage.toString());
 						break;
 					case Constants.LOCAL_ENTRY_MODIFY:
 						Constants.log.addMsg("MainWorker: Handling LOCAL_ENTRY_MODIFY");
 						handleLocalEntryModify((FSRequest)nextRequest);
-						Constants.log.addMsg(myStorage.toString());
+						//Constants.log.addMsg(myStorage.toString());
 						break;
 					case Constants.LOCAL_ENTRY_INITSCAN:
 						Constants.log.addMsg("MainWorker: Handling LOCAL_ENTRY_INITSCAN");
@@ -77,17 +85,17 @@ public class MainWorker extends Thread {
 					case Constants.REMOTE_ENTRY_CREATE:
 						Constants.log.addMsg("MainWorker: Handling REMOTE_ENTRY_CREATE");
 						handleRemoteEntryCreate((XMPPRequest)nextRequest);
-						Constants.log.addMsg(myStorage.toString());
+						//Constants.log.addMsg(myStorage.toString());
 						break;
 					case Constants.REMOTE_ENTRY_DELETE:
 						Constants.log.addMsg("MainWorker: Handling REMOTE_ENTRY_DELETE");
 						handleRemoteEntryDelete((XMPPRequest)nextRequest);
-						Constants.log.addMsg(myStorage.toString());
+						//Constants.log.addMsg(myStorage.toString());
 						break;
 					case Constants.REMOTE_ENTRY_MODIFY:
 						Constants.log.addMsg("MainWorker: Handling REMOTE_ENTRY_MODIFY");
 						handleRemoteEntryModify((XMPPRequest)nextRequest);
-						Constants.log.addMsg(myStorage.toString());
+						//Constants.log.addMsg(myStorage.toString());
 						break;
 					case Constants.REMOTE_CHUNK_COMPLETE:
 						//Constants.log.addMsg("MainWorker: Handling REMOTE_CHUNK_COMPLETE");
@@ -121,12 +129,17 @@ public class MainWorker extends Thread {
 	private void handleEvilEvents(FSRequest request){
 		Constants.log.addMsg("Something evil happened: " + request.getContent(),1);
 		
-		Constants.storage.stopStorageWorker();
-		Constants.network.stopNetworkWorker();
-		Constants.thrift.stopThriftWorker();
-		Constants.thriftClient.stopPoolExecutor();
+		if(Constants.storage != null);
+			Constants.storage.stopStorageWorker();
+		if(Constants.network != null);
+			Constants.network.stopNetworkWorker();
+		if(Constants.thrift != null);
+			Constants.thrift.stopThriftWorker();
+		if(Constants.thriftClient != null);
+			Constants.thriftClient.stopPoolExecutor();
 		if(Constants.enableModQueue){
-			Constants.modQueue.interrupt();
+			if(Constants.modQueue != null);
+				Constants.modQueue.interrupt();
 		}
 		Constants.main.interrupt();
 	}
@@ -135,7 +148,7 @@ public class MainWorker extends Thread {
 		Constants.storage = new StorageWorker();
 		Constants.network = new NetworkWorker();
 		Constants.thrift = new ThriftServerWorker();
-		Constants.thriftClient = new ThriftClientBase();
+		Constants.thriftClient = new ThriftClientWorker();
 		
 		Constants.storage.start();
 		Constants.network.start();

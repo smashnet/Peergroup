@@ -1,16 +1,22 @@
 /*
 * Peergroup - Peergroup.java
 * 
-* Peergroup is a P2P Shared Storage System using XMPP for data- and 
-* participantmanagement and Apache Thrift for direct data-
-* exchange between users.
+* This file is part of Peergroup.
+*
+* Peergroup is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Peergroup is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
 *
 * Author : Nicolas Inden
 * Contact: nicolas.inden@rwth-aachen.de
 *
-* License: Not for public distribution!
-*
-* --- Mainclass ---
+* Copyright (c) 2012 Nicolas Inden
 */
 
 package peergroup;
@@ -39,7 +45,7 @@ public class Peergroup {
 			public void handle(Signal signal) {
 			    if(Constants.caughtSignal){
 			        Constants.log.addMsg("Last interrupt couldn't successfully quit the program: Using baseball bat method :-/",1);
-			        System.exit(5);
+			        quit(5);
 			    }
 				Constants.log.addMsg("Caught signal: " + signal + ". Gracefully shutting down!",1);
 				Constants.caughtSignal = true;
@@ -115,7 +121,7 @@ public class Peergroup {
         for(String s: args){
             if(s.equals("-h") || s.equals("--help")){
 				System.out.println(getHelpString());
-				System.exit(0);
+				quit(0);
 			}
 			if(last.equals("-dir")){
 				if(s.charAt(s.length()-1) != '/'){ //Probably need sth special for windows here
@@ -128,7 +134,7 @@ public class Peergroup {
 				String jid[] = s.split("@");
 				if(jid.length < 2){
 					Constants.log.addMsg("Invalid JID!",1);
-					System.exit(1);
+					quit(1);
 				}
 				Constants.user = jid[0];
 				Constants.server = jid[1];
@@ -142,7 +148,7 @@ public class Peergroup {
 				String conf[] = s.split("@");
 				if(conf.length < 2){
 					Constants.log.addMsg("Invalid conference channel!",1);
-					System.exit(1);
+					quit(1);
 				}
 				Constants.conference_channel = conf[0];
 				Constants.conference_server = conf[1];
@@ -154,7 +160,7 @@ public class Peergroup {
 					Constants.port = Integer.parseInt(s);
 				}catch(NumberFormatException nan){
 					Constants.log.addMsg("Invalid port!",1);
-					System.exit(1);
+					quit(1);
 				}
 				Constants.log.addMsg("Set XMPP port to: " + Constants.port,3);
 			}
@@ -163,19 +169,28 @@ public class Peergroup {
 					Constants.p2pPort = Integer.parseInt(s);
 				}catch(NumberFormatException nan){
 					Constants.log.addMsg("Invalid port!",1);
-					System.exit(1);
+					quit(1);
 				}
 				Constants.log.addMsg("Set P2P port to: " + Constants.p2pPort,3);
 			}
-			if(last.equals("-limit")){
+			if(last.equals("-cSize")){
+				try{
+					Constants.chunkSize = Integer.parseInt(s);
+				}catch(NumberFormatException nan){
+					Constants.log.addMsg("Invalid chunkSize!",1);
+					quit(1);
+				}
+				Constants.log.addMsg("Set chunk size to: " + Constants.chunkSize,3);
+			}
+			/*if(last.equals("-limit")){
 				try{
 					Constants.shareLimit = Long.parseLong(s);
 				}catch(NumberFormatException nan){
 					Constants.log.addMsg("Invalid share limit!",1);
-					System.exit(1);
+					quit(1);
 				}
 				Constants.log.addMsg("Set share limit to: " + Constants.shareLimit,3);
-			}
+			}*/
 			if(last.equals("-pass")){
 				Constants.pass = s;
 			}
@@ -189,6 +204,12 @@ public class Peergroup {
 			}
 			last = s;
         }
+		if(Constants.user.equals("") || Constants.pass.equals("") || 
+			Constants.conference_channel.equals("") || Constants.conference_server.equals("") ||
+			Constants.server.equals("")){
+		Constants.log.addMsg("Cannot start! Require: -jid -pass -chan");
+		quit(0);	
+		}
     }
 	
 	/**
@@ -209,8 +230,9 @@ public class Peergroup {
 		out += "  -ip             [IP]          manually set your external IP\n";
 		out += "                                (the IP is usually guessed by the program)\n";
 		out += "  -P2Pport        [PORT]        set the port for P2P data exchange (default: 43334)\n";
-		out += "  -limit          [LIMIT]       set the amount of space you want to share in MB\n";
-		out += "                                (default: 2048MB)\n";
+		out += "  -cSize          [SIZE]        set the chunk size for P2P data exchange (default: 512000Byte)\n";
+		//out += "  -limit          [LIMIT]       set the amount of space you want to share in MB\n";
+		//out += "                                (default: 2048MB)\n";
 		out += "  -noEventQueue                 disable Event-Queue (default: enabled)\n";
 		return out;
 	}
@@ -234,7 +256,7 @@ public class Peergroup {
 			Constants.log.addMsg("Found external IP: " + Constants.ipAddress);
 		}catch(Exception e){
 			Constants.log.addMsg("Couldn't get external IP! " + e + " Try setting it manually!",1);
-			System.exit(1);
+			quit(1);
 		}
 	}
 	
@@ -242,6 +264,9 @@ public class Peergroup {
 		Constants.log.addMsg("Doing initial scan of share directory...");
 		File test = Storage.getInstance().getDirHandle();
 		for(File newFile : test.listFiles() ){
+			if(test.getName().charAt(0) == '.'){
+				continue;
+			}
 			if(newFile.isFile()){
 				Constants.log.addMsg("Found: " + newFile.getName(),2);
 				Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_ENTRY_INITSCAN,newFile.getName()));
@@ -257,5 +282,10 @@ public class Peergroup {
 	
 	private static void enqueueThreadStart(){
 		Constants.requestQueue.offer(new Request(Constants.START_THREADS));
+	}
+	
+	public static void quit(int no){
+		Constants.log.closeLog();
+		System.exit(no);
 	}
 }

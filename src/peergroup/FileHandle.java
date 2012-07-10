@@ -1,14 +1,22 @@
 /*
 * Peergroup - FileHandle.java
 * 
-* Peergroup is a P2P Shared Storage System using XMPP for data- and 
-* participantmanagement and Apache Thrift for direct data-
-* exchange between users.
+* This file is part of Peergroup.
+*
+* Peergroup is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Peergroup is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
 *
 * Author : Nicolas Inden
 * Contact: nicolas.inden@rwth-aachen.de
 *
-* License: Not for public distribution!
+* Copyright (c) 2012 Nicolas Inden
 */
 
 package peergroup;
@@ -60,6 +68,12 @@ public class FileHandle {
 	* This boolean is set true while the file is being updated from network
 	*/
 	private boolean updating;
+	
+	private boolean valid;
+	
+	private boolean timeBool;
+	
+	private long dlTime;
         
     /**
      * Use this constructor for complete files located on your device
@@ -87,7 +101,13 @@ public class FileHandle {
 		*}
 		*/
 			
-		this.createChunks(this.chunkSize,1);
+		int res = this.createChunks(this.chunkSize,1);
+		if(res == 0){
+			this.valid = true;
+		}else{
+			this.valid = false;
+		}
+		this.timeBool = false;
 		this.updating = false;
     }
 	
@@ -104,6 +124,7 @@ public class FileHandle {
 		this.chunkSize = cSize;
 		this.updatedBlocks = new LinkedList<Integer>();
 		this.updating = false;
+		this.timeBool = false;
     }
     
 	/**
@@ -122,6 +143,7 @@ public class FileHandle {
         Constants.log.addMsg("FileHandle: New file from network: " + filename
 								+ " (Size: " + this.size + ", Hash: " + this.getHexHash() + ")");
 		this.updating = false;
+		this.timeBool = false;
     }
     
 	public static byte[] toByteHash(String s){
@@ -134,10 +156,10 @@ public class FileHandle {
 	* 
 	* @param size the size of a chunk (last one might be smaller)
 	*/
-    private synchronized void createChunks(int size, int vers){
+    private synchronized int createChunks(int size, int vers){
         if(!(this.chunks == null)){
             Constants.log.addMsg("(" + this.file.getName() + ") Chunklist not empty!", 4);
-            return;
+            return 1;
         }
 		try{
 	        FileInputStream stream = new FileInputStream(this.file);
@@ -163,12 +185,15 @@ public class FileHandle {
 			this.hash = sha.digest();
 			
 			Constants.log.addMsg("FileHandle: " + this.file.getPath() + " has " + this.chunks.size() + " chunks");
+			return 0;
 		}catch(IOException ioe){
 			Constants.log.addMsg("createChunks: IOException: " + ioe,1);
+			return 2;
 		}catch(NoSuchAlgorithmException alge){
 			Constants.log.addMsg("calcHash Error: " + alge,1);
 			System.exit(1);
 		}
+		return 3;
     }
     
 	/**
@@ -274,6 +299,11 @@ public class FileHandle {
 	}
 	
 	public synchronized void addP2PdeviceToBlock(int id, P2Pdevice node){
+		if(id >= this.chunks.size()){
+			Constants.log.addMsg("Cannot add node to not existing chunk! (ID: " + id
+								 + " Size: " + this.chunks.size() + ")",4);
+			return;
+		}
 		this.chunks.get(id).addPeer(node);
 	}
 	
@@ -314,12 +344,12 @@ public class FileHandle {
 		}
 		
 		if(id >= this.chunks.size()){
-			Constants.log.addMsg("Cannot return chunkData -> ID exceeds list",1);
+			Constants.log.addMsg("Cannot return chunkData -> ID exceeds list: ID: " + id + " List: " + this.chunks.size(),1);
 			return null;
 		}
 		FileChunk recent = this.chunks.get(id);
 		if(!recent.isComplete()){
-			Constants.log.addMsg("Cannot return chunkData -> no chunk not complete",1);
+			Constants.log.addMsg("Cannot return chunkData -> chunk not complete (chunk" + id + ")",1);
 			return null;
 		}
 		
@@ -480,13 +510,16 @@ public class FileHandle {
 		for(String s : blocks){
 			String tmp[] = s.split(":");
 			int index = s.charAt(0)-48;
+			FileChunk tmp1 = this.chunks.get(index);
 			//TODO: Handle case if we have less or more blocks
-			this.chunks.get(index).setHexHash(tmp[2]);
-			this.chunks.get(index).setSize(Integer.valueOf(tmp[3]));
-			this.chunks.get(index).setComplete(false);
+			tmp1.setHexHash(tmp[2]);
+			tmp1.setSize(Integer.valueOf(tmp[3]));
+			tmp1.clearPeers();
+			tmp1.addPeer(node);
+			tmp1.setComplete(false);
 		}
 		if(blocks.size() == this.chunks.size()){
-			// Do nothing if all blocks have changed
+			// Finished if all blocks have changed
 			return;
 		}
 		int i = 0;
@@ -544,6 +577,21 @@ public class FileHandle {
 		this.hash = newHash;
 	}
 	
+	/**
+	* Returns if blocks of this file are currently downloaded
+	*/
+	public boolean isDownloading(){
+		for(FileChunk f : this.chunks){
+			if(f.isDownloading()){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	* Returns if all blocks are stored to the local storage
+	*/
 	public boolean isComplete(){
 		for(FileChunk f : this.chunks){
 			if(f.getVersion() != this.getVersion()){
@@ -552,6 +600,18 @@ public class FileHandle {
 		}
 		return true;
 	}
+	
+	/**
+	* Returns if all blocks are stored to the local storage
+	*/
+	public boolean hasFailed(){
+		for(FileChunk f : this.chunks){
+			if(f.hasFailed()){
+				return true;
+			}
+		}
+		return false;
+	}	
 	
 	/**
 	* Returns a list of chunks that need to be downloaded
@@ -600,10 +660,34 @@ public class FileHandle {
 		this.updating = up;
 	}
 	
+	public void setValid(boolean val){
+		this.valid = val;
+	}
+	
 	public boolean isUpdating(){
 		return this.updating;
 	}
+	
+	public boolean isValid(){
+		return this.valid;
+	}
+	
+	public boolean getTimeBool(){
+		return this.timeBool;
+	}
+	
+	public long getDLTime(){
+		return this.dlTime;
+	}
+	
+	public void setTimeBool(boolean value){
+		this.timeBool = value;
+	}
     
+	public void setDLTime(long value){
+		this.dlTime = value;
+	}
+	
     @Override
     public String toString(){
         String out = "\n---------- FileHandle toString ----------\n";

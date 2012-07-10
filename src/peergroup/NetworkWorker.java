@@ -1,14 +1,22 @@
 /*
 * Peergroup - NetworkWorker.java
 * 
-* Peergroup is a P2P Shared Storage System using XMPP for data- and 
-* participantmanagement and Apache Thrift for direct data-
-* exchange between users.
+* This file is part of Peergroup.
+*
+* Peergroup is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Peergroup is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
 *
 * Author : Nicolas Inden
 * Contact: nicolas.inden@rwth-aachen.de
 *
-* License: Not for public distribution!
+* Copyright (c) 2012 Nicolas Inden
 */
 
 package peergroup;
@@ -68,7 +76,13 @@ public class NetworkWorker extends Thread {
 						
 			// messages with body are not from peergroup clients and are only displayed
 			if(newMessage.getBody() != null){
-				Constants.log.addMsg(newMessage.getFrom() + ": " + newMessage.getBody(),2);
+				String from[] = newMessage.getFrom().split("/");
+				if(from.length > 1){
+					Constants.log.addMsg(from[1] + ": " + newMessage.getBody(),2);
+				}else{
+					Constants.log.addMsg(newMessage.getFrom() + ": " + newMessage.getBody(),2);
+				}
+				
 				continue;
 			}
 			
@@ -187,7 +201,7 @@ public class NetworkWorker extends Thread {
 					// Someone left the channel (Available: "JID")
 					// Inefficient!!
 					jid = (String)newMessage.getProperty("JID");
-					Constants.log.addMsg(jid + " left the channel. Lamport: " + msgLamp);
+					Constants.log.addMsg(jid + " left the channel.");
 					for(FileHandle fh : Storage.getInstance().getFileList()){
 						for(FileChunk fc : fh.getChunkList()){
 							fc.deletePeer(jid);

@@ -1,14 +1,22 @@
 /*
 * Peergroup - Storage.java
 * 
-* Peergroup is a P2P Shared Storage System using XMPP for data- and 
-* participantmanagement and Apache Thrift for direct data-
-* exchange between users.
+* This file is part of Peergroup.
+*
+* Peergroup is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Peergroup is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
 *
 * Author : Nicolas Inden
 * Contact: nicolas.inden@rwth-aachen.de
 *
-* License: Not for public distribution!
+* Copyright (c) 2012 Nicolas Inden
 */
 
 package peergroup;
@@ -52,14 +60,16 @@ public class Storage {
 	* @param filename the filename
 	* @return The FileHandle added to the list
 	*/
-	public FileHandle newFileFromLocal(String filename){
+	public synchronized FileHandle newFileFromLocal(String filename){
 		try{
 			FileHandle newFile = new FileHandle(Constants.rootDirectory + filename);
-			this.files.add(newFile);
-			//Constants.log.addMsg("Adding " + newFile.toString(),4);
-			this.fileListVersion++;
+			if(newFile.isValid()){
+				this.files.add(newFile);
+				//Constants.log.addMsg("Adding " + newFile.toString(),4);
+				this.fileListVersion++;
 
-			return newFile;
+				return newFile;
+			}
 		}catch(Exception ioe){
 			Constants.log.addMsg("Local file does not exist anymore: " + ioe,4);
 		}
@@ -147,7 +157,7 @@ public class Storage {
 	* @param fileSize the size of the file in bytes
 	* @param chunks the list of chunks for this file
 	*/
-	public void newFileFromXMPP(String filename, byte[] fileHash, long fileSize, LinkedList<String> blocks, int cSize, P2Pdevice node){
+	public synchronized void newFileFromXMPP(String filename, byte[] fileHash, long fileSize, LinkedList<String> blocks, int cSize, P2Pdevice node){
 		try{
 			LinkedList<FileChunk> chunks = new LinkedList<FileChunk>();
 			
@@ -274,9 +284,10 @@ public class Storage {
 	*
 	* @return The first found FileChunk with the rarest distribution, or null if no files exist
 	*/
-	public FileChunk getRarestChunk(){
+	public synchronized FileChunk getRarestChunk(){
 		Random gen = new Random(System.currentTimeMillis());
 		FileChunk res = null;
+		LinkedList<FileChunk> rareChunkList = new LinkedList<FileChunk>();
 		LinkedList<FileChunk> chunkList = new LinkedList<FileChunk>();
 		for(FileHandle h : this.files){
 			for(FileChunk c : h.getChunks()){
@@ -284,10 +295,14 @@ public class Storage {
 					continue;
 				int peers = c.noOfPeers();
 				if(peers < 4 && peers > 0){
+					rareChunkList.add(c);
+				}else if(peers >= 4){
 					chunkList.add(c);
 				}
 			}
 		}
+		if(rareChunkList.size() > 0)
+			return rareChunkList.get(gen.nextInt(rareChunkList.size()));
 		if(chunkList.size() > 0)
 			return chunkList.get(gen.nextInt(chunkList.size()));
 		return null;
@@ -299,7 +314,7 @@ public class Storage {
 	*
 	* @param remoteStorage The Storage object received from the network
 	*/
-	public void mergeWithRemoteStorage(int remoteVersion, LinkedList<FileHandle> newList){
+	public synchronized void mergeWithRemoteStorage(int remoteVersion, LinkedList<FileHandle> newList){
 		
 		Constants.log.addMsg("Merging file lists - Local size: " + this.files.size() + ", Remote size: " + newList.size());
 		// Update FileList version number
@@ -359,6 +374,7 @@ public class Storage {
 		// Handle remote-only files
 		for(FileHandle fh : remoteOnlyFiles){
 			System.out.println("Remote only: " +fh.getPath());
+			fh.setUpdating(true);
 			for(FileChunk fc : fh.getChunkList()){
 				fc.decrVersion();
 				fc.setComplete(false);
@@ -388,11 +404,11 @@ public class Storage {
 		this.fileListVersion = v;
 	}
 	
-	public LinkedList<FileHandle> getFileList(){
+	public synchronized LinkedList<FileHandle> getFileList(){
 		return this.files;
 	}
 	
-	public FileHandle getFileHandle(String name){
+	public synchronized FileHandle getFileHandle(String name){
 		for(FileHandle f : this.files){
 			if(f.getPath().equals(name)){
 				return f;
