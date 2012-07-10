@@ -1,19 +1,18 @@
 #Status
+_IN PROGRESS:_ This feature is currently in development in the "development" branch
 
-* IN PROGRESS: XMPP getMessage blocks and cannot be interrupted -> need to use stop() to stop thread -> bad
-* IN PROGRESS: New peer, get current FileSystem and merge with local directory
-* IN PROGRESS: Conflicts:	- File has flag "updating" + File gets updated locally during update
-* IN PROGRESS: Think of a better approach for merging local file list with remote file list
-* IN PROGRESS: When merging lists: what to do with case: same filename but different version/hash (conflicting copy!)
-* IN PROGRESS: Implement lamport boradcast (if inconsistencies occur)
-* TODO: Test Thrift overhead
-* PLANNED: have to handle directories
-* PLANNED: Save file list to file to prevent hashing on startup (Java File lastModified())
-* MAYBE: hide incomplete files -> not recognized by jpathwatch (don't know if necessary)
-* DONE: thrift connection handling
-* DONE: what if file grows drastically and chunksize is changed -> complete new upload -> bad (Fixed chunksize)
-* DONE: FileHandle ~line 253 What about chunk version in additional new chunks? Same version as fileVersion!
-* DONE: remote modify -> remote affected items -> when try to delete locally -> item in list -> no deletion
-* DONE: on filechange set all unchanged blocks to new fileversion, set changed blocks _after_ they are downloaded!
-* DONE: On filechange clear P2Pdevice list
-* DONE: modified files don't get downloaded
+_PLANNED:_ This feature is in the queue for implementation
+
+_MAYBE:_ I'm not sure if this feature will be implemented (maybe if I'm bored ;-))
+
+##Features
+
+	IN PROGRESS: Implement directory handling
+	PLANNED: 	 Save file list to file to prevent hashing on startup (Java File lastModified())
+	PLANNED: 	 XMPP getMessage blocks and cannot be interrupted -> need to use stop() to stop thread -> bad
+	MAYBE: 		 Hide incomplete files -> not recognized by jpathwatch (don't know if necessary)
+	MAYBE: 		 Think of a better approach for merging local file list with remote file list
+	
+##Known Bugs
+
+* Crashes when using directories in shared folder (FIX IN PROGRESS)

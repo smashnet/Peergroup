@@ -1,14 +1,22 @@
 /*
 * Peergroup - ThriftClientGetData.java
 * 
-* Peergroup is a P2P Shared Storage System using XMPP for data- and 
-* participantmanagement and Apache Thrift for direct data-
-* exchange between users.
+* This file is part of Peergroup.
+*
+* Peergroup is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Peergroup is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
 *
 * Author : Nicolas Inden
 * Contact: nicolas.inden@rwth-aachen.de
 *
-* License: Not for public distribution!
+* Copyright (c) 2012 Nicolas Inden
 */
 
 package peergroup;
