@@ -45,7 +45,7 @@ public class Peergroup {
 			public void handle(Signal signal) {
 			    if(Constants.caughtSignal){
 			        Constants.log.addMsg("Last interrupt couldn't successfully quit the program: Using baseball bat method :-/",1);
-			        System.exit(5);
+			        quit(5);
 			    }
 				Constants.log.addMsg("Caught signal: " + signal + ". Gracefully shutting down!",1);
 				Constants.caughtSignal = true;
@@ -121,7 +121,7 @@ public class Peergroup {
         for(String s: args){
             if(s.equals("-h") || s.equals("--help")){
 				System.out.println(getHelpString());
-				System.exit(0);
+				quit(0);
 			}
 			if(last.equals("-dir")){
 				Constants.rootDirectory = s;
@@ -131,7 +131,7 @@ public class Peergroup {
 				String jid[] = s.split("@");
 				if(jid.length < 2){
 					Constants.log.addMsg("Invalid JID!",1);
-					System.exit(1);
+					quit(1);
 				}
 				Constants.user = jid[0];
 				Constants.server = jid[1];
@@ -145,7 +145,7 @@ public class Peergroup {
 				String conf[] = s.split("@");
 				if(conf.length < 2){
 					Constants.log.addMsg("Invalid conference channel!",1);
-					System.exit(1);
+					quit(1);
 				}
 				Constants.conference_channel = conf[0];
 				Constants.conference_server = conf[1];
@@ -157,7 +157,7 @@ public class Peergroup {
 					Constants.port = Integer.parseInt(s);
 				}catch(NumberFormatException nan){
 					Constants.log.addMsg("Invalid port!",1);
-					System.exit(1);
+					quit(1);
 				}
 				Constants.log.addMsg("Set XMPP port to: " + Constants.port,3);
 			}
@@ -166,7 +166,7 @@ public class Peergroup {
 					Constants.p2pPort = Integer.parseInt(s);
 				}catch(NumberFormatException nan){
 					Constants.log.addMsg("Invalid port!",1);
-					System.exit(1);
+					quit(1);
 				}
 				Constants.log.addMsg("Set P2P port to: " + Constants.p2pPort,3);
 			}
@@ -175,7 +175,7 @@ public class Peergroup {
 					Constants.chunkSize = Integer.parseInt(s);
 				}catch(NumberFormatException nan){
 					Constants.log.addMsg("Invalid chunkSize!",1);
-					System.exit(1);
+					quit(1);
 				}
 				Constants.log.addMsg("Set chunk size to: " + Constants.chunkSize,3);
 			}
@@ -184,7 +184,7 @@ public class Peergroup {
 					Constants.shareLimit = Long.parseLong(s);
 				}catch(NumberFormatException nan){
 					Constants.log.addMsg("Invalid share limit!",1);
-					System.exit(1);
+					quit(1);
 				}
 				Constants.log.addMsg("Set share limit to: " + Constants.shareLimit,3);
 			}*/
@@ -201,6 +201,12 @@ public class Peergroup {
 			}
 			last = s;
         }
+		if(Constants.user.equals("") || Constants.pass.equals("") || 
+			Constants.conference_channel.equals("") || Constants.conference_server.equals("") ||
+			Constants.server.equals("")){
+		Constants.log.addMsg("Cannot start! Require: -jid -pass -chan");
+		quit(0);	
+		}
     }
 	
 	/**
@@ -247,7 +253,7 @@ public class Peergroup {
 			Constants.log.addMsg("Found external IP: " + Constants.ipAddress);
 		}catch(Exception e){
 			Constants.log.addMsg("Couldn't get external IP! " + e + " Try setting it manually!",1);
-			System.exit(1);
+			quit(1);
 		}
 	}
 	
@@ -273,5 +279,10 @@ public class Peergroup {
 	
 	private static void enqueueThreadStart(){
 		Constants.requestQueue.offer(new Request(Constants.START_THREADS));
+	}
+	
+	public static void quit(int no){
+		Constants.log.closeLog();
+		System.exit(no);
 	}
 }

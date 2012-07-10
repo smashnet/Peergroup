@@ -85,13 +85,13 @@ public class Constants {
 	/*
 	* XMPP information
 	*/
-	public static String user = "test1";
-	public static String pass = "test1";
+	public static String user = "";
+	public static String pass = "";
 	public static String resource = "peergroup";
-	public static String server = "vmhost1";
+	public static String server = "";
 	public static int port = 5222;
-	public static String conference_channel = "peergroup";
-	public static String conference_server = "localhost";
+	public static String conference_channel = "";
+	public static String conference_server = "";
 	
 	/*
 	* Constants defining request-types
