@@ -68,23 +68,7 @@ public class StorageWorker extends Thread {
 		LinkedList<String> folders = new LinkedList<String>();
 		
 		//Init WatchService
-		
-		Path path = Paths.get(Constants.rootDirectory);
-		
-		WatchKey key = null;
-		try {
-		    key = path.register(this.watcher, StandardWatchEventKind.ENTRY_CREATE, 
-				StandardWatchEventKind.ENTRY_DELETE, StandardWatchEventKind.ENTRY_MODIFY);
-		}catch(UnsupportedOperationException uox){
-		    Constants.log.addMsg("No file-watching supported! Exiting...",1);
-			System.exit(2);
-		}catch(IOException iox){
-			Constants.log.addMsg("Error accessing device for file-watching! Exiting...",1);
-			System.exit(2);
-		}catch(ClosedWatchServiceException cwse){
-			Constants.log.addMsg("WatchService was closed! Exiting...",1);
-			interrupt();
-		}
+		registerNewPath(Constants.rootDirectory);
 		
 		while(!isInterrupted()){
 		    WatchKey signaledKey;

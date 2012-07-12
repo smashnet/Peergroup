@@ -287,7 +287,7 @@ public class Peergroup {
 		        							   			null, Constants.p2pPort, Constants.p2pPort,
 		                                   				 Constants.localIP, 0, "TCP" );
 				if ( mapped ) {
-					Constants.log.addMsg( "Port 51234 mapped to " + Constants.localIP );
+					Constants.log.addMsg( "Port " + Constants.p2pPort + " mapped to " + Constants.localIP );
 				}
 			}
 		} catch ( IOException ex ) {
