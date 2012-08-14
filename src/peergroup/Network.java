@@ -77,7 +77,7 @@ public class Network {
 			Constants.log.addMsg("Successfully logged into XMPP Server as: " +
 				Constants.user + "@" + Constants.server + "/" + Constants.resource);
 		}catch(XMPPException xe){
-			Constants.requestQueue.offer(new FSRequest(Constants.STH_EVIL_HAPPENED,"Unable to login to XMPP Server: " + xe));
+			Constants.log.addMsg("Unable to log into XMPP Server: " + xe,4);
 		}
 	}
 	
