@@ -117,6 +117,15 @@ public class Network {
 	}
 	
 	/**
+	* Returns if successfully logged in using login()
+	*
+	* @return true if logged in, else false
+	*/
+	public boolean isLoggedIn(){
+		return this.xmppCon.isAuthenticated();
+	}
+	
+	/**
 	* Joins the MuC room specified by the supplied information
 	*
 	* @param user The username you want to use in the room
