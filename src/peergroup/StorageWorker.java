@@ -106,7 +106,7 @@ public class StorageWorker extends Thread {
 					if(context.toString().charAt(0) == '.'){
 						continue;
 					}
-					File newEntry = new File(Constants.rootDirectory + context.toString());
+					File newEntry = new File(dir.toString() + "/" + context.toString());
 					System.out.print("New: " + newEntry.getPath());
 					if(newEntry.isFile()){
 						System.out.println(" -- is a file!");

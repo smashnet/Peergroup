@@ -6,7 +6,7 @@
 copyto
 deploy
 nodes
-pg_nico
+pg-nico
 test1
 export/
 doc/

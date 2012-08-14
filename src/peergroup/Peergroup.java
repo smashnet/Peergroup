@@ -72,9 +72,9 @@ public class Peergroup {
       		
         getCmdArgs(args);
 		getIPs();
-		doUPnP();
 		doInitialDirectoryScan();
 		joinXMPP();
+		doUPnP();
 		enqueueThreadStart();
 		
 		if(os.equals("Linux") || os.equals("Windows 7"))
