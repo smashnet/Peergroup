@@ -314,9 +314,15 @@ public class Peergroup {
 	}
 	
 	private static void joinXMPP(){
-		Network.getInstance().joinMUC(Constants.user, Constants.pass, 
+		Network xmppNet = Network.getInstance();
+		if(!xmppNet.isConnected()){
+			// There must have been some error while connecting,
+			// so we need to shut down Peergroup
+			quit(5);
+		}
+		xmppNet.joinMUC(Constants.user, Constants.pass, 
 			Constants.conference_channel + "@" + Constants.conference_server);
-		Network.getInstance().sendMUCmessage("Hi, I'm a peergroup client. I do awesome things :-)");
+		xmppNet.sendMUCmessage("Hi, I'm a peergroup client. I do awesome things :-)");
 	}
 	
 	private static void enqueueThreadStart(){

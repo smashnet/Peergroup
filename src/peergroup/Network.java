@@ -108,6 +108,15 @@ public class Network {
 	}
 	
 	/**
+	* Returns if a connection to a server is established
+	*
+	* @return true if connected, else false
+	*/
+	public boolean isConnected(){
+		return this.xmppCon.isConnected();
+	}
+	
+	/**
 	* Joins the MuC room specified by the supplied information
 	*
 	* @param user The username you want to use in the room
