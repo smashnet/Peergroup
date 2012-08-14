@@ -315,7 +315,7 @@ public class Peergroup {
 	
 	private static void joinXMPP(){
 		Network xmppNet = Network.getInstance();
-		if(!xmppNet.isConnected() || !xmpp.isLoggedIn()){
+		if(!xmppNet.isConnected() || !xmppNet.isLoggedIn()){
 			// There must have been some error while connecting,
 			// so we need to shut down Peergroup
 			quit(5);
