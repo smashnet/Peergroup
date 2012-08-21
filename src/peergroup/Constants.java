@@ -101,24 +101,24 @@ public class Constants {
 	/*
 	* Constants defining request-types
 	*/
-	public final static int LOCAL_ENTRY_CREATE = 10;
-	public final static int LOCAL_ENTRY_DELETE = 11;
-	public final static int LOCAL_ENTRY_MODIFY = 12;
-	public final static int LOCAL_ENTRY_INITSCAN = 13;
+	public final static int LOCAL_FILE_CREATE = 10;
+	public final static int LOCAL_FILE_DELETE = 11;
+	public final static int LOCAL_FILE_MODIFY = 12;
+	public final static int LOCAL_FILE_INITSCAN = 13;
 	
-	public final static int LOCAL_FOLDER_CREATE = 14;
-	public final static int LOCAL_FOLDER_DELETE = 15;
-	public final static int LOCAL_FOLDER_MODIFY = 16;
-	public final static int LOCAL_FOLDER_INITSCAN = 17;
+	public final static int LOCAL_DIR_CREATE = 14;
+	public final static int LOCAL_DIR_DELETE = 15;
+	public final static int LOCAL_DIR_MODIFY = 16;
+	public final static int LOCAL_DIR_INITSCAN = 17;
 	
-	public final static int REMOTE_ENTRY_CREATE = 20;
-	public final static int REMOTE_ENTRY_DELETE = 21;
-	public final static int REMOTE_ENTRY_MODIFY = 22;
-	public final static int REMOTE_ENTRY_COMPLETE = 23;
+	public final static int REMOTE_FILE_CREATE = 20;
+	public final static int REMOTE_FILE_DELETE = 21;
+	public final static int REMOTE_FILE_MODIFY = 22;
+	public final static int REMOTE_FILE_COMPLETE = 23;
 	
-	public final static int REMOTE_FOLDER_CREATE = 24;
-	public final static int REMOTE_FOLDER_DELETE = 25;
-	public final static int REMOTE_FOLDER_MODIFY = 26;
+	public final static int REMOTE_DIR_CREATE = 24;
+	public final static int REMOTE_DIR_DELETE = 25;
+	public final static int REMOTE_DIR_MODIFY = 26;
 	
 	public final static int REMOTE_CHUNK_COMPLETE = 30;
 	public final static int REMOTE_JOINED_CHANNEL = 31;

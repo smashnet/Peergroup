@@ -108,22 +108,18 @@ public class StorageWorker extends Thread {
 					}
 					File newEntry = new File(dir.toString() + "/" + context.toString());
 					System.out.print("New: " + newEntry.getPath());
+					// For internal handling we use paths relative to the root-share folder
+					// Example ./share/file1 -> /file1
+					String pathWithoutRoot = getPurePath(dir.toString() + "/" + context.toString());
 					if(newEntry.isFile()){
-						System.out.println(" -- is a file!");
-						if(Constants.enableModQueue){
-							insertElement(Constants.modifyQueue,new ModifyEvent(Constants.LOCAL_ENTRY_CREATE,context.toString()));
-						}else{
-							Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_ENTRY_CREATE,context.toString()));
-						}
+						System.out.println(" -- is a file!");						
+						System.out.println(pathWithoutRoot);
+						insertElement(Constants.modifyQueue,new ModifyEvent(Constants.LOCAL_FILE_CREATE,pathWithoutRoot));
 					}else if(newEntry.isDirectory()){
 						System.out.println(" -- is a directory!");
 						folders.add(newEntry.getPath());
 						registerNewPath(newEntry.getPath());
-						if(Constants.enableModQueue){
-							insertElement(Constants.modifyQueue,new ModifyEvent(Constants.LOCAL_FOLDER_CREATE,context.toString()));
-						}else{
-							Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_FOLDER_CREATE,context.toString()));
-						}
+						insertElement(Constants.modifyQueue,new ModifyEvent(Constants.LOCAL_DIR_CREATE,pathWithoutRoot));
 					}
 				} else if(e.kind() == StandardWatchEventKind.ENTRY_DELETE){
 					// Entry deleted
@@ -131,12 +127,13 @@ public class StorageWorker extends Thread {
 					if(context.toString().charAt(0) == '.'){
 						continue;
 					}
-					File delEntry = new File(Constants.rootDirectory + context.toString());
-					System.out.println("Modified: " + delEntry.getPath());
+					File delEntry = new File(dir.toString() + "/" + context.toString());
+					System.out.println("Deleted: " + delEntry.getPath());
+					String pathWithoutRoot = getPurePath(dir.toString() + "/" + context.toString());
 					if(delEntry.isFile()){
-						Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_ENTRY_DELETE,context.toString()));
+						Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_FILE_DELETE,pathWithoutRoot));
 					}else if(delEntry.isDirectory()){
-						Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_FOLDER_DELETE,context.toString()));
+						Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_DIR_DELETE,pathWithoutRoot));
 					}
 				} else if(e.kind() == StandardWatchEventKind.ENTRY_MODIFY){
 					// Entry modified
@@ -144,14 +141,11 @@ public class StorageWorker extends Thread {
 					if(context.toString().charAt(0) == '.'){
 						continue;
 					}
-					File modEntry = new File(Constants.rootDirectory + context.toString());
+					File modEntry = new File(dir.toString() + "/" + context.toString());
 					System.out.println("Modified: " + modEntry.getPath());
 					if(modEntry.isFile()){
-						if(Constants.enableModQueue){
-							insertElement(Constants.modifyQueue,new ModifyEvent(context.toString()));						
-						}else{
-							Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_ENTRY_MODIFY,context.toString()));
-						}
+						String pathWithoutRoot = getPurePath(dir.toString() + "/" + context.toString());
+						insertElement(Constants.modifyQueue,new ModifyEvent(pathWithoutRoot));						
 					}
 				} else if(e.kind() == StandardWatchEventKind.OVERFLOW){
 					Constants.log.addMsg("OVERFLOW: more changes happened than we could retrieve",4);
@@ -159,6 +153,11 @@ public class StorageWorker extends Thread {
 			}
 		}
 		Constants.log.addMsg("Storage thread interrupted. Closing...",4);
+	}
+	
+	private String getPurePath(String entry){
+		int rootLength = Constants.rootDirectory.length();
+		return entry.substring(rootLength-1,entry.length());
 	}
 	
 	private void insertElement(ConcurrentLinkedQueue<ModifyEvent> list, ModifyEvent me){

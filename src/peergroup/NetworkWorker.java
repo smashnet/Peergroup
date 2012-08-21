@@ -109,7 +109,7 @@ public class NetworkWorker extends Thread {
 						
 					filename = (String)newMessage.getProperty("name");
 					Constants.log.addMsg("New file discovered via XMPP: " + filename);
-					Constants.requestQueue.offer(new XMPPRequest(Constants.REMOTE_ENTRY_CREATE,newMessage));
+					Constants.requestQueue.offer(new XMPPRequest(Constants.REMOTE_FILE_CREATE,newMessage));
 					break;
 				case 2: 
 					/*
@@ -121,7 +121,7 @@ public class NetworkWorker extends Thread {
 					filename = (String)newMessage.getProperty("name");
 					Constants.log.addMsg("File deletion discovered via XMPP: " + filename);
 					//Constants.remoteAffectedItems.add(filename);
-					Constants.requestQueue.offer(new XMPPRequest(Constants.REMOTE_ENTRY_DELETE,newMessage));
+					Constants.requestQueue.offer(new XMPPRequest(Constants.REMOTE_FILE_DELETE,newMessage));
 					break;
 				case 3: 
 					/*
@@ -133,7 +133,7 @@ public class NetworkWorker extends Thread {
 					filename = (String)newMessage.getProperty("name");
 					Constants.log.addMsg("File update discovered via XMPP: " + filename);
 					//Constants.remoteAffectedItems.add(filename);
-					Constants.requestQueue.offer(new XMPPRequest(Constants.REMOTE_ENTRY_MODIFY,newMessage));
+					Constants.requestQueue.offer(new XMPPRequest(Constants.REMOTE_FILE_MODIFY,newMessage));
 					break;
 				case 4:
 					/*
@@ -155,7 +155,7 @@ public class NetworkWorker extends Thread {
 					
 					filename = (String)newMessage.getProperty("name");
 					Constants.log.addMsg("Completed file download discovered via XMPP: " + filename);
-					Constants.requestQueue.offer(new XMPPRequest(Constants.REMOTE_ENTRY_COMPLETE,newMessage));
+					Constants.requestQueue.offer(new XMPPRequest(Constants.REMOTE_FILE_COMPLETE,newMessage));
 					break;
 				case 6:
 					/*

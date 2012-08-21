@@ -325,9 +325,12 @@ public class FileHandle {
 	public void createEmptyLocalFile(){
 		// Create empty file on disk
 		try{
+			String parent = this.file.getParent();
+			File parentDir = new File(parent);
+			parentDir.mkdirs();
 			this.file.createNewFile();
 		}catch(IOException ioe){
-			Constants.log.addMsg("FileHandle: Cannot create new file from network: " + ioe,4);
+			Constants.log.addMsg("FileHandle: Cannot create dummy file: " + ioe,4);
 		}
 	}
 

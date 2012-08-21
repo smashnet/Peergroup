@@ -68,7 +68,7 @@ public class P2Pdevice {
 	}
 	
 	public void closeTransport(){
-		if(this.transport.isOpen())
+		//if(this.transport.isOpen())
 			this.transport.close();
 	}
 	

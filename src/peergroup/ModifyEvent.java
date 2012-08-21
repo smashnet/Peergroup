@@ -40,7 +40,7 @@ public class ModifyEvent{
 	}
 	
 	public ModifyEvent(String name){
-		this.type = Constants.LOCAL_ENTRY_MODIFY;
+		this.type = Constants.LOCAL_FILE_MODIFY;
 		this.filename = name;
 		this.time = System.currentTimeMillis();
 	}

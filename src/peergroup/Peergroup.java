@@ -308,7 +308,7 @@ public class Peergroup {
 			}
 			if(newFile.isFile()){
 				Constants.log.addMsg("Found: " + newFile.getName(),2);
-				Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_ENTRY_INITSCAN,newFile.getName()));
+				Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_FILE_INITSCAN,newFile.getName()));
 			}
 		}
 	}
