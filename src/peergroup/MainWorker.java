@@ -146,11 +146,14 @@ public class MainWorker extends Thread {
 	}
 	
 	/**
-	* 
+	* Check new directory for included files.
+	* If directory contains files, pipe them to handleLocalFileCreate
+	* If directory emtpy -> send createDir via XMPP
 	*
+	* @param request The request containing the directory name
 	*/
 	private void handleLocalDirCreate(FSRequest request){
-	
+		// TODO
 	}
 	
 	/**
@@ -159,14 +162,6 @@ public class MainWorker extends Thread {
 	* @param request The request containing the filename of the deleted file
 	*/
 	private void handleLocalFileDelete(FSRequest request){
-		// Only apply local deletes
-		/*for(int i = 0; i < Constants.remoteAffectedItems.size(); i++){
-			if(Constants.remoteAffectedItems.get(i).equals(request.getContent())){
-				Constants.remoteAffectedItems.remove(i);
-				return;
-			}
-		}*/
-		
 		// Only handle existing files
 		FileHandle tmp;
 		if((tmp = myStorage.fileExists(request.getContent())) == null){
@@ -184,16 +179,19 @@ public class MainWorker extends Thread {
 	}
 	
 	/**
+	* Delete directory and all contained files/directories and send via XMPP
 	*
-	*
+	* @param request The request containing the deleted directory
 	*/
 	private void handleLocalDirDelete(FSRequest request){
-	
+		// TODO
 	}
 	
 	/**
 	* Checks a local file for changes and modifies its FileHandle appropriately.
 	* Afterwards the change is published via XMPP.
+	*
+	* String format: "id:version:hash:size"
 	*
 	* @param request The request containing the filename of the changed file
 	*/
@@ -249,11 +247,12 @@ public class MainWorker extends Thread {
 	}
 	
 	/**
-	* 
+	* Create empty directory received via XMPP
 	*
+	* @param request The name of the directory to be created
 	*/
 	private void handleRemoteDirCreate(XMPPRequest request){
-	
+		// TODO
 	}
 	
 	/**
@@ -274,11 +273,12 @@ public class MainWorker extends Thread {
 	}
 	
 	/**
+	* Delete the directory (and including files) received via XMPP
 	*
-	*
+	* @param request The name of the directory to be deleted
 	*/
 	private void handleRemoteDirDelete(XMPPRequest request){
-	
+		// TODO
 	}
 	
 	/**

@@ -25,7 +25,9 @@ import java.util.LinkedList;
 import java.util.Random;
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
-/**
+ /**
+ * Defines a chunk of a files including the position and size in the 
+ * file and further attributes.
  *
  * @author Nicolas Inden
  */
