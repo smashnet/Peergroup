@@ -153,7 +153,10 @@ public class MainWorker extends Thread {
 	* @param request The request containing the directory name
 	*/
 	private void handleLocalDirCreate(FSRequest request){
-		// TODO
+		File dir = new File(Constants.rootDirectory + request.getContent());
+		File contents[] = dir.listFiles();
+		
+		System.out.println("Includes: " + contents.length + " elements");
 	}
 	
 	/**
@@ -196,6 +199,10 @@ public class MainWorker extends Thread {
 	* @param request The request containing the filename of the changed file
 	*/
 	private void handleLocalFileModify(FSRequest request){
+		if(myStorage.fileExists(request.getContent()) == null){
+			handleLocalFileCreate(request);
+			return;
+		}
 		FileHandle newFile = this.myStorage.modifyFileFromLocal(request.getContent());
 		if(newFile != null){
 			LinkedList<Integer> updated = newFile.getUpdatedBlocks();

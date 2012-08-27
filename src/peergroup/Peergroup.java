@@ -206,6 +206,10 @@ public class Peergroup {
 				Constants.enableModQueue = false;
 				Constants.log.addMsg("Manually disabled Event-Queue",3);
 			}
+			if(s.equals("-noUPnP")){
+				Constants.doUPnP = false;
+				Constants.log.addMsg("Manually disabled UPnP",3);
+			}
 			last = s;
         }
 		if(Constants.user.equals("") || Constants.pass.equals("") || 
@@ -237,7 +241,7 @@ public class Peergroup {
 		out += "  -cSize          [SIZE]        set the chunk size for P2P data exchange (default: 512000Byte)\n";
 		//out += "  -limit          [LIMIT]       set the amount of space you want to share in MB\n";
 		//out += "                                (default: 2048MB)\n";
-		out += "  -noEventQueue                 disable Event-Queue (default: enabled)\n";
+		out += "  -noUPnP                       disable UPnP port forwarding (default: enabled)\n";
 		return out;
 	}
     
@@ -274,6 +278,8 @@ public class Peergroup {
 	}
 	
 	private static void doUPnP(){
+		if(!Constants.doUPnP)
+			return;
 		int discoveryTimeout = 5000; // 5 secs to receive a response from devices
 		try {
 			InternetGatewayDevice[] IGDs = InternetGatewayDevice.getDevices( discoveryTimeout );
