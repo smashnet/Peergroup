@@ -119,7 +119,7 @@
 	<!-- generate javadoc out of Source-Code comments -->
 	<target name="javadoc" depends="init">
 		<mkdir dir="${docdir}" />
-		<javadoc classpathref="build.classpath" destdir="${docdir}" author="true" version="true" use="true" source="1.6" windowtitle="Peergroup API">
+		<javadoc classpathref="build.classpath" destdir="${docdir}" author="true" version="true" use="true" source="1.7" windowtitle="Peergroup API">
 			<fileset dir="${src}">
 				<include name="*/**/*.java" />
 			</fileset>

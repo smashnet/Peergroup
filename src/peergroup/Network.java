@@ -300,11 +300,11 @@ public class Network {
 	}
 	
 	/**
-	* This sends delete-file information to other participants
+	* This sends delete-item information to other participants
 	*
-	* @param filename The filename of the deleted file
+	* @param filename The name of the deleted item
 	*/	
-	public void sendMUCDeleteFile(String filename){
+	public void sendMUCDeleteItem(String filename){
 		if(!this.joinedAChannel){
 			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
 			return;

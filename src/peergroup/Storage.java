@@ -60,11 +60,11 @@ public class Storage {
 	* @param filename the filename
 	* @return The FileHandle added to the list
 	*/
-	public synchronized FileHandle newFileFromLocal(String filename){
+	public FileHandle newFileFromLocal(String filename){
 		try{
 			FileHandle newFile = new FileHandle(Constants.rootDirectory + filename);
 			if(newFile.isValid()){
-				this.files.add(newFile);
+				getFileList().add(newFile);
 				//Constants.log.addMsg("Adding " + newFile.toString(),4);
 				this.fileListVersion++;
 
@@ -84,9 +84,9 @@ public class Storage {
 	public void removeFile(String file){
 		FileHandle tmp;
 		int i = 0;
-		while(i < this.files.size()){
-			if(this.files.get(i).getPath().equals(file)){
-				this.files.remove(i);
+		while(i < getFileList().size()){
+			if(getFileList().get(i).getPath().equals(file)){
+				getFileList().remove(i);
 				Constants.log.addMsg("Deleted " + file,4);
 				break;
 			}
@@ -97,19 +97,42 @@ public class Storage {
 	
 	/**
 	* Removes a file from the storage list and from local storage device
+	* If directory, only remove from storage device
 	*
 	* @param file the filename+path (e.g. subdir/file.txt)
 	*/
-	public void remoteRemoveFile(String file){
-		for(FileHandle h : this.files){
+	public void remoteRemoveItem(String file){
+		File delItem = new File(Constants.rootDirectory + file);
+		if(delItem.isDirectory()){
+			delItem.delete();
+			Constants.log.addMsg("Deleted directory: " + file,4);
+			return;
+		}
+		for(FileHandle h : getFileList()){
 			if(h.getPath().equals(file)){
 				h.getFile().delete();
-				this.files.remove(h);
+				getFileList().remove(h);
 				Constants.log.addMsg("Deleted " + file,4);
 				break;
 			}
 		}
 		this.fileListVersion++;
+	}
+	
+	public LinkedList<String> deletedLocalFolderAndSubs(String folder){
+		LinkedList<String> items = new LinkedList<String>();
+		
+		for(FileHandle fh : getFileList()){
+			if(fh.getPath().startsWith(folder)){
+				items.add(fh.getPath());
+			}
+		}
+		
+		for(String fh : items){
+			removeFile(fh);
+		}
+		
+		return items;
 	}
 	
 	/**
@@ -120,16 +143,16 @@ public class Storage {
 	public FileHandle modifyFileFromLocal(String file){
 		FileHandle tmp;
 		int i = 0;
-		while(i < this.files.size()){
-			if(this.files.get(i).getPath().equals(file)){
+		while(i < getFileList().size()){
+			if(getFileList().get(i).getPath().equals(file)){
 				try{
-					tmp = this.files.get(i);
+					tmp = getFileList().get(i);
 					if(tmp.isUpdating()){
 						Constants.log.addMsg("Ignoring FS update event. File gets remote updates!",4);
 						return null;
 					}
 					if(tmp.localUpdate()){
-						Constants.log.addMsg("Updated " + this.files.get(i).getPath(),4);
+						Constants.log.addMsg("Updated " + getFileList().get(i).getPath(),4);
 						this.fileListVersion++;
 					}else{
 						Constants.log.addMsg("No need to update something.",4);
@@ -157,7 +180,7 @@ public class Storage {
 	* @param fileSize the size of the file in bytes
 	* @param chunks the list of chunks for this file
 	*/
-	public synchronized void newFileFromXMPP(String filename, byte[] fileHash, long fileSize, LinkedList<String> blocks, int cSize, P2Pdevice node){
+	public void newFileFromXMPP(String filename, byte[] fileHash, long fileSize, LinkedList<String> blocks, int cSize, P2Pdevice node){
 		try{
 			LinkedList<FileChunk> chunks = new LinkedList<FileChunk>();
 			
@@ -174,7 +197,7 @@ public class Storage {
 			FileHandle newFile = new FileHandle(filename,fileHash,fileSize,chunks,cSize);
 			newFile.setUpdating(true);
 			newFile.createEmptyLocalFile();
-			this.files.add(newFile);
+			getFileList().add(newFile);
 			this.fileListVersion++;
 			
 			/*for(String s : blocks){
@@ -199,7 +222,7 @@ public class Storage {
 	* @param hash The SHA256 of the updated file
 	*/
 	public void modifiedFileFromXMPP(String name, int vers, long size, LinkedList<String> blocks, byte[] hash, P2Pdevice node){
-		for(FileHandle h : this.files){
+		for(FileHandle h : getFileList()){
 			if(h.getPath().equals(name)){
 				h.setUpdating(true);
 				h.setVersion(vers);
@@ -228,7 +251,7 @@ public class Storage {
 	* @param node The P2Pdevice
 	*/
 	public void addP2PdeviceToFile(String fileName, int vers, P2Pdevice node){
-		for(FileHandle h : this.files){
+		for(FileHandle h : getFileList()){
 			if(h.getPath().equals(fileName)){
 				if(h.getVersion() == vers){
 					h.addP2PdeviceToAllBlocks(node);
@@ -245,7 +268,7 @@ public class Storage {
 	* @param node The P2Pdevice
 	*/
 	public void addP2PdeviceToBlocks(String fileName, LinkedList<Integer> list, P2Pdevice node){
-		for(FileHandle h : this.files){
+		for(FileHandle h : getFileList()){
 			if(h.getPath().equals(fileName)){
 				for(Integer no : list){
 					h.addP2PdeviceToBlock(no.intValue(),node);
@@ -256,7 +279,7 @@ public class Storage {
 	}
 	
 	public void addP2PdeviceToBlock(String fileName, int id, P2Pdevice node){
-		for(FileHandle h : this.files){
+		for(FileHandle h : getFileList()){
 			if(h.getPath().equals(fileName)){
 				h.addP2PdeviceToBlock(id,node);
 				return;
@@ -271,7 +294,7 @@ public class Storage {
 	* @return The FileHandle of the file, or null if doesn't exist
 	*/
 	public FileHandle fileExists(String filename){
-		for(FileHandle f : this.files){
+		for(FileHandle f : getFileList()){
 			if(filename.equals(f.getPath())){
 				return f;
 			}
@@ -284,12 +307,12 @@ public class Storage {
 	*
 	* @return The first found FileChunk with the rarest distribution, or null if no files exist
 	*/
-	public synchronized FileChunk getRarestChunk(){
+	public FileChunk getRarestChunk(){
 		Random gen = new Random(System.currentTimeMillis());
 		FileChunk res = null;
 		LinkedList<FileChunk> rareChunkList = new LinkedList<FileChunk>();
 		LinkedList<FileChunk> chunkList = new LinkedList<FileChunk>();
-		for(FileHandle h : this.files){
+		for(FileHandle h : getFileList()){
 			for(FileChunk c : h.getChunks()){
 				if(c.isComplete() || c.isDownloading())
 					continue;
@@ -314,9 +337,9 @@ public class Storage {
 	*
 	* @param remoteStorage The Storage object received from the network
 	*/
-	public synchronized void mergeWithRemoteStorage(int remoteVersion, LinkedList<FileHandle> newList){
+	public void mergeWithRemoteStorage(int remoteVersion, LinkedList<FileHandle> newList){
 		
-		Constants.log.addMsg("Merging file lists - Local size: " + this.files.size() + ", Remote size: " + newList.size());
+		Constants.log.addMsg("Merging file lists - Local size: " + getFileList().size() + ", Remote size: " + newList.size());
 		// Update FileList version number
 		if(remoteVersion > this.fileListVersion){
 			this.fileListVersion = remoteVersion;
@@ -329,7 +352,7 @@ public class Storage {
 		LinkedList<FileHandle> incompleteFiles = new LinkedList<FileHandle>();
 		
 		//Find local only files
-		for(FileHandle localFH : this.files){
+		for(FileHandle localFH : getFileList()){
 			boolean exists = false;
 			for(FileHandle remoteFH : newList){
 				if(localFH.equals(remoteFH)){
@@ -355,7 +378,7 @@ public class Storage {
 		
 		for(FileHandle remoteFH : newList){
 			boolean exists = false;
-			for(FileHandle localFH : this.files){
+			for(FileHandle localFH : getFileList()){
 				if(remoteFH.equals(localFH)){
 					exists = true;
 				}
@@ -380,7 +403,7 @@ public class Storage {
 				fc.setComplete(false);
 				fc.setDownloading(false);
 			}
-			this.files.add(fh);
+			getFileList().add(fh);
 		}
 		// Handle files to be reannounced
 		for(FileHandle fh : reannounceFiles){
@@ -408,8 +431,8 @@ public class Storage {
 		return this.files;
 	}
 	
-	public synchronized FileHandle getFileHandle(String name){
-		for(FileHandle f : this.files){
+	public FileHandle getFileHandle(String name){
+		for(FileHandle f : getFileList()){
 			if(f.getPath().equals(name)){
 				return f;
 			}
@@ -417,7 +440,7 @@ public class Storage {
 		return null;
 	}
 	
-	public void setFileList(LinkedList<FileHandle> newList){
+	public synchronized void setFileList(LinkedList<FileHandle> newList){
 		this.files = newList;
 	}
 	
@@ -425,8 +448,8 @@ public class Storage {
 		int i = 0;
 		String out = "\n--- Storage ---\n";
 		out += "Version:\t" + this.fileListVersion + "\n";
-		while(i < this.files.size()){
-			FileHandle tmp = this.files.get(i);
+		while(i < getFileList().size()){
+			FileHandle tmp = getFileList().get(i);
 			out += "- " + tmp.getPath() + "\t-\t" + tmp.getHexHash() + "\n";
 			i++;
 		}

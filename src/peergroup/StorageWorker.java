@@ -24,7 +24,8 @@ package peergroup;
 import java.util.*;
 import java.util.concurrent.*;
 import java.io.*;
-import name.pachler.nio.file.*;
+import java.nio.file.*;
+import static java.nio.file.StandardWatchEventKinds.*;
 
 /**
  * This thread is listening for file system activities and
@@ -36,13 +37,20 @@ public class StorageWorker extends Thread {
 	
 	private WatchService watcher;
 	private Map<WatchKey,Path> keys;
+	private LinkedList<String> folders;
 	
 	/**
 	* Creates a StorageWorker.
 	*/
 	public StorageWorker(){
-		this.watcher = FileSystems.getDefault().newWatchService();
-		this.keys = new HashMap<WatchKey,Path>();
+		try{
+			this.folders = new LinkedList<String>();
+			this.watcher = FileSystems.getDefault().newWatchService();
+			this.keys = new HashMap<WatchKey,Path>();
+		}catch(IOException ioe){
+			Constants.log.addMsg("Cannot create file-system watcher: " + ioe,1);
+		}
+		
 	}
 	
 	public void stopStorageWorker(){
@@ -65,7 +73,6 @@ public class StorageWorker extends Thread {
 		this.setName("Storage Thread");
 		Constants.log.addMsg("Storage thread started...");
 		String os = System.getProperty("os.name");
-		LinkedList<String> folders = new LinkedList<String>();
 		
 		//Init WatchService
 		registerNewPath(Constants.rootDirectory);
@@ -99,7 +106,7 @@ public class StorageWorker extends Thread {
 		    signaledKey.reset();
 
 		    for(WatchEvent e : list){
-				if(e.kind() == StandardWatchEventKind.ENTRY_CREATE){
+				if(e.kind() == StandardWatchEventKinds.ENTRY_CREATE){
 					// Entry created
 					Path context = (Path)e.context();
 					// Ignore hidden files and directories
@@ -117,11 +124,10 @@ public class StorageWorker extends Thread {
 						insertElement(Constants.modifyQueue,new ModifyEvent(Constants.LOCAL_FILE_CREATE,pathWithoutRoot));
 					}else if(newEntry.isDirectory()){
 						System.out.println(" -- is a directory!");
-						folders.add(newEntry.getPath());
-						registerNewPath(newEntry.getPath());
+						registerThisAndSubs(newEntry.getPath());
 						insertElement(Constants.modifyQueue,new ModifyEvent(Constants.LOCAL_DIR_CREATE,pathWithoutRoot));
 					}
-				} else if(e.kind() == StandardWatchEventKind.ENTRY_DELETE){
+				} else if(e.kind() == StandardWatchEventKinds.ENTRY_DELETE){
 					// Entry deleted
 					Path context = (Path)e.context();
 					if(context.toString().charAt(0) == '.'){
@@ -130,12 +136,13 @@ public class StorageWorker extends Thread {
 					File delEntry = new File(dir.toString() + "/" + context.toString());
 					System.out.println("Deleted: " + delEntry.getPath());
 					String pathWithoutRoot = getPurePath(dir.toString() + "/" + context.toString());
-					if(delEntry.isFile()){
+					if(!wasFolder(delEntry.getPath())){
 						Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_FILE_DELETE,pathWithoutRoot));
-					}else if(delEntry.isDirectory()){
+					}else{
+						deleteThisAndSubs(delEntry.getPath());
 						Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_DIR_DELETE,pathWithoutRoot));
 					}
-				} else if(e.kind() == StandardWatchEventKind.ENTRY_MODIFY){
+				} else if(e.kind() == StandardWatchEventKinds.ENTRY_MODIFY){
 					// Entry modified
 					Path context = (Path)e.context();
 					if(context.toString().charAt(0) == '.'){
@@ -147,7 +154,7 @@ public class StorageWorker extends Thread {
 						String pathWithoutRoot = getPurePath(dir.toString() + "/" + context.toString());
 						insertElement(Constants.modifyQueue,new ModifyEvent(pathWithoutRoot));						
 					}
-				} else if(e.kind() == StandardWatchEventKind.OVERFLOW){
+				} else if(e.kind() == StandardWatchEventKinds.OVERFLOW){
 					Constants.log.addMsg("OVERFLOW: more changes happened than we could retrieve",4);
 				}
 			}
@@ -157,7 +164,7 @@ public class StorageWorker extends Thread {
 	
 	private String getPurePath(String entry){
 		int rootLength = Constants.rootDirectory.length();
-		return entry.substring(rootLength-1,entry.length());
+		return entry.substring(rootLength,entry.length());
 	}
 	
 	private void insertElement(ConcurrentLinkedQueue<ModifyEvent> list, ModifyEvent me){
@@ -171,6 +178,53 @@ public class StorageWorker extends Thread {
 	}
 	
 	/**
+	* Registers this directory and all sub directories to the WatchService.
+	* Also all files below this new directories are added as new files.
+	*
+	* @param newDir the newly discovered directory in our share folder (absolute path)
+	*/
+	private void registerThisAndSubs(String newDir){
+		File dir = new File(newDir);
+		File contents[] = dir.listFiles();
+		
+		System.out.println("Includes: " + contents.length + " elements");
+		
+		registerNewPath(newDir);
+		this.folders.add(newDir);
+		
+		for(File sub : contents){
+			if(sub.isDirectory()){
+				registerThisAndSubs(sub.getPath());
+				insertElement(Constants.modifyQueue,new ModifyEvent(Constants.LOCAL_DIR_CREATE,getPurePath(sub.getPath())));
+			}else if(sub.isFile()){
+				if(sub.getName().charAt(0) == '.'){
+					continue;
+				}
+				insertElement(Constants.modifyQueue,new ModifyEvent(Constants.LOCAL_FILE_CREATE,getPurePath(sub.getPath())));
+			}	
+		}
+	}
+	
+	/**
+	* Deletes this directory and all sub directories to the WatchService.
+	* Also all files below this new directories are forwarded to the system as deleted.
+	*
+	* @param newDir the deleted directory in our share folder (absolute path)
+	*/
+	private void deleteThisAndSubs(String delDir){
+		LinkedList<String> toBeDeleted = new LinkedList<String>();
+		
+		for(String folder : this.folders){
+			if(folder.startsWith(delDir))
+				toBeDeleted.add(folder);
+		}
+		
+		for(String del : toBeDeleted){
+			this.folders.remove(del);
+		}
+	}
+	
+	/**
 	* Registers a new (additional) path at the WatchService
 	* (Not in use yet)
 	*
@@ -181,8 +235,8 @@ public class StorageWorker extends Thread {
 		
 		WatchKey key = null;
 		try {
-		    key = path.register(this.watcher, StandardWatchEventKind.ENTRY_CREATE, 
-				StandardWatchEventKind.ENTRY_DELETE, StandardWatchEventKind.ENTRY_MODIFY);
+		    key = path.register(this.watcher, StandardWatchEventKinds.ENTRY_CREATE, 
+				StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY);
 			Path prev = keys.get(key);
 			if (prev == null) {
 				System.out.format("register: %s\n", path);
@@ -199,5 +253,9 @@ public class StorageWorker extends Thread {
 		    System.err.println("I/O errors");
 		    // handle this error here
 		}
+	}
+	
+	private boolean wasFolder(String name){
+		return this.folders.contains(name);
 	}
 }

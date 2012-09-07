@@ -153,10 +153,7 @@ public class MainWorker extends Thread {
 	* @param request The request containing the directory name
 	*/
 	private void handleLocalDirCreate(FSRequest request){
-		File dir = new File(Constants.rootDirectory + request.getContent());
-		File contents[] = dir.listFiles();
-		
-		System.out.println("Includes: " + contents.length + " elements");
+		//TODO
 	}
 	
 	/**
@@ -178,7 +175,7 @@ public class MainWorker extends Thread {
 		}
 		
 		this.myStorage.removeFile(request.getContent());
-		this.myNetwork.sendMUCDeleteFile(request.getContent());
+		this.myNetwork.sendMUCDeleteItem(request.getContent());
 	}
 	
 	/**
@@ -187,7 +184,11 @@ public class MainWorker extends Thread {
 	* @param request The request containing the deleted directory
 	*/
 	private void handleLocalDirDelete(FSRequest request){
-		// TODO
+		LinkedList<String> deletedItems = myStorage.deletedLocalFolderAndSubs(request.getContent());
+		for(String item : deletedItems){
+			this.myNetwork.sendMUCDeleteItem(item);
+		}
+		this.myNetwork.sendMUCDeleteItem(request.getContent());
 	}
 	
 	/**
@@ -276,7 +277,7 @@ public class MainWorker extends Thread {
 		
 		Message in = request.getContent();
 		Network.getInstance().sendMUCmessage("Deleting >> " + (String)in.getProperty("name") + " <<");
-		myStorage.remoteRemoveFile((String)in.getProperty("name"));
+		myStorage.remoteRemoveItem((String)in.getProperty("name"));
 	}
 	
 	/**
