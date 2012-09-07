@@ -24,7 +24,6 @@ package peergroup;
 import java.util.*;
 import java.util.concurrent.BrokenBarrierException;
 import java.io.*;
-import name.pachler.nio.file.*;
 import org.jivesoftware.smack.packet.*;
 
 /**
