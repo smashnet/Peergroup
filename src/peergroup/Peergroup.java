@@ -247,7 +247,7 @@ public class Peergroup {
     
 	/**
 	* If the external IP was not set by the cmd-line argument, this function queries
-	* the external IP from http://cbyte.selfip.net/getIP.php
+	* the external IP from http://files.smashnet.de/getIP.php
 	* If neither an IP was set nor one was detected, Peergroup exits.
 	*/
 	private static void getIPs(){
@@ -265,7 +265,7 @@ public class Peergroup {
 			return;
 		}
 		try{
-			URL whatismyip = new URL("http://cbyte.selfip.net/getIP.php");
+			URL whatismyip = new URL("http://files.smashnet.de/getIP.php");
 			BufferedReader in = new BufferedReader(new InputStreamReader(
 			                whatismyip.openStream()));
 		
