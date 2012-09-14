@@ -121,11 +121,11 @@ public class StorageWorker extends Thread {
 					if(newEntry.isFile()){
 						System.out.println(" -- is a file!");						
 						System.out.println(pathWithoutRoot);
-						insertElement(Constants.modifyQueue,new ModifyEvent(Constants.LOCAL_FILE_CREATE,pathWithoutRoot));
+						insertElement(Constants.delayQueue,new FileEvent(Constants.LOCAL_FILE_CREATE,pathWithoutRoot));
 					}else if(newEntry.isDirectory()){
 						System.out.println(" -- is a directory!");
 						registerThisAndSubs(newEntry.getPath());
-						insertElement(Constants.modifyQueue,new ModifyEvent(Constants.LOCAL_DIR_CREATE,pathWithoutRoot));
+						insertElement(Constants.delayQueue,new FileEvent(Constants.LOCAL_DIR_CREATE,pathWithoutRoot));
 					}
 				} else if(e.kind() == StandardWatchEventKinds.ENTRY_DELETE){
 					// Entry deleted
@@ -152,7 +152,7 @@ public class StorageWorker extends Thread {
 					System.out.println("Modified: " + modEntry.getPath());
 					if(modEntry.isFile()){
 						String pathWithoutRoot = getPurePath(dir.toString() + "/" + context.toString());
-						insertElement(Constants.modifyQueue,new ModifyEvent(pathWithoutRoot));						
+						insertElement(Constants.delayQueue,new FileEvent(pathWithoutRoot));						
 					}
 				} else if(e.kind() == StandardWatchEventKinds.OVERFLOW){
 					Constants.log.addMsg("OVERFLOW: more changes happened than we could retrieve",4);
@@ -167,8 +167,8 @@ public class StorageWorker extends Thread {
 		return entry.substring(rootLength,entry.length());
 	}
 	
-	private void insertElement(ConcurrentLinkedQueue<ModifyEvent> list, ModifyEvent me){
-		for(ModifyEvent e : list){
+	private void insertElement(ConcurrentLinkedQueue<FileEvent> list, FileEvent me){
+		for(FileEvent e : list){
 			if(e.getName().equals(me.getName())){
 				e.setTime(me.getTime());
 				return;
@@ -195,12 +195,12 @@ public class StorageWorker extends Thread {
 		for(File sub : contents){
 			if(sub.isDirectory()){
 				registerThisAndSubs(sub.getPath());
-				insertElement(Constants.modifyQueue,new ModifyEvent(Constants.LOCAL_DIR_CREATE,getPurePath(sub.getPath())));
+				insertElement(Constants.delayQueue,new FileEvent(Constants.LOCAL_DIR_CREATE,getPurePath(sub.getPath())));
 			}else if(sub.isFile()){
 				if(sub.getName().charAt(0) == '.'){
 					continue;
 				}
-				insertElement(Constants.modifyQueue,new ModifyEvent(Constants.LOCAL_FILE_CREATE,getPurePath(sub.getPath())));
+				insertElement(Constants.delayQueue,new FileEvent(Constants.LOCAL_FILE_CREATE,getPurePath(sub.getPath())));
 			}	
 		}
 	}

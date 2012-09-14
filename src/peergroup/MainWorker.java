@@ -21,9 +21,9 @@
 
 package peergroup;
 
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.BrokenBarrierException;
-import java.io.*;
 import org.jivesoftware.smack.packet.*;
 
 /**
@@ -375,7 +375,7 @@ public class MainWorker extends Thread {
 		Constants.thriftClient.start();
 		
 		if(Constants.enableModQueue){
-			Constants.modQueue = new ModifyQueueWorker();
+			Constants.modQueue = new DelayQueueWorker();
 			Constants.modQueue.start();
 		}
 		

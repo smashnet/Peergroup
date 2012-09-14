@@ -53,11 +53,11 @@ public class Constants {
 	/*
 	* Linux and Windows support instant events on file changes. Copying a big file into the share folder
 	* will result in one "create" event and loooots of "modify" events. So we will handle this here to
-	* reduce update events to one per file. The ModifyQueueWorker checks the modifyQueue regularily
+	* reduce update events to one per file. The DelayQueueWorker checks the modifyQueue regularily
 	* if there are files that haven't got modified in the last seconds, these are then enqueued in the
 	* request queue.
 	*/
-	public static ConcurrentLinkedQueue<ModifyEvent> modifyQueue = new ConcurrentLinkedQueue<ModifyEvent>();
+	public static ConcurrentLinkedQueue<FileEvent> delayQueue = new ConcurrentLinkedQueue<FileEvent>();
 	
 	/*
 	* A list of files currently causing filesystem activity due to network updates
@@ -77,7 +77,7 @@ public class Constants {
 	public static NetworkWorker network;
 	public static ThriftServerWorker thrift;
 	public static ThriftClientWorker thriftClient;
-	public static ModifyQueueWorker modQueue;
+	public static DelayQueueWorker modQueue;
 	    
 	/*
 	* Storage constants

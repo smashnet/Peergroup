@@ -1,5 +1,5 @@
 /*
-* Peergroup - ModifyQueueWorker.java
+* Peergroup - DelayQueueWorker.java
 * 
 * This file is part of Peergroup.
 *
@@ -24,18 +24,18 @@ package peergroup;
 import java.util.concurrent.TimeUnit;
 
 /**
- * This thread regularily checks the ModifyEventQueue if files
+ * This thread regularily checks the FileEventQueue if files
  * haven't been updated for more than one second. In this case
  * a modify request is put in the main queue.
  *
  * @author Nicolas Inden
  */
-public class ModifyQueueWorker extends Thread {
+public class DelayQueueWorker extends Thread {
 	
 	/**
-	* Creates a ModifyQueueWorker.
+	* Creates a DelayQueueWorker.
 	*/
-	public ModifyQueueWorker(){
+	public DelayQueueWorker(){
 	}
 	
 	/**
@@ -63,8 +63,6 @@ public class ModifyQueueWorker extends Thread {
 					Network.getInstance().sendMUCCompletedChunk(blockInfo.getName(),blockInfo.getID(),blockInfo.getVersion());
 					
 					if(tmp.isComplete()){
-						//Network.getInstance().sendMUCmessage("Completed >> " + tmp.getPath() + " (" + tmp.getSize()
-						//	+ "Bytes) <<");
 						Constants.log.addMsg("Completed download: " + blockInfo.getName() + " - Version " + blockInfo.getVersion(),2);
 						tmp.trimFile();
 						tmp.setUpdating(false);
@@ -78,10 +76,16 @@ public class ModifyQueueWorker extends Thread {
 				}
 				//Do requestQueue
 				long curTime = System.currentTimeMillis();
-				for(ModifyEvent e : Constants.modifyQueue){
+				/*
+				* Take each file-change (FileEvent) from the modifyQueue that is older than
+				* 2 seconds and enqueue it in the requestQueue.
+				* The heuristic should prevent that modify events are handled while the file
+				* is still not complete (eg while copying a file into the shared folder)
+				*/
+				for(FileEvent e : Constants.delayQueue){
 					if(curTime - e.getTime() > 2000){
 						Constants.requestQueue.offer(new FSRequest(e.getType(),e.getName()));
-						Constants.modifyQueue.remove(e);
+						Constants.delayQueue.remove(e);
 					}
 				}
 			}catch(InterruptedException ie){

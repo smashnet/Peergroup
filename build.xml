@@ -61,7 +61,7 @@
 	<target name="compile-tests" depends="compile">
 		<mkdir dir="${test.classes}" />
 		<mkdir dir="${test.output}" />
-		<javac srcdir="${tests}" destdir="${test.classes}" compiler="extJavac" source="1.6" target="1.6" debug="on"
+		<javac srcdir="${tests}" destdir="${test.classes}" compiler="extJavac" source="1.7" target="1.7" debug="on"
 			includeantruntime="false">
 			<classpath refid="test.classpath"/>
 		</javac>
@@ -95,7 +95,7 @@
 	
 	<!-- compile the source code -->
 	<target name="compile" depends="init">
-		<javac srcdir="${src}" destdir="${tmpclasses}" compiler="extJavac" source="1.6" target="1.6" debug="on"
+		<javac srcdir="${src}" destdir="${tmpclasses}" compiler="extJavac" source="1.7" target="1.7" debug="on"
 			includeantruntime="false">
 			<classpath refid="build.classpath"/>
 		</javac>
