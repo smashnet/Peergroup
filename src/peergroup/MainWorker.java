@@ -394,11 +394,12 @@ public class MainWorker extends Thread {
 	* @param request The request containing the new filename
 	*/
 	private void handleLocalFileInitScan(FSRequest request){
-		if(myStorage.fileExists(request.getContent()) != null){
+		String newEntry = StorageWorker.getPurePath(request.getContent());
+		if(myStorage.fileExists(newEntry) != null){
 			Constants.log.addMsg("MainWorker: File already exists, ignoring!",4);
 			return;
 		}
-		this.myStorage.newFileFromLocal(request.getContent());
+		this.myStorage.newFileFromLocal(newEntry);
 	}
 	
 	/**

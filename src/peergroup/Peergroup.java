@@ -23,6 +23,7 @@ package peergroup;
 
 import java.io.*;
 import java.net.*;
+import java.util.Random;
 import java.util.concurrent.BrokenBarrierException;
 import sun.misc.Signal;
 import sun.misc.SignalHandler;
@@ -121,6 +122,7 @@ public class Peergroup {
 	* @param args the array of commands
 	*/
     private static void getCmdArgs(String[] args){
+		boolean resSet = false;
 		String last = "";
         for(String s: args){
             if(s.equals("-h") || s.equals("--help")){
@@ -147,6 +149,7 @@ public class Peergroup {
 			if(last.equals("-res")){
 				Constants.resource = s;
 				Constants.log.addMsg("Set resource to: " + Constants.resource,3);
+				resSet = true;
 			}
 			if(last.equals("-chan")){
 				String conf[] = s.split("@");
@@ -215,8 +218,14 @@ public class Peergroup {
 		if(Constants.user.equals("") || Constants.pass.equals("") || 
 			Constants.conference_channel.equals("") || Constants.conference_server.equals("") ||
 			Constants.server.equals("")){
-		Constants.log.addMsg("Cannot start! Require: -jid -pass -chan");
-		quit(0);	
+				Constants.log.addMsg("Cannot start! Require: -jid -pass -chan");
+				quit(0);	
+		}
+		if(!resSet){
+			Random gen = new Random(System.currentTimeMillis());
+			int append_no = 10000+gen.nextInt(90000);
+			Constants.resource += append_no;
+			Constants.log.addMsg("Set resource to: " + Constants.resource,3);
 		}
     }
 	
@@ -307,14 +316,20 @@ public class Peergroup {
 	
 	private static void doInitialDirectoryScan(){
 		Constants.log.addMsg("Doing initial scan of share directory...");
-		File test = Storage.getInstance().getDirHandle();
-		for(File newFile : test.listFiles() ){
-			if(test.getName().charAt(0) == '.'){
+		File root = Storage.getInstance().getDirHandle();
+		iterateFilesOnInitScan(root);
+	}
+	
+	private static void iterateFilesOnInitScan(File dir){
+		for(File newFile : dir.listFiles() ){
+			if(newFile.getName().charAt(0) == '.'){
 				continue;
 			}
-			if(newFile.isFile()){
+			if(newFile.isDirectory()){
+				iterateFilesOnInitScan(newFile);
+			}else if(newFile.isFile()){
 				Constants.log.addMsg("Found: " + newFile.getName(),2);
-				Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_FILE_INITSCAN,newFile.getName()));
+				Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_FILE_INITSCAN,newFile.getPath()));
 			}
 		}
 	}

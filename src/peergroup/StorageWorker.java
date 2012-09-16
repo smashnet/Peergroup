@@ -98,8 +98,6 @@ public class StorageWorker extends Thread {
 				System.out.println("WatchKey not recognized!!");
 				continue;
 			}
-			
-			//TODO: Complete Directory Watching!!
 
 		    // VERY IMPORTANT! call reset() AFTER pollEvents() to allow the
 		    // key to be reported again by the watch service
@@ -162,7 +160,16 @@ public class StorageWorker extends Thread {
 		Constants.log.addMsg("Storage thread interrupted. Closing...",4);
 	}
 	
-	private String getPurePath(String entry){
+	/**
+	* Gets the path of a file including the shared folder, and returns 
+	* the path without the shared folder.
+	*
+	* E.g. ./share/log/myLogFile123.log -> log/myLogFile123.log
+	*
+	* @param entry The path to a file in the shared folder
+	* @return The path to this file relative to the shared folder
+	*/
+	public static String getPurePath(String entry){
 		int rootLength = Constants.rootDirectory.length();
 		return entry.substring(rootLength,entry.length());
 	}
