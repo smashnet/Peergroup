@@ -370,22 +370,9 @@ public class FileHandle {
 			File parentDir = new File(parent);
 			parentDir.mkdirs();
 			this.file.createNewFile();
-			registerParentDirsToWatchService();
 		}catch(IOException ioe){
 			Constants.log.addMsg("FileHandle: Cannot create dummy file: " + ioe,4);
 		}
-	}
-	
-	/**
-	* Register the parent directories of a file received from remote
-	* with the WatchService.
-	*/
-	public void registerParentDirsToWatchService(){
-		String path = this.file.getPath();
-		String root = path.substring(0,Constants.rootDirectory.length());
-		String tmp = path.substring(Constants.rootDirectory.length());
-		String firstDir = tmp.split("/")[0];
-		System.out.println(tmp + " - " + firstDir);
 	}
 
 	/**
