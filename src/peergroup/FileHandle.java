@@ -364,6 +364,7 @@ public class FileHandle {
 	* Also creates all neccessary folders.
 	*/
 	public void createEmptyLocalFile(){
+		System.out.println(this.getPath());
 		// Create empty file on disk
 		try{
 			String parent = this.file.getParent();
