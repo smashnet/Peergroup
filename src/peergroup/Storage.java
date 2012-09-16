@@ -403,6 +403,7 @@ public class Storage {
 				fc.setComplete(false);
 				fc.setDownloading(false);
 			}
+			fh.createEmptyLocalFile();
 			getFileList().add(fh);
 		}
 		// Handle files to be reannounced
