@@ -112,16 +112,16 @@ public class StorageWorker extends Thread {
 						continue;
 					}
 					File newEntry = new File(dir.toString() + "/" + context.toString());
-					System.out.print("New: " + newEntry.getPath());
+					//System.out.print("New: " + newEntry.getPath());
 					// For internal handling we use paths relative to the root-share folder
 					// Example ./share/file1 -> /file1
 					String pathWithoutRoot = getPurePath(dir.toString() + "/" + context.toString());
 					if(newEntry.isFile()){
-						System.out.println(" -- is a file!");						
-						System.out.println(pathWithoutRoot);
+						//System.out.println(" -- is a file!");						
+						//System.out.println(pathWithoutRoot);
 						insertElement(Constants.delayQueue,new FileEvent(Constants.LOCAL_FILE_CREATE,pathWithoutRoot));
 					}else if(newEntry.isDirectory()){
-						System.out.println(" -- is a directory!");
+						//System.out.println(" -- is a directory!");
 						registerThisAndSubs(newEntry.getPath());
 						insertElement(Constants.delayQueue,new FileEvent(Constants.LOCAL_DIR_CREATE,pathWithoutRoot));
 					}
@@ -132,7 +132,7 @@ public class StorageWorker extends Thread {
 						continue;
 					}
 					File delEntry = new File(dir.toString() + "/" + context.toString());
-					System.out.println("Deleted: " + delEntry.getPath());
+					//System.out.println("Deleted: " + delEntry.getPath());
 					String pathWithoutRoot = getPurePath(dir.toString() + "/" + context.toString());
 					if(!wasFolder(delEntry.getPath())){
 						Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_FILE_DELETE,pathWithoutRoot));
@@ -147,7 +147,7 @@ public class StorageWorker extends Thread {
 						continue;
 					}
 					File modEntry = new File(dir.toString() + "/" + context.toString());
-					System.out.println("Modified: " + modEntry.getPath());
+					//System.out.println("Modified: " + modEntry.getPath());
 					if(modEntry.isFile()){
 						String pathWithoutRoot = getPurePath(dir.toString() + "/" + context.toString());
 						insertElement(Constants.delayQueue,new FileEvent(pathWithoutRoot));						
@@ -190,11 +190,11 @@ public class StorageWorker extends Thread {
 	*
 	* @param newDir the newly discovered directory in our share folder (absolute path)
 	*/
-	private void registerThisAndSubs(String newDir){
+	public void registerThisAndSubs(String newDir){
 		File dir = new File(newDir);
 		File contents[] = dir.listFiles();
 		
-		System.out.println("Includes: " + contents.length + " elements");
+		//System.out.println("Includes: " + contents.length + " elements");
 		
 		registerNewPath(newDir);
 		this.folders.add(newDir);
@@ -246,10 +246,10 @@ public class StorageWorker extends Thread {
 				StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY);
 			Path prev = keys.get(key);
 			if (prev == null) {
-				System.out.format("register: %s\n", path);
+				//System.out.format("register: %s\n", path);
 			} else {
 				if (!path.equals(prev)) {
-					System.out.format("update: %s -> %s\n", prev, path);
+					//System.out.format("update: %s -> %s\n", prev, path);
 				}
 			}
 			keys.put(key, path);
