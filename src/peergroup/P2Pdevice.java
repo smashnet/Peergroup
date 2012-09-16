@@ -62,8 +62,6 @@ public class P2Pdevice {
 			transport.open();
 		}catch(TTransportException e){
 			Constants.log.addMsg("Thrift Error: " + e);
-		}catch(TException e){
-			Constants.log.addMsg("Thrift Error: " + e);
 		}
 	}
 	
