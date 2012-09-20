@@ -112,7 +112,7 @@ public class Constants {
 	public final static int LOCAL_DIR_INITSCAN = 17;
 	
 	public final static int REMOTE_FILE_CREATE = 20;
-	public final static int REMOTE_FILE_DELETE = 21;
+	public final static int REMOTE_ITEM_DELETE = 21;
 	public final static int REMOTE_FILE_MODIFY = 22;
 	public final static int REMOTE_FILE_COMPLETE = 23;
 	
@@ -140,6 +140,7 @@ public class Constants {
 	public static boolean caughtSignal = false;
 	public static int chunkSize = 512000;	//In bytes
 	public static boolean syncingFileList = false;
+	public static LinkedList<String> folders;
 	
 	public static String getJID(){
 		return user + "@" + server + "/" + resource;

@@ -304,7 +304,7 @@ public class Network {
 	*
 	* @param filename The name of the deleted item
 	*/	
-	public void sendMUCDeleteItem(String filename){
+	public void sendMUCDeleteItem(String filename, boolean dir){
 		if(!this.joinedAChannel){
 			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
 			return;
@@ -317,6 +317,7 @@ public class Network {
 		newMessage.setProperty("Type",2);
 		newMessage.setProperty("JID",Constants.getJID());
 		newMessage.setProperty("name",filename);
+		newMessage.setProperty("isDir",dir);
 		
 		try{
 			this.muc.sendMessage(newMessage);	

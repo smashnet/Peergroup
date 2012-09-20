@@ -87,9 +87,9 @@ public class MainWorker extends Thread {
 						Constants.log.addMsg("MainWorker: Handling REMOTE_DIR_CREATE");
 						handleRemoteDirCreate((XMPPRequest)nextRequest);
 						break;
-					case Constants.REMOTE_FILE_DELETE:
-						Constants.log.addMsg("MainWorker: Handling REMOTE_FILE_DELETE");
-						handleRemoteFileDelete((XMPPRequest)nextRequest);
+					case Constants.REMOTE_ITEM_DELETE:
+						Constants.log.addMsg("MainWorker: Handling REMOTE_ITEM_DELETE");
+						handleRemoteItemDelete((XMPPRequest)nextRequest);
 						break;
 					case Constants.REMOTE_DIR_DELETE:
 						Constants.log.addMsg("MainWorker: Handling REMOTE_DIR_DELETE");
@@ -174,7 +174,7 @@ public class MainWorker extends Thread {
 		}
 		
 		this.myStorage.removeFile(request.getContent());
-		this.myNetwork.sendMUCDeleteItem(request.getContent());
+		this.myNetwork.sendMUCDeleteItem(request.getContent(),false);
 	}
 	
 	/**
@@ -185,9 +185,9 @@ public class MainWorker extends Thread {
 	private void handleLocalDirDelete(FSRequest request){
 		LinkedList<String> deletedItems = myStorage.deletedLocalFolderAndSubs(request.getContent());
 		for(String item : deletedItems){
-			this.myNetwork.sendMUCDeleteItem(item);
+			this.myNetwork.sendMUCDeleteItem(item,false);
 		}
-		this.myNetwork.sendMUCDeleteItem(request.getContent());
+		this.myNetwork.sendMUCDeleteItem(request.getContent(),true);
 	}
 	
 	/**
@@ -263,11 +263,11 @@ public class MainWorker extends Thread {
 	}
 	
 	/**
-	* Process a remotely deleted file
+	* Process a remotely deleted item
 	*
 	* @param request The request containing the XMPP Message object, including its properties
 	*/
-	private void handleRemoteFileDelete(XMPPRequest request){
+	private void handleRemoteItemDelete(XMPPRequest request){
 		/*
 		* Someone announced a delete via XMPP
 		* Available information:

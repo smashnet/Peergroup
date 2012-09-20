@@ -23,6 +23,7 @@ package peergroup;
 
 import java.io.*;
 import java.net.*;
+import java.util.LinkedList;
 import java.util.Random;
 import java.util.concurrent.BrokenBarrierException;
 import sun.misc.Signal;
@@ -315,6 +316,7 @@ public class Peergroup {
 	}
 	
 	private static void doInitialDirectoryScan(){
+		Constants.folders = new LinkedList<String>();
 		Constants.log.addMsg("Doing initial scan of share directory...");
 		File root = Storage.getInstance().getDirHandle();
 		iterateFilesOnInitScan(root);
@@ -326,6 +328,7 @@ public class Peergroup {
 				continue;
 			}
 			if(newFile.isDirectory()){
+				Constants.folders.add(newFile.getPath());
 				iterateFilesOnInitScan(newFile);
 			}else if(newFile.isFile()){
 				Constants.log.addMsg("Found: " + newFile.getName(),2);

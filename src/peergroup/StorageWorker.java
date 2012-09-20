@@ -37,14 +37,12 @@ public class StorageWorker extends Thread {
 	
 	private WatchService watcher;
 	private Map<WatchKey,Path> keys;
-	private LinkedList<String> folders;
 	
 	/**
 	* Creates a StorageWorker.
 	*/
 	public StorageWorker(){
 		try{
-			this.folders = new LinkedList<String>();
 			this.watcher = FileSystems.getDefault().newWatchService();
 			this.keys = new HashMap<WatchKey,Path>();
 		}catch(IOException ioe){
@@ -112,16 +110,16 @@ public class StorageWorker extends Thread {
 						continue;
 					}
 					File newEntry = new File(dir.toString() + "/" + context.toString());
-					//System.out.print("New: " + newEntry.getPath());
+					System.out.print("New: " + newEntry.getPath());
 					// For internal handling we use paths relative to the root-share folder
 					// Example ./share/file1 -> /file1
 					String pathWithoutRoot = getPurePath(dir.toString() + "/" + context.toString());
 					if(newEntry.isFile()){
-						//System.out.println(" -- is a file!");						
+						System.out.println(" -- is a file!");						
 						//System.out.println(pathWithoutRoot);
 						insertElement(Constants.delayQueue,new FileEvent(Constants.LOCAL_FILE_CREATE,pathWithoutRoot));
 					}else if(newEntry.isDirectory()){
-						//System.out.println(" -- is a directory!");
+						System.out.println(" -- is a directory!");
 						registerThisAndSubs(newEntry.getPath());
 						insertElement(Constants.delayQueue,new FileEvent(Constants.LOCAL_DIR_CREATE,pathWithoutRoot));
 					}
@@ -135,8 +133,10 @@ public class StorageWorker extends Thread {
 					//System.out.println("Deleted: " + delEntry.getPath());
 					String pathWithoutRoot = getPurePath(dir.toString() + "/" + context.toString());
 					if(!wasFolder(delEntry.getPath())){
+						System.out.println("File: " + pathWithoutRoot);
 						Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_FILE_DELETE,pathWithoutRoot));
 					}else{
+						System.out.println("Folder: " + pathWithoutRoot);
 						deleteThisAndSubs(delEntry.getPath());
 						Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_DIR_DELETE,pathWithoutRoot));
 					}
@@ -197,7 +197,6 @@ public class StorageWorker extends Thread {
 		//System.out.println("Includes: " + contents.length + " elements");
 		
 		registerNewPath(newDir);
-		this.folders.add(newDir);
 		
 		for(File sub : contents){
 			if(sub.isDirectory()){
@@ -221,13 +220,13 @@ public class StorageWorker extends Thread {
 	private void deleteThisAndSubs(String delDir){
 		LinkedList<String> toBeDeleted = new LinkedList<String>();
 		
-		for(String folder : this.folders){
+		for(String folder : Constants.folders){
 			if(folder.startsWith(delDir))
 				toBeDeleted.add(folder);
 		}
 		
 		for(String del : toBeDeleted){
-			this.folders.remove(del);
+			Constants.folders.remove(del);
 		}
 	}
 	
@@ -237,8 +236,9 @@ public class StorageWorker extends Thread {
 	*
 	* @param newPath the new path relative to the share directory to be registered for watching changes
 	*/
-	private void registerNewPath(String newPath){
+	public void registerNewPath(String newPath){
 		Path path = Paths.get(newPath);
+		Constants.folders.add(newPath);
 		
 		WatchKey key = null;
 		try {
@@ -263,6 +263,6 @@ public class StorageWorker extends Thread {
 	}
 	
 	private boolean wasFolder(String name){
-		return this.folders.contains(name);
+		return Constants.folders.contains(name);
 	}
 }

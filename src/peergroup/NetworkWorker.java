@@ -119,9 +119,9 @@ public class NetworkWorker extends Thread {
 					*/
 					
 					filename = (String)newMessage.getProperty("name");
-					Constants.log.addMsg("File deletion discovered via XMPP: " + filename);
+					Constants.log.addMsg("Deletion discovered via XMPP: " + filename);
 					//Constants.remoteAffectedItems.add(filename);
-					Constants.requestQueue.offer(new XMPPRequest(Constants.REMOTE_FILE_DELETE,newMessage));
+					Constants.requestQueue.offer(new XMPPRequest(Constants.REMOTE_ITEM_DELETE,newMessage));
 					break;
 				case 3: 
 					/*
