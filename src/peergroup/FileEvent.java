@@ -1,5 +1,5 @@
 /*
-* Peergroup - ModifyEvent.java
+* Peergroup - FileEvent.java
 * 
 * This file is part of Peergroup.
 *
@@ -22,25 +22,25 @@
 package peergroup;
 
 /**
- * The ModifyEvent contains a filename, and a timestamp for the
- * last time a modify event arrived.
+ * The FileEvent contains a filename, and a timestamp for the
+ * last time an event arrived.
  *
  * @author Nicolas Inden
  */
-public class ModifyEvent{
+public class FileEvent{
 	
 	private int type;
 	private String filename;
 	private long time;
 	
-	public ModifyEvent(int newType, String name){
+	public FileEvent(int newType, String name){
 		this.type = newType;
 		this.filename = name;
 		this.time = System.currentTimeMillis();
 	}
 	
-	public ModifyEvent(String name){
-		this.type = Constants.LOCAL_ENTRY_MODIFY;
+	public FileEvent(String name){
+		this.type = Constants.LOCAL_FILE_MODIFY;
 		this.filename = name;
 		this.time = System.currentTimeMillis();
 	}

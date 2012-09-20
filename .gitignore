@@ -6,6 +6,8 @@
 copyto
 deploy
 nodes
+pg-nico
+test1
 export/
 doc/
 dist/

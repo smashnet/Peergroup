@@ -23,6 +23,7 @@ package peergroup;
 
 import java.util.concurrent.*;
 import java.util.LinkedList;
+import net.sbbi.upnp.impls.InternetGatewayDevice;
 
 /**
  * This class is the saving point for all globally used constants
@@ -33,7 +34,7 @@ import java.util.LinkedList;
 public class Constants {
     
 	public final static String PROGNAME    = "peergroup";
-	public final static String VERSION     = "0.01a";
+	public final static String VERSION     = "0.04 (development version)";
     
 	public final static Logger log = new Logger();
 	
@@ -50,10 +51,13 @@ public class Constants {
 	public static LinkedBlockingQueue<Request> downloadQueue = new LinkedBlockingQueue<Request>();
 	
 	/*
-	* Use extra queue for modify events to prevent modify-flooding on large files
-	* under Windows and Linux
+	* Linux and Windows support instant events on file changes. Copying a big file into the share folder
+	* will result in one "create" event and loooots of "modify" events. So we will handle this here to
+	* reduce update events to one per file. The DelayQueueWorker checks the modifyQueue regularily
+	* if there are files that haven't got modified in the last seconds, these are then enqueued in the
+	* request queue.
 	*/
-	public static ConcurrentLinkedQueue<ModifyEvent> modifyQueue = new ConcurrentLinkedQueue<ModifyEvent>();
+	public static ConcurrentLinkedQueue<FileEvent> delayQueue = new ConcurrentLinkedQueue<FileEvent>();
 	
 	/*
 	* A list of files currently causing filesystem activity due to network updates
@@ -73,7 +77,7 @@ public class Constants {
 	public static NetworkWorker network;
 	public static ThriftServerWorker thrift;
 	public static ThriftClientWorker thriftClient;
-	public static ModifyQueueWorker modQueue;
+	public static DelayQueueWorker modQueue;
 	    
 	/*
 	* Storage constants
@@ -81,6 +85,7 @@ public class Constants {
 	public static String rootDirectory = "./share/";
     public static String tmpDirectory = "./tmp/";
     public static long shareLimit = 2048;                //MegaBytes
+	public static InternetGatewayDevice igd;
 	
 	/*
 	* XMPP information
@@ -96,20 +101,30 @@ public class Constants {
 	/*
 	* Constants defining request-types
 	*/
-	public final static int LOCAL_ENTRY_CREATE = 10;
-	public final static int LOCAL_ENTRY_DELETE = 11;
-	public final static int LOCAL_ENTRY_MODIFY = 12;
-	public final static int LOCAL_ENTRY_INITSCAN = 13;
+	public final static int LOCAL_FILE_CREATE = 10;
+	public final static int LOCAL_FILE_DELETE = 11;
+	public final static int LOCAL_FILE_MODIFY = 12;
+	public final static int LOCAL_FILE_INITSCAN = 13;
 	
-	public final static int REMOTE_ENTRY_CREATE = 20;
-	public final static int REMOTE_ENTRY_DELETE = 21;
-	public final static int REMOTE_ENTRY_MODIFY = 22;
-	public final static int REMOTE_ENTRY_COMPLETE = 23;
-	public final static int REMOTE_CHUNK_COMPLETE = 24;
-	public final static int REMOTE_JOINED_CHANNEL = 25;
-	public final static int REMOTE_FILE_LIST_VERSION = 26;
+	public final static int LOCAL_DIR_CREATE = 14;
+	public final static int LOCAL_DIR_DELETE = 15;
+	public final static int LOCAL_DIR_MODIFY = 16;
+	public final static int LOCAL_DIR_INITSCAN = 17;
 	
-	public final static int DOWNLOAD_BLOCK = 30;
+	public final static int REMOTE_FILE_CREATE = 20;
+	public final static int REMOTE_ITEM_DELETE = 21;
+	public final static int REMOTE_FILE_MODIFY = 22;
+	public final static int REMOTE_FILE_COMPLETE = 23;
+	
+	public final static int REMOTE_DIR_CREATE = 24;
+	public final static int REMOTE_DIR_DELETE = 25;
+	public final static int REMOTE_DIR_MODIFY = 26;
+	
+	public final static int REMOTE_CHUNK_COMPLETE = 30;
+	public final static int REMOTE_JOINED_CHANNEL = 31;
+	public final static int REMOTE_FILE_LIST_VERSION = 32;
+	
+	public final static int DOWNLOAD_BLOCK = 40;
 	
 	public final static int START_THREADS = 300;
 	public final static int STH_EVIL_HAPPENED = 666;
@@ -117,12 +132,15 @@ public class Constants {
 	/*
 	* Stuff
 	*/
+	public static boolean doUPnP = true;
 	public static boolean enableModQueue = true;
 	public static String ipAddress = "";
+	public static String localIP = "";
 	public static int p2pPort = 43334;
 	public static boolean caughtSignal = false;
 	public static int chunkSize = 512000;	//In bytes
 	public static boolean syncingFileList = false;
+	public static LinkedList<String> folders;
 	
 	public static String getJID(){
 		return user + "@" + server + "/" + resource;

@@ -23,10 +23,15 @@ package peergroup;
 
 import java.io.*;
 import java.net.*;
+import java.util.LinkedList;
+import java.util.Random;
 import java.util.concurrent.BrokenBarrierException;
 import sun.misc.Signal;
 import sun.misc.SignalHandler;
 import java.util.concurrent.CyclicBarrier;
+import net.sbbi.upnp.*;
+import net.sbbi.upnp.impls.InternetGatewayDevice;
+import net.sbbi.upnp.messages.UPNPResponseException;
 
 /**
  * This processes cmd-line args, initializes all needed settings
@@ -43,19 +48,19 @@ public class Peergroup {
 		// -- Handle SIGINT and SIGTERM
 		SignalHandler signalHandler = new SignalHandler() {
 			public void handle(Signal signal) {
-			    if(Constants.caughtSignal){
-			        Constants.log.addMsg("Last interrupt couldn't successfully quit the program: Using baseball bat method :-/",1);
-			        quit(5);
-			    }
 				Constants.log.addMsg("Caught signal: " + signal + ". Gracefully shutting down!",1);
-				Constants.caughtSignal = true;
-				Constants.storage.stopStorageWorker();
-				Constants.network.stopNetworkWorker();
-				Constants.thrift.stopThriftWorker();
-				Constants.thriftClient.stopPoolExecutor();
+				
+				if(Constants.storage != null);
+					Constants.storage.stopStorageWorker();
+				if(Constants.network != null);
+					Constants.network.stopNetworkWorker();
+				if(Constants.thriftClient != null);
+					Constants.thriftClient.stopPoolExecutor();
 				if(Constants.enableModQueue){
-					Constants.modQueue.interrupt();
+					if(Constants.modQueue != null);
+						Constants.modQueue.interrupt();
 				}
+				
 				Constants.main.interrupt();
 			}
 		};
@@ -64,13 +69,17 @@ public class Peergroup {
 		
 		// -- Here we go
 		String os = System.getProperty("os.name");
+		String java_version = System.getProperty("java.version");
+		
         Constants.log.addMsg("Starting " + Constants.PROGNAME + " " 
-			+ Constants.VERSION + " on " + os + " " + System.getProperty("os.version"),2);
-        		
+			+ Constants.VERSION + " on " + os + " " + System.getProperty("os.version")
+			+ " with Java " + java_version,2);
+      		
         getCmdArgs(args);
-		getExternalIP();
+		getIPs();
 		doInitialDirectoryScan();
 		joinXMPP();
+		doUPnP();
 		enqueueThreadStart();
 		
 		if(os.equals("Linux") || os.equals("Windows 7"))
@@ -93,7 +102,6 @@ public class Peergroup {
 		try{
 			Constants.storage.join();
 			Constants.network.join();
-			Constants.thrift.join();
 			Constants.thriftClient.join();
 			Constants.main.join();
 			if(Constants.enableModQueue){
@@ -108,7 +116,7 @@ public class Peergroup {
 			Constants.log.addMsg("Couldn't wait for all threads to cleanly shut down! Oh what a mess... Bye!",1);
 		}
         
-        Constants.log.closeLog();
+        quit(0);
     }
     
 	/**
@@ -117,6 +125,7 @@ public class Peergroup {
 	* @param args the array of commands
 	*/
     private static void getCmdArgs(String[] args){
+		boolean resSet = false;
 		String last = "";
         for(String s: args){
             if(s.equals("-h") || s.equals("--help")){
@@ -124,6 +133,9 @@ public class Peergroup {
 				quit(0);
 			}
 			if(last.equals("-dir")){
+				if(s.charAt(s.length()-1) != '/'){ //Probably need sth special for windows here
+					s = s.concat("/");
+				}
 				Constants.rootDirectory = s;
 				Constants.log.addMsg("Set share directory to: " + Constants.rootDirectory,3);
 			}
@@ -140,6 +152,7 @@ public class Peergroup {
 			if(last.equals("-res")){
 				Constants.resource = s;
 				Constants.log.addMsg("Set resource to: " + Constants.resource,3);
+				resSet = true;
 			}
 			if(last.equals("-chan")){
 				String conf[] = s.split("@");
@@ -199,13 +212,23 @@ public class Peergroup {
 				Constants.enableModQueue = false;
 				Constants.log.addMsg("Manually disabled Event-Queue",3);
 			}
+			if(s.equals("-noUPnP")){
+				Constants.doUPnP = false;
+				Constants.log.addMsg("Manually disabled UPnP",3);
+			}
 			last = s;
         }
 		if(Constants.user.equals("") || Constants.pass.equals("") || 
 			Constants.conference_channel.equals("") || Constants.conference_server.equals("") ||
 			Constants.server.equals("")){
-		Constants.log.addMsg("Cannot start! Require: -jid -pass -chan");
-		quit(0);	
+				Constants.log.addMsg("Cannot start! Require: -jid -pass -chan");
+				quit(0);	
+		}
+		if(!resSet){
+			Random gen = new Random(System.currentTimeMillis());
+			int append_no = 10000+gen.nextInt(90000);
+			Constants.resource += append_no;
+			Constants.log.addMsg("Set resource to: " + Constants.resource,3);
 		}
     }
 	
@@ -230,22 +253,31 @@ public class Peergroup {
 		out += "  -cSize          [SIZE]        set the chunk size for P2P data exchange (default: 512000Byte)\n";
 		//out += "  -limit          [LIMIT]       set the amount of space you want to share in MB\n";
 		//out += "                                (default: 2048MB)\n";
-		out += "  -noEventQueue                 disable Event-Queue (default: enabled)\n";
+		out += "  -noUPnP                       disable UPnP port forwarding (default: enabled)\n";
 		return out;
 	}
     
 	/**
 	* If the external IP was not set by the cmd-line argument, this function queries
-	* the external IP from http://cbyte.selfip.net/getIP.php
+	* the external IP from http://files.smashnet.de/getIP.php
 	* If neither an IP was set nor one was detected, Peergroup exits.
 	*/
-	private static void getExternalIP(){
+	private static void getIPs(){
+		// Get local IP
+		try{
+			Constants.localIP = InetAddress.getLocalHost().getHostAddress();
+		}catch(UnknownHostException uhe){
+			Constants.log.addMsg("Cannot get local IP: " + uhe,4);
+		}
+		
+		
+		// Get external IP
 		if(!Constants.ipAddress.equals("")){
 			Constants.log.addMsg("External IP was manually set, skipping the guessing.");
 			return;
 		}
 		try{
-			URL whatismyip = new URL("http://cbyte.selfip.net/getIP.php");
+			URL whatismyip = new URL("http://files.smashnet.de/getIP.php");
 			BufferedReader in = new BufferedReader(new InputStreamReader(
 			                whatismyip.openStream()));
 		
@@ -257,24 +289,66 @@ public class Peergroup {
 		}
 	}
 	
+	private static void doUPnP(){
+		if(!Constants.doUPnP)
+			return;
+		int discoveryTimeout = 5000; // 5 secs to receive a response from devices
+		try {
+			InternetGatewayDevice[] IGDs = InternetGatewayDevice.getDevices( discoveryTimeout );
+			if ( IGDs != null ) {
+				// let's the the first device found
+				Constants.igd = IGDs[0];
+				Constants.log.addMsg( "Found device " + Constants.igd.getIGDRootDevice().getModelName() );
+				// now let's open the port
+				// we assume that localHostIP is something else than 127.0.0.1
+				boolean mapped = Constants.igd.addPortMapping( "Peergroup", 
+		        							   			null, Constants.p2pPort, Constants.p2pPort,
+		                                   				 Constants.localIP, 0, "TCP" );
+				if ( mapped ) {
+					Constants.log.addMsg( "Port " + Constants.p2pPort + " mapped to " + Constants.localIP );
+				}
+			}
+		} catch ( IOException ex ) {
+			Constants.log.addMsg("Failed to open port: " + ex,4);
+			Constants.log.addMsg("Maybe the port is already open?",4);
+		} catch( UPNPResponseException respEx ) {
+			Constants.log.addMsg("Failed to open port: " + respEx,4);
+			Constants.log.addMsg("Maybe the port is already open?",4);
+		}
+	}
+	
 	private static void doInitialDirectoryScan(){
+		Constants.folders = new LinkedList<String>();
 		Constants.log.addMsg("Doing initial scan of share directory...");
-		File test = Storage.getInstance().getDirHandle();
-		for(File newFile : test.listFiles() ){
-			if(test.getName().charAt(0) == '.'){
+		File root = Storage.getInstance().getDirHandle();
+		iterateFilesOnInitScan(root);
+	}
+	
+	private static void iterateFilesOnInitScan(File dir){
+		for(File newFile : dir.listFiles() ){
+			if(newFile.getName().charAt(0) == '.'){
 				continue;
 			}
-			if(newFile.isFile()){
+			if(newFile.isDirectory()){
+				Constants.folders.add(newFile.getPath());
+				iterateFilesOnInitScan(newFile);
+			}else if(newFile.isFile()){
 				Constants.log.addMsg("Found: " + newFile.getName(),2);
-				Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_ENTRY_INITSCAN,newFile.getName()));
+				Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_FILE_INITSCAN,newFile.getPath()));
 			}
 		}
 	}
 	
 	private static void joinXMPP(){
-		Network.getInstance().joinMUC(Constants.user, Constants.pass, 
+		Network xmppNet = Network.getInstance();
+		if(!xmppNet.isConnected() || !xmppNet.isLoggedIn()){
+			// There must have been some error while connecting,
+			// so we need to shut down Peergroup
+			quit(5);
+		}
+		xmppNet.joinMUC(Constants.user, Constants.pass, 
 			Constants.conference_channel + "@" + Constants.conference_server);
-		Network.getInstance().sendMUCmessage("Hi, I'm a peergroup client. I do awesome things :-)");
+		xmppNet.sendMUCmessage("Hi, I'm a peergroup client. I do awesome things :-)");
 	}
 	
 	private static void enqueueThreadStart(){
@@ -282,6 +356,19 @@ public class Peergroup {
 	}
 	
 	public static void quit(int no){
+		if(Constants.igd != null){
+			try{
+				boolean unmapped = Constants.igd.deletePortMapping( null, Constants.p2pPort, "TCP" );
+				if ( unmapped ) {
+					Constants.log.addMsg("Released port mapping for Peergroup on port " + Constants.p2pPort);
+				}
+			}catch(IOException ioe){
+				Constants.log.addMsg("Error unmapping port: " + ioe,4);
+			}catch(UPNPResponseException respEx){
+				Constants.log.addMsg("Error unmapping port: " + respEx,4);
+			}
+		}
+		
 		Constants.log.closeLog();
 		System.exit(no);
 	}

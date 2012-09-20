@@ -68,38 +68,34 @@ public class FileHandle {
 	* This boolean is set true while the file is being updated from network
 	*/
 	private boolean updating;
-	
+	/**
+	* True if chunks have successfully been created, else false
+	*/
 	private boolean valid;
-	
+	/**
+	* True if the time this file started to download is set, else false
+	*/
 	private boolean timeBool;
-	
+	/**
+	* System time in milliseconds when the download of this file started
+	*/
 	private long dlTime;
         
     /**
-     * Use this constructor for complete files located on your device
-     */
+    * Use this constructor for complete files located on your device
+	*
+	* @param filename A String showing the path to the file relative to 
+	* the share directory
+    */
     public FileHandle(String filename) throws Exception{ 
         this.file = new File(filename);
 		this.updating = true;
 		this.fileVersion = 1;
         this.size = this.file.length();
 		this.updatedBlocks = new LinkedList<Integer>();
+		this.chunkSize = Constants.chunkSize;
 		Constants.log.addMsg("FileHandle: New file from storage: " + this.getPath() 
 								+ " (Size: " + this.size + " Bytes)");
-		
-		// Use fixed chunk size for testing
-		this.chunkSize = Constants.chunkSize;
-		/*
-        *if(this.size <= 512000){								// size <= 500kByte 				-> 100kByte Chunks
-		*	this.chunkSize = 102400;
-		*}else if(this.size > 512000 && this.size <= 5120000){	// 500kByte < size <= 5000kByte 	-> 200kByte Chunks
-		*	this.chunkSize = 204800;
-		*}else if(this.size > 5120000 && this.size <= 51200000){	// 5000kByte < size <= 50000kByte 	-> 1000kByte Chunks
-		*	this.chunkSize = 1024000;
-		*}else if(this.size > 51200000){							// 50000kByte < size 				-> 2000kByte Chunks
-		*	this.chunkSize = 2048000;
-		*}
-		*/
 			
 		int res = this.createChunks(this.chunkSize,1);
 		if(res == 0){
@@ -113,6 +109,14 @@ public class FileHandle {
 	
 	/**
 	* Use this constructor for merging
+	*
+	* @param filename A String showing the path to the file relative to 
+	* the share directory
+	* @param vers The version of the file
+	* @param fileSize The size of the file in bytes
+	* @param hexHash The SHA256 hash of the file represented in a hex string
+	* @param cSize The size of the chunks
+	* @param chunks The list of chunks this file consists of
 	*/
     public FileHandle(String filename, int vers, long fileSize, String hexHash, int cSize, LinkedList<FileChunk> chunks) 
     throws Exception{ 
@@ -129,6 +133,13 @@ public class FileHandle {
     
 	/**
 	* Use this constructor for files to be received via network
+	*
+	* @param filename A String showing the path to the file relative to 
+	* the share directory
+	* @param fileHash The SHA256 hash of this file as byte array
+	* @param fileSize The size of this file in bytes
+	* @param chunks The list of chunks this file consists of
+	* @param chunkSize The size of the chunks
 	*/
     public FileHandle(String filename, byte[] fileHash, long fileSize, LinkedList<FileChunk> chunks, int chunkSize) 
     throws Exception{ 
@@ -146,6 +157,11 @@ public class FileHandle {
 		this.timeBool = false;
     }
     
+	/**
+	* Converts the hex-string representation of a hash into a byte array
+	*
+	* @param s The hash as string
+	*/
 	public static byte[] toByteHash(String s){
 		HexBinaryAdapter adapter = new HexBinaryAdapter();
 		return adapter.unmarshal(s);
@@ -197,22 +213,30 @@ public class FileHandle {
     }
     
 	/**
-	* DEPRECATED!! General function to calculate the hash of a given file
+	* General function to calculate the hash of a given file
 	* 
 	* @param in the file
 	* @return hash as byte array
 	*/
-    private byte[] calcHash(File in) throws Exception{
-        FileInputStream stream = new FileInputStream(in);
-        MessageDigest sha = MessageDigest.getInstance("SHA-256");
-        int bytesRead = 0;
-        byte[] buffer = new byte[1024];
+    private byte[] calcHash(File in){
+        try{
+			FileInputStream stream = new FileInputStream(in);
+	        MessageDigest sha = MessageDigest.getInstance("SHA-256");
+	        int bytesRead = 0;
+	        byte[] buffer = new byte[1024];
         
-        while((bytesRead = stream.read(buffer)) != -1){
-            sha.update(buffer,0,bytesRead);
-        }
+	        while((bytesRead = stream.read(buffer)) != -1){
+	            sha.update(buffer,0,bytesRead);
+	        }
         
-        return sha.digest();
+	        return sha.digest();
+		}catch(IOException ioe){
+			Constants.log.addMsg("calcHash Error: " + ioe,1);
+		}catch(NoSuchAlgorithmException na){
+			Constants.log.addMsg("calcHash Error: " + na,1);
+			System.exit(1);
+		}
+		return null;
     }
     
 	/**
@@ -298,6 +322,13 @@ public class FileHandle {
 		return changed;
 	}
 	
+	/**
+	* Adds a P2Pdevice to a specific chunk of this file, indicating that this chunk can
+	* now be downloaded from this device
+	*
+	* @param id The id of the corresponding chunk
+	* @param node The P2Pdevice
+	*/
 	public synchronized void addP2PdeviceToBlock(int id, P2Pdevice node){
 		if(id >= this.chunks.size()){
 			Constants.log.addMsg("Cannot add node to not existing chunk! (ID: " + id
@@ -307,12 +338,21 @@ public class FileHandle {
 		this.chunks.get(id).addPeer(node);
 	}
 	
+	/**
+	* Adds a P2Pdevice to all chunks of this file, indicating that they can
+	* now be downloaded from this device
+	*
+	* @param node The P2Pdevice
+	*/
 	public synchronized void addP2PdeviceToAllBlocks(P2Pdevice node){
 		for(FileChunk f : this.chunks){
 			f.addPeer(node);
 		}
 	}
 	
+	/**
+	* Clears the list of P2Pdevices for all chunks of this file
+	*/
 	public synchronized void clearP2Pdevices(){
 		for(FileChunk f : this.chunks){
 			f.clearPeers();
@@ -320,14 +360,18 @@ public class FileHandle {
 	}
 	
 	/**
-	* Creates an empty file to reserve space on local storage
+	* Creates an empty file to allocate the file on local storage.
+	* Also creates all neccessary folders.
 	*/
 	public void createEmptyLocalFile(){
 		// Create empty file on disk
 		try{
+			String parent = this.file.getParent();
+			File parentDir = new File(parent);
+			parentDir.mkdirs();
 			this.file.createNewFile();
 		}catch(IOException ioe){
-			Constants.log.addMsg("FileHandle: Cannot create new file from network: " + ioe,4);
+			Constants.log.addMsg("FileHandle: Cannot create dummy file: " + ioe,4);
 		}
 	}
 
@@ -448,10 +492,20 @@ public class FileHandle {
 		return this.updatedBlocks;
 	}
 	
+	/**
+	* Returns the list of chunks of this file
+	*
+	* @return A LinkedList of FileChunk objects
+	*/
 	public LinkedList<FileChunk> getChunks(){
 		return this.chunks;
 	}
 	
+	/**
+	* Updates the version of a chunk to the current version of the file
+	*
+	* @param id The chunk id
+	*/
 	public synchronized void updateChunkVersion(int id){
 		for(FileChunk f : this.chunks){
 			if(id == f.getID()){
@@ -461,6 +515,12 @@ public class FileHandle {
 		}
 	}
 	
+	/**
+	* Updates the version of a chunk to the given version
+	*
+	* @param id The chunk id
+	* @param vers The new version for the chunk
+	*/
 	public void setChunkVersion(int id, int vers){
 		for(FileChunk f : this.chunks){
 			if(id == f.getID()){
@@ -506,6 +566,13 @@ public class FileHandle {
 		return tmp;
 	}
 	
+	/**
+	* Update chunk information after XMPP update
+	*
+	* @param blocks A list of changed chunks as string, formatted as follows: "id:version:hash:size"
+	* @param vers The new file version
+	* @param node P2Pdevice that is in possession of the updated chunks
+	*/
 	public synchronized void updateBlocks(LinkedList<String> blocks, int vers, P2Pdevice node){
 		for(String s : blocks){
 			String tmp[] = s.split(":");
@@ -533,6 +600,9 @@ public class FileHandle {
 		}
 	}
 	
+	/**
+	* Trim filesize on storage device after update and remove unnecessary chunks.
+	*/
 	public void trimFile(){
 		try{
 			RandomAccessFile thisFile = new RandomAccessFile(this.file,"rws");
@@ -563,18 +633,6 @@ public class FileHandle {
 	*/
 	public String getPath(){
 		return this.file.getPath().substring(Constants.rootDirectory.length());
-	}
-	
-	public LinkedList<FileChunk> getChunkList(){
-		return this.chunks;
-	}
-	
-	public byte[] getByteHash(){
-		return this.hash;
-	}
-	
-	public void setByteHash(byte[] newHash){
-		this.hash = newHash;
 	}
 	
 	/**
@@ -626,6 +684,18 @@ public class FileHandle {
 			}
 		}
 		return incomplete;
+	}
+	
+	public LinkedList<FileChunk> getChunkList(){
+		return this.chunks;
+	}
+	
+	public byte[] getByteHash(){
+		return this.hash;
+	}
+	
+	public void setByteHash(byte[] newHash){
+		this.hash = newHash;
 	}
 	
 	public File getFile(){

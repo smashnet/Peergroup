@@ -77,7 +77,7 @@ public class Network {
 			Constants.log.addMsg("Successfully logged into XMPP Server as: " +
 				Constants.user + "@" + Constants.server + "/" + Constants.resource);
 		}catch(XMPPException xe){
-			Constants.requestQueue.offer(new FSRequest(Constants.STH_EVIL_HAPPENED,"Unable to login to XMPP Server: " + xe));
+			Constants.log.addMsg("Unable to log into XMPP Server: " + xe,4);
 		}
 	}
 	
@@ -105,6 +105,24 @@ public class Network {
 	*/
 	public Connection getConnection(){
 		return this.getInstance().xmppCon;
+	}
+	
+	/**
+	* Returns if a connection to a server is established
+	*
+	* @return true if connected, else false
+	*/
+	public boolean isConnected(){
+		return this.xmppCon.isConnected();
+	}
+	
+	/**
+	* Returns if successfully logged in using login()
+	*
+	* @return true if logged in, else false
+	*/
+	public boolean isLoggedIn(){
+		return this.xmppCon.isAuthenticated();
 	}
 	
 	/**
@@ -274,7 +292,7 @@ public class Network {
 		
 		try{
 			this.muc.sendMessage(newMessage);
-			Constants.log.addMsg("Sending XMPP: -NEW- " + filename + " - " + size + "Bytes - " 
+			Constants.log.addMsg("Sending XMPP: -NEW_FILE- " + filename + " - " + size + "Bytes - " 
 				+ FileHandle.toHexHash(hash),2);	
 		}catch(XMPPException xe){
 			Constants.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe,4);
@@ -282,11 +300,35 @@ public class Network {
 	}
 	
 	/**
-	* This sends delete-file information to other participants
+	* This informs other peers to create a directory of the provided name
 	*
-	* @param filename The filename of the deleted file
+	* @param dir The directory sub/sub1
+	*/
+	public void sendMUCNewDir(String dir){
+		if(!this.joinedAChannel){
+			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
+			return;
+		}
+		Message newMessage = this.createMessageObject();
+		
+		newMessage.setProperty("Type",10);
+		newMessage.setProperty("JID",Constants.getJID());
+		newMessage.setProperty("name",dir);
+		
+		try{
+			this.muc.sendMessage(newMessage);
+			Constants.log.addMsg("Sending XMPP: -NEW_DIR- " + dir,2);	
+		}catch(XMPPException xe){
+			Constants.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe,4);
+		}
+	}
+	
+	/**
+	* This sends delete-item information to other participants
+	*
+	* @param filename The name of the deleted item
 	*/	
-	public void sendMUCDeleteFile(String filename){
+	public void sendMUCDeleteItem(String filename, boolean dir){
 		if(!this.joinedAChannel){
 			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
 			return;
@@ -299,6 +341,7 @@ public class Network {
 		newMessage.setProperty("Type",2);
 		newMessage.setProperty("JID",Constants.getJID());
 		newMessage.setProperty("name",filename);
+		newMessage.setProperty("isDir",dir);
 		
 		try{
 			this.muc.sendMessage(newMessage);	

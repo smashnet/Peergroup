@@ -24,7 +24,8 @@ package peergroup;
 import java.util.*;
 import java.util.concurrent.*;
 import java.io.*;
-import name.pachler.nio.file.*;
+import java.nio.file.*;
+import static java.nio.file.StandardWatchEventKinds.*;
 
 /**
  * This thread is listening for file system activities and
@@ -35,12 +36,19 @@ import name.pachler.nio.file.*;
 public class StorageWorker extends Thread {
 	
 	private WatchService watcher;
+	private Map<WatchKey,Path> keys;
 	
 	/**
 	* Creates a StorageWorker.
 	*/
 	public StorageWorker(){
-		this.watcher = FileSystems.getDefault().newWatchService();
+		try{
+			this.watcher = FileSystems.getDefault().newWatchService();
+			this.keys = new HashMap<WatchKey,Path>();
+		}catch(IOException ioe){
+			Constants.log.addMsg("Cannot create file-system watcher: " + ioe,1);
+		}
+		
 	}
 	
 	public void stopStorageWorker(){
@@ -65,29 +73,13 @@ public class StorageWorker extends Thread {
 		String os = System.getProperty("os.name");
 		
 		//Init WatchService
-		
-		Path path = Paths.get(Constants.rootDirectory);
-		
-		WatchKey key = null;
-		try {
-		    key = path.register(this.watcher, StandardWatchEventKind.ENTRY_CREATE, 
-				StandardWatchEventKind.ENTRY_DELETE, StandardWatchEventKind.ENTRY_MODIFY);
-		}catch(UnsupportedOperationException uox){
-		    Constants.log.addMsg("No file-watching supported! Exiting...",1);
-			System.exit(2);
-		}catch(IOException iox){
-			Constants.log.addMsg("Error accessing device for file-watching! Exiting...",1);
-			System.exit(2);
-		}catch(ClosedWatchServiceException cwse){
-			Constants.log.addMsg("WatchService was closed! Exiting...",1);
-			interrupt();
-		}
+		registerNewPath(Constants.rootDirectory);
 		
 		while(!isInterrupted()){
-		    WatchKey signalledKey;
+		    WatchKey signaledKey;
 		    try {
 				//here we are waiting for fs activities
-		        signalledKey = this.watcher.take(); 
+		        signaledKey = this.watcher.take(); 
 		    }catch(InterruptedException ix){
 		        interrupt();
 		        break;
@@ -97,56 +89,96 @@ public class StorageWorker extends Thread {
 		    }
 
 		    // get list of events from key
-		    List<WatchEvent<?>> list = signalledKey.pollEvents();
+		    List<WatchEvent<?>> list = signaledKey.pollEvents();
+			
+			Path dir = keys.get(signaledKey);
+			if(dir == null){
+				System.out.println("WatchKey not recognized!!");
+				continue;
+			}
 
 		    // VERY IMPORTANT! call reset() AFTER pollEvents() to allow the
 		    // key to be reported again by the watch service
-		    signalledKey.reset();
+		    signaledKey.reset();
 
 		    for(WatchEvent e : list){
-				if(e.kind() == StandardWatchEventKind.ENTRY_CREATE){
+				if(e.kind() == StandardWatchEventKinds.ENTRY_CREATE){
+					// Entry created
+					Path context = (Path)e.context();
+					// Ignore hidden files and directories
+					if(context.toString().charAt(0) == '.'){
+						continue;
+					}
+					File newEntry = new File(dir.toString() + "/" + context.toString());
+					//System.out.print("New: " + newEntry.getPath());
+					// For internal handling we use paths relative to the root-share folder
+					// Example ./share/file1 -> /file1
+					String pathWithoutRoot = getPurePath(dir.toString() + "/" + context.toString());
+					if(newEntry.isFile()){
+						//System.out.println(" -- is a file!");						
+						//System.out.println(pathWithoutRoot);
+						insertElement(Constants.delayQueue,new FileEvent(Constants.LOCAL_FILE_CREATE,pathWithoutRoot));
+					}else if(newEntry.isDirectory()){
+						if(registeredFolder(newEntry.getPath())){
+							continue;
+						}
+						//System.out.println(" -- is a directory!");
+						registerThisAndSubs(newEntry.getPath());
+						insertElement(Constants.delayQueue,new FileEvent(Constants.LOCAL_DIR_CREATE,pathWithoutRoot));
+					}
+				} else if(e.kind() == StandardWatchEventKinds.ENTRY_DELETE){
+					// Entry deleted
 					Path context = (Path)e.context();
 					if(context.toString().charAt(0) == '.'){
 						continue;
 					}
-					if(Constants.enableModQueue){
-						insertElement(Constants.modifyQueue,new ModifyEvent(Constants.LOCAL_ENTRY_CREATE,context.toString()));
+					File delEntry = new File(dir.toString() + "/" + context.toString());
+					//System.out.println("Deleted: " + delEntry.getPath());
+					String pathWithoutRoot = getPurePath(dir.toString() + "/" + context.toString());
+					if(!registeredFolder(delEntry.getPath())){
+						//System.out.println("File: " + pathWithoutRoot);
+						Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_FILE_DELETE,pathWithoutRoot));
 					}else{
-						Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_ENTRY_CREATE,context.toString()));
+						//System.out.println("Folder: " + pathWithoutRoot);
+						deleteThisAndSubs(delEntry.getPath());
+						Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_DIR_DELETE,pathWithoutRoot));
 					}
-				} else if(e.kind() == StandardWatchEventKind.ENTRY_DELETE){
+				} else if(e.kind() == StandardWatchEventKinds.ENTRY_MODIFY){
+					// Entry modified
 					Path context = (Path)e.context();
 					if(context.toString().charAt(0) == '.'){
 						continue;
 					}
-					Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_ENTRY_DELETE,context.toString()));
-				} else if(e.kind() == StandardWatchEventKind.ENTRY_MODIFY){
-					Path context = (Path)e.context();
-					if(context.toString().charAt(0) == '.'){
-						continue;
+					File modEntry = new File(dir.toString() + "/" + context.toString());
+					//System.out.println("Modified: " + modEntry.getPath());
+					if(modEntry.isFile()){
+						String pathWithoutRoot = getPurePath(dir.toString() + "/" + context.toString());
+						insertElement(Constants.delayQueue,new FileEvent(pathWithoutRoot));						
 					}
-					/*
-					* Linux and Windows support instant events on file changes. Copying a big file into the share folder
-					* will result in one "create" event and loooots of "modify" events. So we will handle this here to
-					* reduce update events to one per file. The ModifyQueueWorker checks the modifyQueue regularily
-					* if there are files that haven't got modified in the last second, these are then enqueued in the
-					* request queue.
-					*/
-					if(Constants.enableModQueue){
-						insertElement(Constants.modifyQueue,new ModifyEvent(context.toString()));						
-					}else{
-						Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_ENTRY_MODIFY,context.toString()));
-					}
-				} else if(e.kind() == StandardWatchEventKind.OVERFLOW){
-					Constants.log.addMsg("OVERFLOW: more changes happened than we could retreive",4);
+				} else if(e.kind() == StandardWatchEventKinds.OVERFLOW){
+					Constants.log.addMsg("OVERFLOW: more changes happened than we could retrieve",4);
 				}
 			}
 		}
 		Constants.log.addMsg("Storage thread interrupted. Closing...",4);
 	}
 	
-	private void insertElement(ConcurrentLinkedQueue<ModifyEvent> list, ModifyEvent me){
-		for(ModifyEvent e : list){
+	/**
+	* Gets the path of a file including the shared folder, and returns 
+	* the path without the shared folder.
+	*
+	* E.g. ./share/log/myLogFile123.log -> log/myLogFile123.log
+	*
+	* @param entry The path to a file in the shared folder
+	* @return The path to this file relative to the shared folder
+	*/
+	public static String getPurePath(String entry){
+		int rootLength = Constants.rootDirectory.length();
+		return entry.substring(rootLength,entry.length());
+	}
+	
+	private void insertElement(ConcurrentLinkedQueue<FileEvent> list, FileEvent me){
+		for(FileEvent e : list){
 			if(e.getName().equals(me.getName())){
 				e.setTime(me.getTime());
 				return;
@@ -156,18 +188,74 @@ public class StorageWorker extends Thread {
 	}
 	
 	/**
+	* Registers this directory and all sub directories to the WatchService.
+	* Also all files below this new directories are added as new files.
+	*
+	* @param newDir the newly discovered directory in our share folder (absolute path)
+	*/
+	public void registerThisAndSubs(String newDir){
+		File dir = new File(newDir);
+		File contents[] = dir.listFiles();
+		
+		//System.out.println("Includes: " + contents.length + " elements");
+		
+		registerNewPath(newDir);
+		
+		for(File sub : contents){
+			if(sub.isDirectory()){
+				registerThisAndSubs(sub.getPath());
+				insertElement(Constants.delayQueue,new FileEvent(Constants.LOCAL_DIR_CREATE,getPurePath(sub.getPath())));
+			}else if(sub.isFile()){
+				if(sub.getName().charAt(0) == '.'){
+					continue;
+				}
+				insertElement(Constants.delayQueue,new FileEvent(Constants.LOCAL_FILE_CREATE,getPurePath(sub.getPath())));
+			}	
+		}
+	}
+	
+	/**
+	* Deletes this directory and all sub directories to the WatchService.
+	* Also all files below this new directories are forwarded to the system as deleted.
+	*
+	* @param newDir the deleted directory in our share folder (absolute path)
+	*/
+	private void deleteThisAndSubs(String delDir){
+		LinkedList<String> toBeDeleted = new LinkedList<String>();
+		
+		for(String folder : Constants.folders){
+			if(folder.startsWith(delDir))
+				toBeDeleted.add(folder);
+		}
+		
+		for(String del : toBeDeleted){
+			Constants.folders.remove(del);
+		}
+	}
+	
+	/**
 	* Registers a new (additional) path at the WatchService
 	* (Not in use yet)
 	*
 	* @param newPath the new path relative to the share directory to be registered for watching changes
 	*/
-	private void registerNewPath(String newPath){
-		Path path = Paths.get(Constants.rootDirectory + newPath);
+	public void registerNewPath(String newPath){
+		Path path = Paths.get(newPath);
+		Constants.folders.add(newPath);
 		
 		WatchKey key = null;
 		try {
-		    key = path.register(this.watcher, StandardWatchEventKind.ENTRY_CREATE, 
-				StandardWatchEventKind.ENTRY_DELETE, StandardWatchEventKind.ENTRY_MODIFY);
+		    key = path.register(this.watcher, StandardWatchEventKinds.ENTRY_CREATE, 
+				StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY);
+			Path prev = keys.get(key);
+			if (prev == null) {
+				//System.out.format("register: %s\n", path);
+			} else {
+				if (!path.equals(prev)) {
+					//System.out.format("update: %s -> %s\n", prev, path);
+				}
+			}
+			keys.put(key, path);
 		} catch (UnsupportedOperationException uox){
 		    System.err.println("file watching not supported!");
 		    // handle this error here
@@ -175,5 +263,9 @@ public class StorageWorker extends Thread {
 		    System.err.println("I/O errors");
 		    // handle this error here
 		}
+	}
+	
+	private boolean registeredFolder(String name){
+		return Constants.folders.contains(name);
 	}
 }

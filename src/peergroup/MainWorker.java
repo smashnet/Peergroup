@@ -21,10 +21,9 @@
 
 package peergroup;
 
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.BrokenBarrierException;
-import java.io.*;
-import name.pachler.nio.file.*;
 import org.jivesoftware.smack.packet.*;
 
 /**
@@ -60,56 +59,65 @@ public class MainWorker extends Thread {
 			try{
 				Request nextRequest = Constants.requestQueue.take();
 				switch(nextRequest.getID()){
-					case Constants.START_THREADS:
-						handleStartThreads();
+					case Constants.LOCAL_FILE_CREATE:
+						Constants.log.addMsg("MainWorker: Handling LOCAL_FILE_CREATE");
+						handleLocalFileCreate((FSRequest)nextRequest);
 						break;
-					case Constants.LOCAL_ENTRY_CREATE:
-						Constants.log.addMsg("MainWorker: Handling LOCAL_ENTRY_CREATE");
-						handleLocalEntryCreate((FSRequest)nextRequest);
-						//Constants.log.addMsg(myStorage.toString());
+					case Constants.LOCAL_DIR_CREATE:
+						Constants.log.addMsg("MainWorker: Handling LOCAL_DIR_CREATE");
+						handleLocalDirCreate((FSRequest)nextRequest);
 						break;
-					case Constants.LOCAL_ENTRY_DELETE:
-						Constants.log.addMsg("MainWorker: Handling LOCAL_ENTRY_DELETE");
-						handleLocalEntryDelete((FSRequest)nextRequest);
-						//Constants.log.addMsg(myStorage.toString());
+					case Constants.LOCAL_FILE_DELETE:
+						Constants.log.addMsg("MainWorker: Handling LOCAL_FILE_DELETE");
+						handleLocalFileDelete((FSRequest)nextRequest);
 						break;
-					case Constants.LOCAL_ENTRY_MODIFY:
-						Constants.log.addMsg("MainWorker: Handling LOCAL_ENTRY_MODIFY");
-						handleLocalEntryModify((FSRequest)nextRequest);
-						//Constants.log.addMsg(myStorage.toString());
+					case Constants.LOCAL_DIR_DELETE:
+						Constants.log.addMsg("MainWorker: Handling LOCAL_DIR_DELETE");
+						handleLocalDirDelete((FSRequest)nextRequest);
 						break;
-					case Constants.LOCAL_ENTRY_INITSCAN:
-						Constants.log.addMsg("MainWorker: Handling LOCAL_ENTRY_INITSCAN");
-						handleLocalEntryInitScan((FSRequest)nextRequest);
+					case Constants.LOCAL_FILE_MODIFY:
+						Constants.log.addMsg("MainWorker: Handling LOCAL_FILE_MODIFY");
+						handleLocalFileModify((FSRequest)nextRequest);
 						break;
-					case Constants.REMOTE_ENTRY_CREATE:
-						Constants.log.addMsg("MainWorker: Handling REMOTE_ENTRY_CREATE");
-						handleRemoteEntryCreate((XMPPRequest)nextRequest);
-						//Constants.log.addMsg(myStorage.toString());
+					case Constants.REMOTE_FILE_CREATE:
+						Constants.log.addMsg("MainWorker: Handling REMOTE_FILE_CREATE");
+						handleRemoteFileCreate((XMPPRequest)nextRequest);
 						break;
-					case Constants.REMOTE_ENTRY_DELETE:
-						Constants.log.addMsg("MainWorker: Handling REMOTE_ENTRY_DELETE");
-						handleRemoteEntryDelete((XMPPRequest)nextRequest);
-						//Constants.log.addMsg(myStorage.toString());
+					case Constants.REMOTE_DIR_CREATE:
+						Constants.log.addMsg("MainWorker: Handling REMOTE_DIR_CREATE");
+						handleRemoteDirCreate((XMPPRequest)nextRequest);
 						break;
-					case Constants.REMOTE_ENTRY_MODIFY:
-						Constants.log.addMsg("MainWorker: Handling REMOTE_ENTRY_MODIFY");
-						handleRemoteEntryModify((XMPPRequest)nextRequest);
-						//Constants.log.addMsg(myStorage.toString());
+					case Constants.REMOTE_ITEM_DELETE:
+						Constants.log.addMsg("MainWorker: Handling REMOTE_ITEM_DELETE");
+						handleRemoteItemDelete((XMPPRequest)nextRequest);
+						break;
+					case Constants.REMOTE_DIR_DELETE:
+						Constants.log.addMsg("MainWorker: Handling REMOTE_DIR_DELETE");
+						handleRemoteDirDelete((XMPPRequest)nextRequest);
+						break;
+					case Constants.REMOTE_FILE_MODIFY:
+						Constants.log.addMsg("MainWorker: Handling REMOTE_FILE_MODIFY");
+						handleRemoteFileModify((XMPPRequest)nextRequest);
 						break;
 					case Constants.REMOTE_CHUNK_COMPLETE:
 						//Constants.log.addMsg("MainWorker: Handling REMOTE_CHUNK_COMPLETE");
 						handleRemoteChunkComplete((XMPPRequest)nextRequest);
 						break;
-					case Constants.REMOTE_ENTRY_COMPLETE:
-						Constants.log.addMsg("MainWorker: Handling REMOTE_ENTRY_COMPLETE");
-						handleRemoteEntryComplete((XMPPRequest)nextRequest);
+					case Constants.REMOTE_FILE_COMPLETE:
+						Constants.log.addMsg("MainWorker: Handling REMOTE_FILE_COMPLETE");
+						handleRemoteFileComplete((XMPPRequest)nextRequest);
 						break;
 					case Constants.REMOTE_JOINED_CHANNEL:
 						Constants.log.addMsg("MainWorker: Handling REMOTE_JOINED_CHANNEL");
 						handleRemoteJoinedChannel((XMPPRequest)nextRequest);
 						break;
-					
+					case Constants.START_THREADS:
+						handleStartThreads();
+						break;
+					case Constants.LOCAL_FILE_INITSCAN:
+						Constants.log.addMsg("MainWorker: Handling LOCAL_FILE_INITSCAN");
+						handleLocalFileInitScan((FSRequest)nextRequest);
+						break;
 					case Constants.STH_EVIL_HAPPENED:
 						handleEvilEvents((FSRequest)nextRequest);
 					default:
@@ -122,59 +130,11 @@ public class MainWorker extends Thread {
 	}
 	
 	/**
-	* This one is invoked, if something reeeaallly evil happened. The program is shut down.
-	*
-	* @param request The request containing error information
-	*/
-	private void handleEvilEvents(FSRequest request){
-		Constants.log.addMsg("Something evil happened: " + request.getContent(),1);
-		
-		if(Constants.storage != null);
-			Constants.storage.stopStorageWorker();
-		if(Constants.network != null);
-			Constants.network.stopNetworkWorker();
-		if(Constants.thrift != null);
-			Constants.thrift.stopThriftWorker();
-		if(Constants.thriftClient != null);
-			Constants.thriftClient.stopPoolExecutor();
-		if(Constants.enableModQueue){
-			if(Constants.modQueue != null);
-				Constants.modQueue.interrupt();
-		}
-		Constants.main.interrupt();
-	}
-	
-	private void handleStartThreads(){
-		Constants.storage = new StorageWorker();
-		Constants.network = new NetworkWorker();
-		Constants.thrift = new ThriftServerWorker();
-		Constants.thriftClient = new ThriftClientWorker();
-		
-		Constants.storage.start();
-		Constants.network.start();
-		Constants.thrift.start();
-		Constants.thriftClient.start();
-		
-		if(Constants.enableModQueue){
-			Constants.modQueue = new ModifyQueueWorker();
-			Constants.modQueue.start();
-		}
-		
-		try{
-			Constants.myBarrier.await();
-		}catch(InterruptedException ie){
-			
-		}catch(BrokenBarrierException bbe){
-			Constants.log.addMsg(bbe.toString(),4);
-		}
-	}
-	
-	/**
 	* Add new local file to file-list and propagate via XMPP
 	*
 	* @param request The request containing the new filename
 	*/
-	private void handleLocalEntryCreate(FSRequest request){
+	private void handleLocalFileCreate(FSRequest request){
 		if(myStorage.fileExists(request.getContent()) != null){
 			Constants.log.addMsg("MainWorker: File already exists, ignoring!",4);
 			return;
@@ -185,16 +145,14 @@ public class MainWorker extends Thread {
 	}
 	
 	/**
-	* Add new local file to file-list and propagate via XMPP
+	* Check new directory for included files.
+	* If directory contains files, pipe them to handleLocalFileCreate
+	* If directory emtpy -> send createDir via XMPP
 	*
-	* @param request The request containing the new filename
+	* @param request The request containing the directory name
 	*/
-	private void handleLocalEntryInitScan(FSRequest request){
-		if(myStorage.fileExists(request.getContent()) != null){
-			Constants.log.addMsg("MainWorker: File already exists, ignoring!",4);
-			return;
-		}
-		this.myStorage.newFileFromLocal(request.getContent());
+	private void handleLocalDirCreate(FSRequest request){
+		this.myNetwork.sendMUCNewDir(request.getContent());
 	}
 	
 	/**
@@ -202,15 +160,7 @@ public class MainWorker extends Thread {
 	*
 	* @param request The request containing the filename of the deleted file
 	*/
-	private void handleLocalEntryDelete(FSRequest request){
-		// Only apply local deletes
-		/*for(int i = 0; i < Constants.remoteAffectedItems.size(); i++){
-			if(Constants.remoteAffectedItems.get(i).equals(request.getContent())){
-				Constants.remoteAffectedItems.remove(i);
-				return;
-			}
-		}*/
-		
+	private void handleLocalFileDelete(FSRequest request){
 		// Only handle existing files
 		FileHandle tmp;
 		if((tmp = myStorage.fileExists(request.getContent())) == null){
@@ -224,16 +174,35 @@ public class MainWorker extends Thread {
 		}
 		
 		this.myStorage.removeFile(request.getContent());
-		this.myNetwork.sendMUCDeleteFile(request.getContent());
+		this.myNetwork.sendMUCDeleteItem(request.getContent(),false);
+	}
+	
+	/**
+	* Delete directory and all contained files/directories and send via XMPP
+	*
+	* @param request The request containing the deleted directory
+	*/
+	private void handleLocalDirDelete(FSRequest request){
+		LinkedList<String> deletedItems = myStorage.deletedLocalFolderAndSubs(request.getContent());
+		for(String item : deletedItems){
+			this.myNetwork.sendMUCDeleteItem(item,false);
+		}
+		this.myNetwork.sendMUCDeleteItem(request.getContent(),true);
 	}
 	
 	/**
 	* Checks a local file for changes and modifies its FileHandle appropriately.
 	* Afterwards the change is published via XMPP.
 	*
+	* String format: "id:version:hash:size"
+	*
 	* @param request The request containing the filename of the changed file
 	*/
-	private void handleLocalEntryModify(FSRequest request){
+	private void handleLocalFileModify(FSRequest request){
+		if(myStorage.fileExists(request.getContent()) == null){
+			handleLocalFileCreate(request);
+			return;
+		}
 		FileHandle newFile = this.myStorage.modifyFileFromLocal(request.getContent());
 		if(newFile != null){
 			LinkedList<Integer> updated = newFile.getUpdatedBlocks();
@@ -261,7 +230,7 @@ public class MainWorker extends Thread {
 	*
 	* @param request The request containing the XMPP Message object, including its properties
 	*/
-	private void handleRemoteEntryCreate(XMPPRequest request){
+	private void handleRemoteFileCreate(XMPPRequest request){
 		/*
 		* Someone announced a new file via XMPP
 		* Available information:
@@ -285,11 +254,31 @@ public class MainWorker extends Thread {
 	}
 	
 	/**
-	* Process a remotely deleted file
+	* Create empty directory received via XMPP
+	*
+	* @param request The name of the directory to be created
+	*/
+	private void handleRemoteDirCreate(XMPPRequest request){
+		/*
+		* Someone announced a directory via XMPP
+		* Available information:
+		* "JID","name"
+		*/
+		
+		Message in = request.getContent();
+		
+		String jid 	= (String)in.getProperty("JID");
+		String dirname 	= (String)in.getProperty("name");
+		
+		myStorage.newDirFromXMPP(dirname);
+	}
+	
+	/**
+	* Process a remotely deleted item
 	*
 	* @param request The request containing the XMPP Message object, including its properties
 	*/
-	private void handleRemoteEntryDelete(XMPPRequest request){
+	private void handleRemoteItemDelete(XMPPRequest request){
 		/*
 		* Someone announced a delete via XMPP
 		* Available information:
@@ -298,7 +287,16 @@ public class MainWorker extends Thread {
 		
 		Message in = request.getContent();
 		Network.getInstance().sendMUCmessage("Deleting >> " + (String)in.getProperty("name") + " <<");
-		myStorage.remoteRemoveFile((String)in.getProperty("name"));
+		myStorage.remoteRemoveItem((String)in.getProperty("name"));
+	}
+	
+	/**
+	* Delete the directory (and including files) received via XMPP
+	*
+	* @param request The name of the directory to be deleted
+	*/
+	private void handleRemoteDirDelete(XMPPRequest request){
+		// TODO
 	}
 	
 	/**
@@ -306,7 +304,7 @@ public class MainWorker extends Thread {
 	*
 	* @param request The request containing the XMPP Message object, including its properties
 	*/
-	private void handleRemoteEntryModify(XMPPRequest request){
+	private void handleRemoteFileModify(XMPPRequest request){
 		/*
 		* Someone announced a fileupdate via XMPP
 		* Available information:
@@ -352,7 +350,7 @@ public class MainWorker extends Thread {
 	*
 	* @param request The request containing the XMPP Message object, including its properties
 	*/
-	private void handleRemoteEntryComplete(XMPPRequest request){
+	private void handleRemoteFileComplete(XMPPRequest request){
 		//Available: "JID","IP","Port","name","version"
 		Message in = request.getContent();
 		
@@ -374,5 +372,65 @@ public class MainWorker extends Thread {
 		String jid = (String)in.getProperty("JID");
 		
 		Network.getInstance().sendMUCFileListVersion();
+	}
+	
+	private void handleStartThreads(){
+		Constants.storage = new StorageWorker();
+		Constants.network = new NetworkWorker();
+		Constants.thrift = new ThriftServerWorker();
+		Constants.thriftClient = new ThriftClientWorker();
+		
+		Constants.storage.start();
+		Constants.network.start();
+		Constants.thrift.start();
+		Constants.thriftClient.start();
+		
+		if(Constants.enableModQueue){
+			Constants.modQueue = new DelayQueueWorker();
+			Constants.modQueue.start();
+		}
+		
+		try{
+			Constants.myBarrier.await();
+		}catch(InterruptedException ie){
+			
+		}catch(BrokenBarrierException bbe){
+			Constants.log.addMsg(bbe.toString(),4);
+		}
+	}
+	
+	/**
+	* Add new local file to file-list and propagate via XMPP
+	*
+	* @param request The request containing the new filename
+	*/
+	private void handleLocalFileInitScan(FSRequest request){
+		String newEntry = StorageWorker.getPurePath(request.getContent());
+		if(myStorage.fileExists(newEntry) != null){
+			Constants.log.addMsg("MainWorker: File already exists, ignoring!",4);
+			return;
+		}
+		this.myStorage.newFileFromLocal(newEntry);
+	}
+	
+	/**
+	* This one is invoked, if something reeeaallly evil happened. The program is shut down.
+	*
+	* @param request The request containing error information
+	*/
+	private void handleEvilEvents(FSRequest request){
+		Constants.log.addMsg("Something evil happened: " + request.getContent(),1);
+		
+		if(Constants.storage != null);
+			Constants.storage.stopStorageWorker();
+		if(Constants.network != null);
+			Constants.network.stopNetworkWorker();
+		if(Constants.thriftClient != null);
+			Constants.thriftClient.stopPoolExecutor();
+		if(Constants.enableModQueue){
+			if(Constants.modQueue != null);
+				Constants.modQueue.interrupt();
+		}
+		Constants.main.interrupt();
 	}
 }

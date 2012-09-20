@@ -44,7 +44,7 @@ public class ThriftServerWorker extends Thread {
 	* The run() method
 	*/
 	public void run(){
-		this.setName("THRIFT-Server Thread");
+		this.setName("Thrift-Server Thread");
 		try{
 			this.serverTransport = new TServerSocket(Constants.p2pPort);
 			this.processor = new DataTransfer.Processor(new ThriftDataHandler());
@@ -60,6 +60,11 @@ public class ThriftServerWorker extends Thread {
 		Constants.log.addMsg("Thrift-Server-Thread interrupted. Closing...",4);
 	}
 	
+	/**
+	* Normally this should cleanly shutdown this thread, but the
+	* thrift server is a bit intractable here, so we'd better
+	* use the deprecated Thread.stop() instead of this function.
+	*/
 	public void stopThriftWorker(){
 		this.server.stop();
 		this.interrupt();

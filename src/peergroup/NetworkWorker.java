@@ -108,8 +108,19 @@ public class NetworkWorker extends Thread {
 					*/
 						
 					filename = (String)newMessage.getProperty("name");
-					Constants.log.addMsg("New file discovered via XMPP: " + filename);
-					Constants.requestQueue.offer(new XMPPRequest(Constants.REMOTE_ENTRY_CREATE,newMessage));
+					Constants.log.addMsg("New file via XMPP: " + filename);
+					Constants.requestQueue.offer(new XMPPRequest(Constants.REMOTE_FILE_CREATE,newMessage));
+					break;
+				case 10: 
+					/*
+					* Someone announced a new directory via XMPP
+					* Available information:
+					* "JID","name"
+					*/
+						
+					filename = (String)newMessage.getProperty("name");
+					Constants.log.addMsg("New directory via XMPP: " + filename);
+					Constants.requestQueue.offer(new XMPPRequest(Constants.REMOTE_DIR_CREATE,newMessage));
 					break;
 				case 2: 
 					/*
@@ -119,9 +130,9 @@ public class NetworkWorker extends Thread {
 					*/
 					
 					filename = (String)newMessage.getProperty("name");
-					Constants.log.addMsg("File deletion discovered via XMPP: " + filename);
+					Constants.log.addMsg("Deletion discovered via XMPP: " + filename);
 					//Constants.remoteAffectedItems.add(filename);
-					Constants.requestQueue.offer(new XMPPRequest(Constants.REMOTE_ENTRY_DELETE,newMessage));
+					Constants.requestQueue.offer(new XMPPRequest(Constants.REMOTE_ITEM_DELETE,newMessage));
 					break;
 				case 3: 
 					/*
@@ -133,7 +144,7 @@ public class NetworkWorker extends Thread {
 					filename = (String)newMessage.getProperty("name");
 					Constants.log.addMsg("File update discovered via XMPP: " + filename);
 					//Constants.remoteAffectedItems.add(filename);
-					Constants.requestQueue.offer(new XMPPRequest(Constants.REMOTE_ENTRY_MODIFY,newMessage));
+					Constants.requestQueue.offer(new XMPPRequest(Constants.REMOTE_FILE_MODIFY,newMessage));
 					break;
 				case 4:
 					/*
@@ -155,7 +166,7 @@ public class NetworkWorker extends Thread {
 					
 					filename = (String)newMessage.getProperty("name");
 					Constants.log.addMsg("Completed file download discovered via XMPP: " + filename);
-					Constants.requestQueue.offer(new XMPPRequest(Constants.REMOTE_ENTRY_COMPLETE,newMessage));
+					Constants.requestQueue.offer(new XMPPRequest(Constants.REMOTE_FILE_COMPLETE,newMessage));
 					break;
 				case 6:
 					/*
