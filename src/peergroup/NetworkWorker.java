@@ -108,8 +108,19 @@ public class NetworkWorker extends Thread {
 					*/
 						
 					filename = (String)newMessage.getProperty("name");
-					Constants.log.addMsg("New file discovered via XMPP: " + filename);
+					Constants.log.addMsg("New file via XMPP: " + filename);
 					Constants.requestQueue.offer(new XMPPRequest(Constants.REMOTE_FILE_CREATE,newMessage));
+					break;
+				case 10: 
+					/*
+					* Someone announced a new directory via XMPP
+					* Available information:
+					* "JID","name"
+					*/
+						
+					filename = (String)newMessage.getProperty("name");
+					Constants.log.addMsg("New directory via XMPP: " + filename);
+					Constants.requestQueue.offer(new XMPPRequest(Constants.REMOTE_DIR_CREATE,newMessage));
 					break;
 				case 2: 
 					/*

@@ -48,19 +48,19 @@ public class Peergroup {
 		// -- Handle SIGINT and SIGTERM
 		SignalHandler signalHandler = new SignalHandler() {
 			public void handle(Signal signal) {
-			    if(Constants.caughtSignal){
-			        Constants.log.addMsg("Last interrupt couldn't successfully quit the program: Using baseball bat method :-/",1);
-			        quit(5);
-			    }
 				Constants.log.addMsg("Caught signal: " + signal + ". Gracefully shutting down!",1);
-				Constants.caughtSignal = true;
-				Constants.storage.stopStorageWorker();
-				Constants.network.stopNetworkWorker();
-				Constants.thrift.stopThriftWorker();
-				Constants.thriftClient.stopPoolExecutor();
+				
+				if(Constants.storage != null);
+					Constants.storage.stopStorageWorker();
+				if(Constants.network != null);
+					Constants.network.stopNetworkWorker();
+				if(Constants.thriftClient != null);
+					Constants.thriftClient.stopPoolExecutor();
 				if(Constants.enableModQueue){
-					Constants.modQueue.interrupt();
+					if(Constants.modQueue != null);
+						Constants.modQueue.interrupt();
 				}
+				
 				Constants.main.interrupt();
 			}
 		};
@@ -99,7 +99,6 @@ public class Peergroup {
 		try{
 			Constants.storage.join();
 			Constants.network.join();
-			Constants.thrift.join();
 			Constants.thriftClient.join();
 			Constants.main.join();
 			if(Constants.enableModQueue){

@@ -110,16 +110,19 @@ public class StorageWorker extends Thread {
 						continue;
 					}
 					File newEntry = new File(dir.toString() + "/" + context.toString());
-					System.out.print("New: " + newEntry.getPath());
+					//System.out.print("New: " + newEntry.getPath());
 					// For internal handling we use paths relative to the root-share folder
 					// Example ./share/file1 -> /file1
 					String pathWithoutRoot = getPurePath(dir.toString() + "/" + context.toString());
 					if(newEntry.isFile()){
-						System.out.println(" -- is a file!");						
+						//System.out.println(" -- is a file!");						
 						//System.out.println(pathWithoutRoot);
 						insertElement(Constants.delayQueue,new FileEvent(Constants.LOCAL_FILE_CREATE,pathWithoutRoot));
 					}else if(newEntry.isDirectory()){
-						System.out.println(" -- is a directory!");
+						if(registeredFolder(newEntry.getPath())){
+							continue;
+						}
+						//System.out.println(" -- is a directory!");
 						registerThisAndSubs(newEntry.getPath());
 						insertElement(Constants.delayQueue,new FileEvent(Constants.LOCAL_DIR_CREATE,pathWithoutRoot));
 					}
@@ -132,11 +135,11 @@ public class StorageWorker extends Thread {
 					File delEntry = new File(dir.toString() + "/" + context.toString());
 					//System.out.println("Deleted: " + delEntry.getPath());
 					String pathWithoutRoot = getPurePath(dir.toString() + "/" + context.toString());
-					if(!wasFolder(delEntry.getPath())){
-						System.out.println("File: " + pathWithoutRoot);
+					if(!registeredFolder(delEntry.getPath())){
+						//System.out.println("File: " + pathWithoutRoot);
 						Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_FILE_DELETE,pathWithoutRoot));
 					}else{
-						System.out.println("Folder: " + pathWithoutRoot);
+						//System.out.println("Folder: " + pathWithoutRoot);
 						deleteThisAndSubs(delEntry.getPath());
 						Constants.requestQueue.offer(new FSRequest(Constants.LOCAL_DIR_DELETE,pathWithoutRoot));
 					}
@@ -262,7 +265,7 @@ public class StorageWorker extends Thread {
 		}
 	}
 	
-	private boolean wasFolder(String name){
+	private boolean registeredFolder(String name){
 		return Constants.folders.contains(name);
 	}
 }

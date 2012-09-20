@@ -152,7 +152,7 @@ public class MainWorker extends Thread {
 	* @param request The request containing the directory name
 	*/
 	private void handleLocalDirCreate(FSRequest request){
-		//this.myNetwork.sendMUCNewDir(request.getContent());
+		this.myNetwork.sendMUCNewDir(request.getContent());
 	}
 	
 	/**
@@ -259,7 +259,18 @@ public class MainWorker extends Thread {
 	* @param request The name of the directory to be created
 	*/
 	private void handleRemoteDirCreate(XMPPRequest request){
-		// TODO
+		/*
+		* Someone announced a directory via XMPP
+		* Available information:
+		* "JID","name"
+		*/
+		
+		Message in = request.getContent();
+		
+		String jid 	= (String)in.getProperty("JID");
+		String dirname 	= (String)in.getProperty("name");
+		
+		myStorage.newDirFromXMPP(dirname);
 	}
 	
 	/**
@@ -414,8 +425,6 @@ public class MainWorker extends Thread {
 			Constants.storage.stopStorageWorker();
 		if(Constants.network != null);
 			Constants.network.stopNetworkWorker();
-		if(Constants.thrift != null);
-			Constants.thrift.stopThriftWorker();
 		if(Constants.thriftClient != null);
 			Constants.thriftClient.stopPoolExecutor();
 		if(Constants.enableModQueue){

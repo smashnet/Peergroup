@@ -292,8 +292,32 @@ public class Network {
 		
 		try{
 			this.muc.sendMessage(newMessage);
-			Constants.log.addMsg("Sending XMPP: -NEW- " + filename + " - " + size + "Bytes - " 
+			Constants.log.addMsg("Sending XMPP: -NEW_FILE- " + filename + " - " + size + "Bytes - " 
 				+ FileHandle.toHexHash(hash),2);	
+		}catch(XMPPException xe){
+			Constants.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe,4);
+		}
+	}
+	
+	/**
+	* This informs other peers to create a directory of the provided name
+	*
+	* @param dir The directory sub/sub1
+	*/
+	public void sendMUCNewDir(String dir){
+		if(!this.joinedAChannel){
+			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
+			return;
+		}
+		Message newMessage = this.createMessageObject();
+		
+		newMessage.setProperty("Type",10);
+		newMessage.setProperty("JID",Constants.getJID());
+		newMessage.setProperty("name",dir);
+		
+		try{
+			this.muc.sendMessage(newMessage);
+			Constants.log.addMsg("Sending XMPP: -NEW_DIR- " + dir,2);	
 		}catch(XMPPException xe){
 			Constants.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe,4);
 		}

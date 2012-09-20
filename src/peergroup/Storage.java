@@ -213,6 +213,17 @@ public class Storage {
 	}
 	
 	/**
+	* Creates an empty directory of the given name
+	*
+	* @param name The name of the directory (relative to share folder) 
+	*/
+	public void newDirFromXMPP(String name){
+		Constants.folders.add(Constants.rootDirectory + name);
+		File newDir = new File(Constants.rootDirectory + name);
+		newDir.mkdirs();
+	}
+	
+	/**
 	* Applies a file change received via XMPP
 	*
 	* @param name The filename of the updated file
