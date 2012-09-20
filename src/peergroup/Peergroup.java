@@ -69,8 +69,11 @@ public class Peergroup {
 		
 		// -- Here we go
 		String os = System.getProperty("os.name");
+		String java_version = System.getProperty("java.version");
+		
         Constants.log.addMsg("Starting " + Constants.PROGNAME + " " 
-			+ Constants.VERSION + " on " + os + " " + System.getProperty("os.version"),2);
+			+ Constants.VERSION + " on " + os + " " + System.getProperty("os.version")
+			+ " with Java " + java_version,2);
       		
         getCmdArgs(args);
 		getIPs();
