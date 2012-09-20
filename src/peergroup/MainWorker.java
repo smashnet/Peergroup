@@ -152,7 +152,7 @@ public class MainWorker extends Thread {
 	* @param request The request containing the directory name
 	*/
 	private void handleLocalDirCreate(FSRequest request){
-		//TODO
+		//this.myNetwork.sendMUCNewDir(request.getContent());
 	}
 	
 	/**

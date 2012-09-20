@@ -36,7 +36,7 @@ public class Storage {
 	private static Storage instance = new Storage();
 	private File sharedDir;
 	private int fileListVersion;
-	private LinkedList<FileHandle> files;
+	private volatile LinkedList<FileHandle> files;
 	
 	public Storage(){
 		this.fileListVersion = 0;
