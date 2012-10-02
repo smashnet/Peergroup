@@ -7,7 +7,8 @@ copyto
 deploy
 nodes
 pg-nico
-test1
+test1/
+test2/
 export/
 doc/
 dist/
