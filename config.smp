@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<peergroup>
+	<xmpp-account>
+		<server>jabber-server</server>
+		<user>username</user>
+		<pass>password</pass>
+		<resource></resource>
+		<port></port>
+	</xmpp-account>
+	<conference>
+		<server>conference-server</server>
+		<channel>channelname</channel>
+	</conference>
+	<pg-settings>
+		<share>./share/</share>
+		<extIP></extIP>
+		<port>53333</port>
+	</pg-settings>
+</peergroup>
