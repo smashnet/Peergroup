@@ -56,18 +56,20 @@ public class Peergroup {
 			public void handle(Signal signal) {
 				Constants.log.addMsg("Caught signal: " + signal + ". Gracefully shutting down!",1);
 				
-				if(Constants.storage != null);
+				if(Constants.storage != null)
 					Constants.storage.stopStorageWorker();
-				if(Constants.network != null);
+				if(Constants.network != null)
 					Constants.network.stopNetworkWorker();
-				if(Constants.thriftClient != null);
+				if(Constants.thriftClient != null)
 					Constants.thriftClient.stopPoolExecutor();
 				if(Constants.enableModQueue){
-					if(Constants.modQueue != null);
+					if(Constants.modQueue != null)
 						Constants.modQueue.interrupt();
 				}
+				if(Constants.main != null)
+					Constants.main.interrupt();
 				
-				Constants.main.interrupt();
+				Peergroup.quit(666);
 			}
 		};
 		Signal.handle(new Signal("TERM"), signalHandler);
@@ -145,8 +147,6 @@ public class Peergroup {
 	* Reads config from config.xml
 	*/
     private static void getConfig(){
-		Constants.log.addMsg("Using " + Constants.config + "... Ignoring commandline arguments!",3);
-		
 		try{
 			File xmlConfig = new File(Constants.config);
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -253,6 +253,7 @@ public class Peergroup {
 						Constants.p2pPort = Integer.parseInt(val);
 				}
 			}
+		Constants.log.addMsg("Using " + Constants.config + "... Ignoring commandline arguments!",3);
 		}catch(FileNotFoundException fnf){
 			Constants.log.addMsg("Could not find config file! Creating sample file...",1);
 			Constants.log.addMsg("Please edit config.smp to your needs and rename it to config.xml",4);

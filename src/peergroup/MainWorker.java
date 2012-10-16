@@ -421,16 +421,19 @@ public class MainWorker extends Thread {
 	private void handleEvilEvents(FSRequest request){
 		Constants.log.addMsg("Something evil happened: " + request.getContent(),1);
 		
-		if(Constants.storage != null);
+		if(Constants.storage != null)
 			Constants.storage.stopStorageWorker();
-		if(Constants.network != null);
+		if(Constants.network != null)
 			Constants.network.stopNetworkWorker();
-		if(Constants.thriftClient != null);
+		if(Constants.thriftClient != null)
 			Constants.thriftClient.stopPoolExecutor();
 		if(Constants.enableModQueue){
-			if(Constants.modQueue != null);
+			if(Constants.modQueue != null)
 				Constants.modQueue.interrupt();
 		}
-		Constants.main.interrupt();
+		if(Constants.main != null)
+			Constants.main.interrupt();
+				
+		Peergroup.quit(666);
 	}
 }

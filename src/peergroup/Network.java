@@ -91,6 +91,11 @@ public class Network {
 		try{
 			this.xmppCon.connect();
 			Constants.log.addMsg("Successfully established connection to XMPP Server: " + Constants.server);
+			if(this.xmppCon.isSecureConnection()){
+				Constants.log.addMsg("XMPP connection is secure.");
+			}else{
+				Constants.log.addMsg("XMPP connection is not secure.",1);
+			}
 			return true;
 		}catch(XMPPException xe){
 			Constants.log.addMsg("Failed connecting to XMPP Server: " + xe,4);
@@ -153,8 +158,8 @@ public class Network {
 	* @param text The text to be sent
 	*/
 	public void sendMUCmessage(String text){
-		if(!this.joinedAChannel){
-			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
+		if(!this.joinedAChannel || !this.xmppCon.isConnected()){
+			Constants.log.addMsg("Sorry, cannot send message, we are not connected to the server!",1);
 			return;
 		}
 		Message newMessage = this.muc.createMessage();
@@ -185,6 +190,8 @@ public class Network {
 	* Leave the current Multi-User-Chat room (recommended before quitting the program)
 	*/
 	public void leaveMUC(){
+		if(!this.xmppCon.isConnected())
+			return;
 		this.muc.leave();
 		Constants.log.addMsg("Left conference room: " + Constants.conference_channel,4);
 	}
@@ -193,6 +200,8 @@ public class Network {
 	* Disconnect from the XMPP server (recommended before quitting the program)
 	*/
 	public void xmppDisconnect(){
+		if(!this.xmppCon.isConnected())
+			return;
 		this.getInstance().xmppCon.disconnect();
 		Constants.log.addMsg("Disconnected from XMPP Server: " + Constants.server,4);
 	}
@@ -272,7 +281,7 @@ public class Network {
 	* @param hash The new SHA256 value of the file
 	*/
 	public void sendMUCNewFile(String filename, long size, byte[] hash, LinkedList<String> list){
-		if(!this.joinedAChannel){
+		if(!this.joinedAChannel || !this.xmppCon.isConnected()){
 			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
 			return;
 		}
@@ -305,7 +314,7 @@ public class Network {
 	* @param dir The directory sub/sub1
 	*/
 	public void sendMUCNewDir(String dir){
-		if(!this.joinedAChannel){
+		if(!this.joinedAChannel || !this.xmppCon.isConnected()){
 			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
 			return;
 		}
@@ -329,7 +338,7 @@ public class Network {
 	* @param filename The name of the deleted item
 	*/	
 	public void sendMUCDeleteItem(String filename, boolean dir){
-		if(!this.joinedAChannel){
+		if(!this.joinedAChannel || !this.xmppCon.isConnected()){
 			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
 			return;
 		}
@@ -361,7 +370,7 @@ public class Network {
 	* @param hash The new SHA256 value of the file
 	*/
 	public void sendMUCUpdateFile(String filename, int vers, long size, LinkedList<String> list, byte[] hash){
-		if(!this.joinedAChannel){
+		if(!this.joinedAChannel || !this.xmppCon.isConnected()){
 			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
 			return;
 		}
@@ -390,7 +399,7 @@ public class Network {
 	}
 	
 	public void sendMUCCompletedChunk(String filename, int chunkID, int chunkVers){
-		if(!this.joinedAChannel){
+		if(!this.joinedAChannel || !this.xmppCon.isConnected()){
 			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
 			return;
 		}
@@ -425,7 +434,7 @@ public class Network {
 	* @param hash The new SHA256 value of the file
 	*/
 	public void sendMUCCompletedFile(String filename, int vers){
-		if(!this.joinedAChannel){
+		if(!this.joinedAChannel || !this.xmppCon.isConnected()){
 			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
 			return;
 		}
@@ -453,7 +462,7 @@ public class Network {
 	* This requests others to post their file list version
 	*/	
 	public void sendMUCjoin(){
-		if(!this.joinedAChannel){
+		if(!this.joinedAChannel || !this.xmppCon.isConnected()){
 			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
 			return;
 		}
@@ -482,7 +491,7 @@ public class Network {
 	* This posts your current file list version
 	*/	
 	public void sendMUCFileListVersion(){
-		if(!this.joinedAChannel){
+		if(!this.joinedAChannel || !this.xmppCon.isConnected()){
 			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
 			return;
 		}
@@ -509,7 +518,7 @@ public class Network {
 	* This requests others to post their file list version
 	*/	
 	public void sendMUCleave(){
-		if(!this.joinedAChannel){
+		if(!this.joinedAChannel || !this.xmppCon.isConnected()){
 			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
 			return;
 		}
@@ -531,7 +540,7 @@ public class Network {
 	}
 	
 	public void sendMUCReannounceFile(String filename, long size, byte[] hash){
-		if(!this.joinedAChannel){
+		if(!this.joinedAChannel || !this.xmppCon.isConnected()){
 			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
 			return;
 		}
