@@ -274,9 +274,12 @@ public class Peergroup {
 			Constants.log.addMsg("Please edit config.smp to your needs and rename it to config.xml",4);
 			createSampleConfig();
 			quit(10);
+		}catch(NumberFormatException nfe){
+			Constants.log.addMsg("Value is not a number: " + nfe.getMessage() + " - Correct your config file!",1);
+			quit(11);
 		}catch(Exception ioe){
 			Constants.log.addMsg("Error reading config: " + ioe,1);
-			quit(11);
+			quit(12);
 		}
     }
 	
