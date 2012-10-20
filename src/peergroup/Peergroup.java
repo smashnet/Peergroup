@@ -194,8 +194,16 @@ public class Peergroup {
 						Constants.resource = val;
 					
 					val = getTagValue("port",eElement);
-					if(val != null)
-						Constants.port = Integer.parseInt(val);
+					if(val != null){
+						// Sanity check
+						if(Integer.parseInt(val) > 1024 && Integer.parseInt(val) < 65536){
+							Constants.port = Integer.parseInt(val);
+						}else{
+							Constants.log.addMsg("XMPP Port not in valid range: xmpp-account -> port (should be 1025-65535)",1);
+							quit(9);
+						}
+					}
+						
 				}
 			}
 			
@@ -249,8 +257,15 @@ public class Peergroup {
 						Constants.ipAddress = val;
 					
 					val = getTagValue("port",eElement);
-					if(val != null)
-						Constants.p2pPort = Integer.parseInt(val);
+					if(val != null){
+						// Sanity check
+						if(Integer.parseInt(val) > 1024 && Integer.parseInt(val) < 65536){
+							Constants.p2pPort = Integer.parseInt(val);
+						}else{
+							Constants.log.addMsg("P2P Port not in valid range: xmpp-account -> port (should be 1025-65535)",1);
+							quit(9);
+						}
+					}
 				}
 			}
 		Constants.log.addMsg("Using " + Constants.config + "... Ignoring commandline arguments!",3);
