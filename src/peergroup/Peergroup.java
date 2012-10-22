@@ -253,8 +253,23 @@ public class Peergroup {
 						Constants.rootDirectory = val;
 					
 					val = getTagValue("extIP",eElement);
-					if(val != null)
+					if(val != null){
+						String parts[] = val.split(".");
+						if(parts.length != 4){
+							Constants.log.addMsg("Not a valid IP address in config: " + val);
+							quit(8);
+						}
+						int test;
+						for(String part : parts){
+							test = Integer.parseInt(part);
+							if(test < 0 || test > 255){
+								Constants.log.addMsg("Not a valid IP address in config: " + val);
+								quit(8);
+							}
+						}
 						Constants.ipAddress = val;
+					}
+						
 					
 					val = getTagValue("port",eElement);
 					if(val != null){
