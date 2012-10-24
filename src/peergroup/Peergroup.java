@@ -86,9 +86,9 @@ public class Peergroup {
 		getCmdLineArgs(args);
         getConfig();
 		getIPs();
+		doUPnP();
 		doInitialDirectoryScan();
 		joinXMPP();
-		doUPnP();
 		enqueueThreadStart();
 		
 		if(os.equals("Linux") || os.equals("Windows 7"))
@@ -405,6 +405,9 @@ public class Peergroup {
 				if ( mapped ) {
 					Constants.log.addMsg( "Port " + Constants.p2pPort + " mapped to " + Constants.localIP );
 				}
+			} else {
+				Constants.log.addMsg("No UPnP enabled router found! You probably have to forward port " + Constants.p2pPort 
+					+ " in your router manually to your local IP " + Constants.localIP,4);
 			}
 		} catch ( IOException ex ) {
 			Constants.log.addMsg("Failed to open port: " + ex,4);
