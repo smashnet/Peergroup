@@ -67,6 +67,6 @@ public class ThriftServerWorker extends Thread {
 	*/
 	public void stopThriftWorker(){
 		this.server.stop();
-		this.interrupt();
+		this.stop();
 	}
 }

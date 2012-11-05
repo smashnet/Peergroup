@@ -69,7 +69,6 @@ public class Peergroup {
 				if(Constants.main != null)
 					Constants.main.interrupt();
 				
-				Peergroup.quit(666);
 			}
 		};
 		Signal.handle(new Signal("TERM"), signalHandler);
@@ -234,6 +233,10 @@ public class Peergroup {
 						quit(9);
 					}
 					
+					val = getTagValue("pass",eElement);
+					if(val != null)
+						Constants.conference_pass = val;
+
 				}
 			}
 			
@@ -292,9 +295,14 @@ public class Peergroup {
 		}catch(NumberFormatException nfe){
 			Constants.log.addMsg("Value is not a number: " + nfe.getMessage() + " - Correct your config file!",1);
 			quit(11);
+		}catch(NullPointerException npe){
+			Constants.log.addMsg("Value missing in config: " + npe,1);
+			Constants.log.addMsg("Please edit config.smp to your needs and rename it to config.xml",4);
+			createSampleConfig();
+			quit(12);
 		}catch(Exception ioe){
 			Constants.log.addMsg("Error reading config: " + ioe,1);
-			quit(12);
+			quit(13);
 		}
     }
 	
@@ -327,6 +335,7 @@ public class Peergroup {
 						  + "\t<conference>\n"
 						  + "\t\t<server>conference-server</server>\n"
 						  + "\t\t<channel>channelname</channel>\n"
+						  + "\t\t<pass></pass>\n"
 						  + "\t</conference>\n"
 						  + "\t<pg-settings>\n"
 					      + "\t\t<share>./share/</share>\n"
@@ -457,6 +466,11 @@ public class Peergroup {
 	}
 	
 	public static void quit(int no){
+		if(Constants.quitting)
+			return;
+		
+		Constants.quitting = true;
+		
 		if(Constants.igd != null){
 			try{
 				boolean unmapped = Constants.igd.deletePortMapping( null, Constants.p2pPort, "TCP" );

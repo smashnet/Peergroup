@@ -43,8 +43,8 @@ public class Logger {
 	public Logger(){
 		try{
 			this.cal = Calendar.getInstance();
-			String date = getYear() + "-" 
-		        + getMonth() + "-" 
+			String date = getYear()
+		        + getMonth()
 		        + getDayOfMonth() + "_" 
 		        + getHourOfDay() 
 		        + getMinute();
@@ -191,11 +191,7 @@ public class Logger {
 	private String getYear(){
 		String res;
 		int tmp = cal.get(Calendar.YEAR);
-		if(tmp < 10){
-			res = "0" + tmp;
-		}else{
-			res = "" + tmp;
-		}
+		res = "" + (tmp%100);
 		return res;
 	}
 	

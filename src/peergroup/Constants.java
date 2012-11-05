@@ -98,6 +98,7 @@ public class Constants {
 	public static int port = 5222;
 	public static String conference_channel = "";
 	public static String conference_server = "";
+	public static String conference_pass = "";
 	
 	/*
 	* Constants defining request-types
@@ -142,6 +143,7 @@ public class Constants {
 	public static int chunkSize = 512000;	//In bytes
 	public static boolean syncingFileList = false;
 	public static LinkedList<String> folders;
+	public static boolean quitting = false;
 	
 	public static String getJID(){
 		return user + "@" + server + "/" + resource;
