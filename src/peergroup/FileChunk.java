@@ -23,6 +23,7 @@ package peergroup;
 
 import java.util.LinkedList;
 import java.util.Random;
+import java.util.Arrays;
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
  /**
@@ -119,6 +120,12 @@ public class FileChunk {
 	public void setHexHash(String s){
 		HexBinaryAdapter adapter = new HexBinaryAdapter();
 		this.chunkHash = adapter.unmarshal(s);
+	}
+	
+	public boolean checkHash(byte[] data){
+		byte[] hash = FileHandle.calcHash(data);
+		
+		return Arrays.equals(hash,this.chunkHash);
 	}
 	
 	public static byte[] toByteHash(String s){

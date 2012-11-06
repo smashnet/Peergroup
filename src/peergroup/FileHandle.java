@@ -245,7 +245,7 @@ public class FileHandle {
 	* @param in the byte array
 	* @return hash as byte array
 	*/
-    private byte[] calcHash(byte[] in){
+    protected static byte[] calcHash(byte[] in){
 		try{
 	        MessageDigest sha = MessageDigest.getInstance("SHA-256");
 	        sha.update(in);

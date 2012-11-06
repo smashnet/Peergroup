@@ -24,6 +24,10 @@ package peergroup;
 import java.util.*;
 import java.nio.ByteBuffer;
 import org.apache.thrift.*;
+import javax.crypto.*;
+import javax.crypto.spec.*;
+import java.security.spec.*;
+import java.security.AlgorithmParameters;
 
 /**
  * The ThriftDataHandler implements the DataTransfer interface
@@ -38,17 +42,49 @@ public class ThriftDataHandler implements DataTransfer.Iface {
 		return toThriftStorage(Storage.getInstance());
 	}
 
+	/*
+	* Reads the requested data block from storage and returns it as a byte array.
+	*/
     public ByteBuffer getDataBlock(String filename, int blockID, String hash) throws org.apache.thrift.TException{
 		FileHandle tmp;
 		if((tmp = Storage.getInstance().getFileHandle(filename)) == null){
 			return null;
 		}else{
-			byte[] swap = tmp.getChunkData(blockID);
-			if(swap == null){
+			byte[] plain = tmp.getChunkData(blockID);
+			if(plain == null){
 				return null;
 			}
-			ByteBuffer buffer = ByteBuffer.wrap(swap);
-			return buffer;
+			
+			String plainkey = "P33rgr0up";
+			byte[] salt = {0x12, 0x78, 0x4F, 0x33, 0x13, 0x4B, 0x6B, 0x2F};
+			// If we use a password for our channel, use it to encrypt the data
+			if(!Constants.conference_pass.equals(""))
+				plainkey = Constants.conference_pass;
+			
+			try{
+				SecretKeyFactory fac = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+				KeySpec spec = new PBEKeySpec(plainkey.toCharArray() , salt, 65536, 128);
+				SecretKey tmp1 = fac.generateSecret(spec);
+				SecretKey secret = new SecretKeySpec(tmp1.getEncoded(), "AES");
+				// Init AES cipher
+				Cipher ciph = Cipher.getInstance("AES/CBC/PKCS5Padding");
+				ciph.init(Cipher.ENCRYPT_MODE,secret);
+				// Encrypt data block
+				byte[] encrypted = ciph.doFinal(plain);
+				
+				AlgorithmParameters params = ciph.getParameters();
+				// IV is 16bytes in length
+				byte[] iv = params.getParameterSpec(IvParameterSpec.class).getIV();
+				
+				byte[] sendbuffer = appendByteArray(iv,encrypted);
+				
+				ByteBuffer buffer = ByteBuffer.wrap(sendbuffer);
+				return buffer;
+			}catch(Exception e){
+				Constants.log.addMsg(e.toString());
+			}
+			
+			return null;
 		}
 	}
 	
@@ -109,5 +145,14 @@ public class ThriftDataHandler implements DataTransfer.Iface {
 									localDevice.getIP(),
 									localDevice.getPort(),
 									localDevice.getJID());
-	}  
+	}
+	
+	private static byte[] appendByteArray(byte[] a, byte[] b){
+		byte[] res = new byte[a.length+b.length];
+		
+		System.arraycopy(a,0,res,0,a.length);
+		System.arraycopy(b,0,res,a.length,b.length);
+		
+		return res;
+	}
 }
