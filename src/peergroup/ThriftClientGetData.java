@@ -67,10 +67,10 @@ public class ThriftClientGetData implements Runnable {
 			if(swap != null){
 				
 				// Seperate encrypted data and IV
-				byte[] data = new byte[chunk.getSize()];
+				byte[] data = new byte[swap.length-16];
 				byte[] iv = new byte[16];
 				System.arraycopy(swap,0,iv,0,16);
-				System.arraycopy(swap,16,data,0,chunk.getSize());
+				System.arraycopy(swap,16,data,0,swap.length-16);
 				
 				
 				String plainkey = "P33rgr0up";
@@ -100,7 +100,7 @@ public class ThriftClientGetData implements Runnable {
 						return;
 					}
 					
-					Constants.log.addMsg("Hash OK!");
+					Constants.log.addMsg(chunk.getName() + " Block " + chunk.getID() + ": Hash OK!");
 					
 					chunk.setDownloading(false);
 					chunk.setComplete(true);

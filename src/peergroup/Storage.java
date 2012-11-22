@@ -104,7 +104,7 @@ public class Storage {
 	public void remoteRemoveItem(String file){
 		File delItem = new File(Constants.rootDirectory + file);
 		if(delItem.isDirectory()){
-			delItem.delete();
+			deleteDirectory(delItem);
 			Constants.log.addMsg("Deleted directory: " + file,4);
 			return;
 		}
@@ -117,6 +117,27 @@ public class Storage {
 			}
 		}
 		this.fileListVersion++;
+	}
+	
+	private void deleteDirectory(File dir){
+		try{
+			if(dir.isFile()){
+				dir.delete();
+				return;
+			}
+			
+			if(dir.listFiles() != null && dir.listFiles().length > 0){
+				for(File f : dir.listFiles()){
+					deleteDirectory(f);
+				}
+				dir.delete();
+			}else{
+				dir.delete();
+			}
+			}catch(Exception e){
+				Constants.log.addMsg("Error while deleting: " + e);
+			}
+		
 	}
 	
 	public LinkedList<String> deletedLocalFolderAndSubs(String folder){
@@ -190,8 +211,9 @@ public class Storage {
 				int id = (Integer.valueOf(tmp[0])).intValue();
 				//int vers = (Integer.valueOf(tmp[1])).intValue();
 				String hash = tmp[2];
+				int chunkSize = Integer.parseInt(tmp[3]);
 				
-				chunks.add(new FileChunk(filename,id,cSize,0,hash,node,false));
+				chunks.add(new FileChunk(filename,id,chunkSize,0,hash,node,false));
 			}
 			
 			FileHandle newFile = new FileHandle(filename,fileHash,fileSize,chunks,cSize);

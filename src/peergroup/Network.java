@@ -92,7 +92,7 @@ public class Network {
 			this.xmppCon.connect();
 			Constants.log.addMsg("Successfully established connection to XMPP Server: " + Constants.server);
 			if(this.xmppCon.isSecureConnection()){
-				Constants.log.addMsg("XMPP connection is secure.");
+				Constants.log.addMsg("XMPP connection is secure.",2);
 			}else{
 				Constants.log.addMsg("XMPP connection is not secure.",1);
 			}

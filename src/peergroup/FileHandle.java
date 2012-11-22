@@ -186,15 +186,15 @@ public class FileHandle {
 	        byte[] buffer = new byte[size];
         
 	        while((bytesRead = stream.read(buffer)) != -1){
-	            FileChunk next = new FileChunk(this.getPath(),id,vers,calcHash(buffer),bytesRead,id*size,true);
-				sha.update(buffer,0,bytesRead);
+	            FileChunk next = new FileChunk(this.getPath(),id,vers,calcHash(buffer,bytesRead),bytesRead,id*size,true);
+							sha.update(buffer,0,bytesRead);
 	            this.chunks.add(next);
 	            id++;
 	        }
 			
 			//On empty file, also create one empty chunk
 			if(bytesRead == -1 && id == 0){
-	            FileChunk next = new FileChunk(this.getPath(),id,vers,calcHash(buffer),0,id*size,true);
+	            FileChunk next = new FileChunk(this.getPath(),id,vers,calcHash(buffer,bytesRead),0,id*size,true);
 	            this.chunks.add(next);
 			}
 			
@@ -245,11 +245,11 @@ public class FileHandle {
 	* @param in the byte array
 	* @return hash as byte array
 	*/
-    protected static byte[] calcHash(byte[] in){
+    protected static byte[] calcHash(byte[] in, int bytes){
 		try{
 	        MessageDigest sha = MessageDigest.getInstance("SHA-256");
-	        sha.update(in);
-        
+	        sha.update(in,0,bytes);
+				
 	        return sha.digest();
 		}catch(NoSuchAlgorithmException na){
 			Constants.log.addMsg("calcHash Error: " + na,1);
@@ -282,9 +282,9 @@ public class FileHandle {
 			//change is within existent chunks
             if(id < this.chunks.size()){ 
 				// new chunk hash != old chunk hash
-				if(!(Arrays.equals(calcHash(buffer),this.chunks.get(id).getHash()))){
+				if(!(Arrays.equals(calcHash(buffer,bytesRead),this.chunks.get(id).getHash()))){
 					Constants.log.addMsg("FileHandle: Chunk " + id + " changed! (Different Hashes) Updating chunklist...");
-					FileChunk updated = new FileChunk(this.getPath(),id,this.chunks.get(id).getVersion()+1,calcHash(buffer),bytesRead,id*chunkSize,true);
+					FileChunk updated = new FileChunk(this.getPath(),id,this.chunks.get(id).getVersion()+1,calcHash(buffer,bytesRead),bytesRead,id*chunkSize,true);
 					this.updatedBlocks.add(new Integer(id));
 					this.chunks.set(id,updated);
 					changed = true;
@@ -302,7 +302,7 @@ public class FileHandle {
 				// Last chunk got bigger
 				if(bytesRead > this.chunks.get(id).getSize() && id == this.chunks.size()-1){
 					Constants.log.addMsg("FileHandle: Chunk " + id + " changed! Updating chunklist...");
-					FileChunk updated = new FileChunk(this.getPath(),id,this.chunks.get(id).getVersion()+1,calcHash(buffer),bytesRead,id*chunkSize,true);
+					FileChunk updated = new FileChunk(this.getPath(),id,this.chunks.get(id).getVersion()+1,calcHash(buffer,bytesRead),bytesRead,id*chunkSize,true);
 					this.chunks.set(id,updated);
 					this.updatedBlocks.add(new Integer(id));
 					changed = true;
@@ -310,7 +310,7 @@ public class FileHandle {
 			}else{
 				// file is grown and needs more chunks
 				Constants.log.addMsg("FileHandle: File needs more chunks than before! Adding new chunks...");
-				FileChunk next = new FileChunk(this.getPath(),id,this.fileVersion,calcHash(buffer),bytesRead,id*chunkSize,true);
+				FileChunk next = new FileChunk(this.getPath(),id,this.fileVersion,calcHash(buffer,bytesRead),bytesRead,id*chunkSize,true);
 				this.chunks.add(next);
 				this.updatedBlocks.add(new Integer(id));
 				changed = true;
