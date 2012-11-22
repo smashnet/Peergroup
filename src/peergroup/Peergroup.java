@@ -189,8 +189,13 @@ public class Peergroup {
 					}
 					
 					val = getTagValue("resource",eElement);
-					if(val != null)
+					if(val != null){
 						Constants.resource = val;
+					}else{
+						Random rand = new Random();
+						Constants.resource += rand.nextInt(99999);
+					}
+					
 					
 					val = getTagValue("port",eElement);
 					if(val != null){
