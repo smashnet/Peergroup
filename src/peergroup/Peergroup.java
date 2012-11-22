@@ -461,7 +461,7 @@ public class Peergroup {
 			// so we need to shut down Peergroup
 			quit(5);
 		}
-		xmppNet.joinMUC(Constants.user, Constants.pass, 
+		xmppNet.joinMUC(Constants.user, Constants.conference_pass, 
 			Constants.conference_channel + "@" + Constants.conference_server);
 		xmppNet.sendMUCmessage("Hi, I'm a peergroup client. I do awesome things :-)");
 	}
