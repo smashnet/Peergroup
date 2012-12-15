@@ -168,7 +168,7 @@ public class Network {
 		newMessage.setBody(text);
 		
 		try{
-			this.muc.sendMessage(newMessage);		
+			this.muc.sendMessage(newMessage);
 		}catch(XMPPException xe){
 			Constants.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe,4);
 		}
