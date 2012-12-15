@@ -32,6 +32,12 @@ import java.util.concurrent.CyclicBarrier;
 import net.sbbi.upnp.*;
 import net.sbbi.upnp.impls.InternetGatewayDevice;
 import net.sbbi.upnp.messages.UPNPResponseException;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.DocumentBuilder;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Node;
+import org.w3c.dom.Element;
 
 /**
  * This processes cmd-line args, initializes all needed settings
@@ -50,18 +56,19 @@ public class Peergroup {
 			public void handle(Signal signal) {
 				Constants.log.addMsg("Caught signal: " + signal + ". Gracefully shutting down!",1);
 				
-				if(Constants.storage != null);
+				if(Constants.storage != null)
 					Constants.storage.stopStorageWorker();
-				if(Constants.network != null);
+				if(Constants.network != null)
 					Constants.network.stopNetworkWorker();
-				if(Constants.thriftClient != null);
+				if(Constants.thriftClient != null)
 					Constants.thriftClient.stopPoolExecutor();
 				if(Constants.enableModQueue){
-					if(Constants.modQueue != null);
+					if(Constants.modQueue != null)
 						Constants.modQueue.interrupt();
 				}
+				if(Constants.main != null)
+					Constants.main.interrupt();
 				
-				Constants.main.interrupt();
 			}
 		};
 		Signal.handle(new Signal("TERM"), signalHandler);
@@ -75,11 +82,12 @@ public class Peergroup {
 			+ Constants.VERSION + " on " + os + " " + System.getProperty("os.version")
 			+ " with Java " + java_version,2);
       		
-        getCmdArgs(args);
+		getCmdLineArgs(args);
+        getConfig();
 		getIPs();
+		doUPnP();
 		doInitialDirectoryScan();
 		joinXMPP();
-		doUPnP();
 		enqueueThreadStart();
 		
 		if(os.equals("Linux") || os.equals("Windows 7"))
@@ -119,118 +127,235 @@ public class Peergroup {
         quit(0);
     }
     
-	/**
-	* Parses the arguments given on the command line
-	*
-	* @param args the array of commands
-	*/
-    private static void getCmdArgs(String[] args){
-		boolean resSet = false;
+	
+	private static void getCmdLineArgs(String[] cmds){
 		String last = "";
-        for(String s: args){
-            if(s.equals("-h") || s.equals("--help")){
+		
+		for(String current : cmds){
+			if(current.equals("-h")){
 				System.out.println(getHelpString());
-				quit(0);
+				quit(9);
 			}
-			if(last.equals("-dir")){
-				if(s.charAt(s.length()-1) != '/'){ //Probably need sth special for windows here
-					s = s.concat("/");
-				}
-				Constants.rootDirectory = s;
-				Constants.log.addMsg("Set share directory to: " + Constants.rootDirectory,3);
+			if(last.equals("-c")){
+				Constants.config = current;
 			}
-			if(last.equals("-jid")){
-				String jid[] = s.split("@");
-				if(jid.length < 2){
-					Constants.log.addMsg("Invalid JID!",1);
-					quit(1);
-				}
-				Constants.user = jid[0];
-				Constants.server = jid[1];
-				Constants.log.addMsg("Set JID to: " + Constants.user + "@" + Constants.server,3);
-			}
-			if(last.equals("-res")){
-				Constants.resource = s;
-				Constants.log.addMsg("Set resource to: " + Constants.resource,3);
-				resSet = true;
-			}
-			if(last.equals("-chan")){
-				String conf[] = s.split("@");
-				if(conf.length < 2){
-					Constants.log.addMsg("Invalid conference channel!",1);
-					quit(1);
-				}
-				Constants.conference_channel = conf[0];
-				Constants.conference_server = conf[1];
-				Constants.log.addMsg("Set conference channel to: " + Constants.conference_channel + "@" 
-					+ Constants.conference_server,3);
-			}
-			if(last.equals("-XMPPport")){
-				try{
-					Constants.port = Integer.parseInt(s);
-				}catch(NumberFormatException nan){
-					Constants.log.addMsg("Invalid port!",1);
-					quit(1);
-				}
-				Constants.log.addMsg("Set XMPP port to: " + Constants.port,3);
-			}
-			if(last.equals("-P2Pport")){
-				try{
-					Constants.p2pPort = Integer.parseInt(s);
-				}catch(NumberFormatException nan){
-					Constants.log.addMsg("Invalid port!",1);
-					quit(1);
-				}
-				Constants.log.addMsg("Set P2P port to: " + Constants.p2pPort,3);
-			}
-			if(last.equals("-cSize")){
-				try{
-					Constants.chunkSize = Integer.parseInt(s);
-				}catch(NumberFormatException nan){
-					Constants.log.addMsg("Invalid chunkSize!",1);
-					quit(1);
-				}
-				Constants.log.addMsg("Set chunk size to: " + Constants.chunkSize,3);
-			}
-			/*if(last.equals("-limit")){
-				try{
-					Constants.shareLimit = Long.parseLong(s);
-				}catch(NumberFormatException nan){
-					Constants.log.addMsg("Invalid share limit!",1);
-					quit(1);
-				}
-				Constants.log.addMsg("Set share limit to: " + Constants.shareLimit,3);
-			}*/
-			if(last.equals("-pass")){
-				Constants.pass = s;
-			}
-			if(last.equals("-ip")){
-				Constants.ipAddress = s;
-				Constants.log.addMsg("Set external IP to: " + Constants.ipAddress,3);
-			}
-			if(s.equals("-noEventQueue")){
-				Constants.enableModQueue = false;
-				Constants.log.addMsg("Manually disabled Event-Queue",3);
-			}
-			if(s.equals("-noUPnP")){
-				Constants.doUPnP = false;
-				Constants.log.addMsg("Manually disabled UPnP",3);
-			}
-			last = s;
-        }
-		if(Constants.user.equals("") || Constants.pass.equals("") || 
-			Constants.conference_channel.equals("") || Constants.conference_server.equals("") ||
-			Constants.server.equals("")){
-				Constants.log.addMsg("Cannot start! Require: -jid -pass -chan");
-				quit(0);	
+			last = current;
 		}
-		if(!resSet){
-			Random gen = new Random(System.currentTimeMillis());
-			int append_no = 10000+gen.nextInt(90000);
-			Constants.resource += append_no;
-			Constants.log.addMsg("Set resource to: " + Constants.resource,3);
+	}
+	/**
+	* Reads config from config.xml
+	*/
+    private static void getConfig(){
+		try{
+			File xmlConfig = new File(Constants.config);
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+			Document doc = dBuilder.parse(xmlConfig);
+			doc.getDocumentElement().normalize();
+			
+			NodeList nList = doc.getElementsByTagName("xmpp-account");
+			
+			for(int i = 0; i < nList.getLength(); i++){
+				
+				Node n = nList.item(i);
+				
+				if(n.getNodeType() == Node.ELEMENT_NODE){
+					Element eElement = (Element)n;
+					
+					String val;
+					
+					val = getTagValue("server",eElement);
+					if(val != null){
+						Constants.server = val;
+					}else{
+						Constants.log.addMsg("Required value missing in config: xmpp-account -> server",1);
+						quit(9);
+					}
+						
+					val = getTagValue("user",eElement);
+					if(val != null){
+						Constants.user = val;
+					}else{
+						Constants.log.addMsg("Required value missing in config: xmpp-account -> user",1);
+						quit(9);
+					}
+					
+					val = getTagValue("pass",eElement);
+					if(val != null){
+						Constants.pass = val;
+					}else{
+						Constants.log.addMsg("Required value missing in config: xmpp-account -> pass",1);
+						quit(9);
+					}
+					
+					val = getTagValue("resource",eElement);
+					if(val != null){
+						Constants.resource = val;
+					}else{
+						Random rand = new Random();
+						Constants.resource += rand.nextInt(99999);
+					}
+					
+					
+					val = getTagValue("port",eElement);
+					if(val != null){
+						// Sanity check
+						if(Integer.parseInt(val) > 1024 && Integer.parseInt(val) < 65536){
+							Constants.port = Integer.parseInt(val);
+						}else{
+							Constants.log.addMsg("XMPP Port not in valid range: xmpp-account -> port (should be 1025-65535)",1);
+							quit(9);
+						}
+					}
+						
+				}
+			}
+			
+			nList = doc.getElementsByTagName("conference");
+			
+			for(int i = 0; i < nList.getLength(); i++){
+				
+				Node n = nList.item(i);
+				
+				if(n.getNodeType() == Node.ELEMENT_NODE){
+					Element eElement = (Element)n;
+					
+					String val;
+					
+					val = getTagValue("server",eElement);
+					if(val != null){
+						Constants.conference_server = val;
+					}else{
+						Constants.log.addMsg("Required value missing in config: conference -> server",1);
+						quit(9);
+					}
+					
+					val = getTagValue("channel",eElement);
+					if(val != null){
+						Constants.conference_channel = val;
+					}else{
+						Constants.log.addMsg("Required value missing in config: conference -> channel",1);
+						quit(9);
+					}
+					
+					val = getTagValue("pass",eElement);
+					if(val != null)
+						Constants.conference_pass = val;
+
+				}
+			}
+			
+			nList = doc.getElementsByTagName("pg-settings");
+			
+			for(int i = 0; i < nList.getLength(); i++){
+				
+				Node n = nList.item(i);
+				
+				if(n.getNodeType() == Node.ELEMENT_NODE){
+					Element eElement = (Element)n;
+					
+					String val;
+					
+					val = getTagValue("share",eElement);
+					if(val != null)
+						Constants.rootDirectory = val;
+					
+					val = getTagValue("extIP",eElement);
+					if(val != null){
+						String parts[] = val.split(".");
+						if(parts.length != 4){
+							Constants.log.addMsg("Not a valid IP address in config: " + val);
+							quit(8);
+						}
+						int test;
+						for(String part : parts){
+							test = Integer.parseInt(part);
+							if(test < 0 || test > 255){
+								Constants.log.addMsg("Not a valid IP address in config: " + val);
+								quit(8);
+							}
+						}
+						Constants.ipAddress = val;
+					}
+						
+					
+					val = getTagValue("port",eElement);
+					if(val != null){
+						// Sanity check
+						if(Integer.parseInt(val) > 1024 && Integer.parseInt(val) < 65536){
+							Constants.p2pPort = Integer.parseInt(val);
+						}else{
+							Constants.log.addMsg("P2P Port not in valid range: xmpp-account -> port (should be 1025-65535)",1);
+							quit(9);
+						}
+					}
+				}
+			}
+		Constants.log.addMsg("Using " + Constants.config + "... Ignoring commandline arguments!",3);
+		}catch(FileNotFoundException fnf){
+			Constants.log.addMsg("Could not find config file! Creating sample file...",1);
+			Constants.log.addMsg("Please edit config.smp to your needs and rename it to config.xml",4);
+			createSampleConfig();
+			quit(10);
+		}catch(NumberFormatException nfe){
+			Constants.log.addMsg("Value is not a number: " + nfe.getMessage() + " - Correct your config file!",1);
+			quit(11);
+		}catch(NullPointerException npe){
+			Constants.log.addMsg("Value missing in config: " + npe,1);
+			Constants.log.addMsg("Please edit config.smp to your needs and rename it to config.xml",4);
+			createSampleConfig();
+			quit(12);
+		}catch(Exception ioe){
+			Constants.log.addMsg("Error reading config: " + ioe,1);
+			quit(13);
 		}
     }
+	
+	private static String getTagValue(String sTag, Element eElement) {
+		NodeList nlList = eElement.getElementsByTagName(sTag).item(0).getChildNodes();
+		Node nValue = (Node) nlList.item(0);
+		
+		if(nValue == null || nValue.getNodeValue() == null)
+			return null;
+ 
+		return nValue.getNodeValue();
+	}
+	
+	private static void createSampleConfig(){
+		try{
+			File conf = new File("config.smp");
+			conf.delete();
+			conf.createNewFile();
+			FileWriter fw = new FileWriter(conf);
+			BufferedWriter bw = new BufferedWriter(fw);
+			String sample = "<?xml version=\"1.0\"?>\n"
+						  + "<peergroup>\n"
+						  + "\t<xmpp-account>\n"
+						  + "\t\t<server>jabber-server</server>\n"
+						  + "\t\t<user>username</user>\n"
+						  + "\t\t<pass>password</pass>\n"
+						  + "\t\t<resource></resource>\n"
+						  + "\t\t<port></port>\n"
+					      + "\t</xmpp-account>\n"
+						  + "\t<conference>\n"
+						  + "\t\t<server>conference-server</server>\n"
+						  + "\t\t<channel>channelname</channel>\n"
+						  + "\t\t<pass></pass>\n"
+						  + "\t</conference>\n"
+						  + "\t<pg-settings>\n"
+					      + "\t\t<share>./share/</share>\n"
+					      + "\t\t<extIP></extIP>\n"
+						  + "\t\t<port>53333</port>\n"
+						  + "\t</pg-settings>\n"
+						  + "</peergroup>";
+			bw.write(sample,0,sample.length());
+			bw.close();
+		}catch(Exception e){
+			Constants.log.addMsg("Couldn't create sample config",1);
+			quit(12);
+		}
+		
+	}
 	
 	/**
 	* Creates the help string containing all information of how to use this program
@@ -240,20 +365,7 @@ public class Peergroup {
 	private static String getHelpString(){
 		String out = "";
 		out += "  -h                            prints this help\n";
-		out += "  -dir            [DIR]         set the shared files directory (default: ./share/)\n";
-		out += "  -jid            [JID]         set your jabber ID (e.g. foo@jabber.bar.com)\n";
-		out += "  -res            [RESOURCE]    set the resource (default: peergroup)\n";
-		out += "  -pass           [PASS]        set the password for your JID\n";
-		out += "  -XMPPport       [PORT]        set the XMPP server port (default: 5222)\n";
-		out += "  -chan           [CHANNEL]     set the conference channel to join\n";
-		out += "                                (e.g. foo@conference.jabber.bar.com)\n";
-		out += "  -ip             [IP]          manually set your external IP\n";
-		out += "                                (the IP is usually guessed by the program)\n";
-		out += "  -P2Pport        [PORT]        set the port for P2P data exchange (default: 43334)\n";
-		out += "  -cSize          [SIZE]        set the chunk size for P2P data exchange (default: 512000Byte)\n";
-		//out += "  -limit          [LIMIT]       set the amount of space you want to share in MB\n";
-		//out += "                                (default: 2048MB)\n";
-		out += "  -noUPnP                       disable UPnP port forwarding (default: enabled)\n";
+		out += "  -c              [CONFIG]      set the config xml file\n";
 		return out;
 	}
     
@@ -307,6 +419,9 @@ public class Peergroup {
 				if ( mapped ) {
 					Constants.log.addMsg( "Port " + Constants.p2pPort + " mapped to " + Constants.localIP );
 				}
+			} else {
+				Constants.log.addMsg("No UPnP enabled router found! You probably have to forward port " + Constants.p2pPort 
+					+ " in your router manually to your local IP " + Constants.localIP,4);
 			}
 		} catch ( IOException ex ) {
 			Constants.log.addMsg("Failed to open port: " + ex,4);
@@ -346,7 +461,7 @@ public class Peergroup {
 			// so we need to shut down Peergroup
 			quit(5);
 		}
-		xmppNet.joinMUC(Constants.user, Constants.pass, 
+		xmppNet.joinMUC(Constants.user, Constants.conference_pass, 
 			Constants.conference_channel + "@" + Constants.conference_server);
 		xmppNet.sendMUCmessage("Hi, I'm a peergroup client. I do awesome things :-)");
 	}
@@ -356,6 +471,11 @@ public class Peergroup {
 	}
 	
 	public static void quit(int no){
+		if(Constants.quitting)
+			return;
+		
+		Constants.quitting = true;
+		
 		if(Constants.igd != null){
 			try{
 				boolean unmapped = Constants.igd.deletePortMapping( null, Constants.p2pPort, "TCP" );

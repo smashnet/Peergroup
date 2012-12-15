@@ -8,9 +8,11 @@ Peergroup empowers you to synchronize data across multiple computers. You can us
 Whatever your intention is, the first thing you need to do is to determine the circle of users you want to use Peergroup with. Every user needs an XMPP (also known as Jabber) account at his/her favourite server. At last, start Peergroup providing it with your XMPP account and a XMPP conference channel. Of course all users that want to share with each other need to join the same conference channel.
 
 ##This is awesome! Where can I get it?
-Simply clone this git-repository and proceed with the "Build & Run" section.
+If you are interested in the source-code, simply clone the git-repository and proceed with the "Build & Run" section.
 
 	git clone git@github.com:/smashnet/Peergroup.git Peergroup
+	
+If you just want to use Peergroup, you can download a .zip file containing Peergroup and a startscript in the [Download section](https://github.com/smashnet/Peergroup/downloads).
 
 ##Build & Run
 
@@ -21,43 +23,20 @@ Simply clone this git-repository and proceed with the "Build & Run" section.
 
 ###Run
 
-To run Peergroup, you can either create your own startup command line, or you can simply modify the _pg-start_ script to your needs.
+To reduce the commandline stuff a bit, Peergroup now reads all necessary information that it needs to start from a config file. After extracting the .zip package you have the files
 
-Accepted commands are:
-
-	-h                            prints this help
-	-dir            [DIR]         set the shared files directory (default: ./share/)
-	-jid            [JID]         set your jabber ID (e.g. foo@jabber.bar.com)
-	-res            [RESOURCE]    set the resource (default: peergroup)
-	-pass           [PASS]        set the password for your JID
-	-XMPPport       [PORT]        set the XMPP server port (default: 5222)
-	-chan           [CHANNEL]     set the conference channel to join (e.g. foo@conference.jabber.bar.com)
-	-ip             [IP]          manually set your external IP (the IP is usually guessed by the program)
-	-P2Pport        [PORT]        set the port for P2P data exchange (default: 43334)
-	-cSize          [SIZE]        set the chunk size for P2P data exchange (default: 512000Byte)
-	-noEventQueue                 disable Event-Queue (default: enabled)
-
-An exemplary minimal commandline would be:
-
-	java -jar export/peergroup.jar -jid $USER@$XMPP_SERVER -pass $USER_PASS -chan $CHANNEL@$CONFERENCE_SERVER
+	peergroup.jar
+	pg-start
 	
-To make your life easier, you can use the provided _pg-start_ script to start Peergroup. It looks like this:
+together in a directory. After the first start of _pg-start_ Peergroup creates you a _config.smp_ file where you can enter the information of your XMPP account and the conference channel you want to join.
 
-	#!/bin/bash
-	SERVER='<xmpp server here>'
-	USER='<xmpp username here>'
-	PASS='<xmpp password here>'
-	
-	CHANNEL='<conference channel here>'
-	CSERVER='<conference server here>'
+All preentered values in the sample config are required and need to be changed. Empty fields are optional.
 
-	java -Xms512M -Xmx2G -jar export/peergroup.jar -jid $USER@$SERVER -pass $PASS -chan $CHANNEL@$CSERVER
-	
-Enter your data, and have fun :)
+If you entered your information, rename the file from _config.smp_ to _config.xml_, then start _pg-start_ again, and have fun using Peergroup :)
 
 ##Status
 
-See Wiki: https://github.com/smashnet/Peergroup/wiki
+Please [visit the Wiki](https://github.com/smashnet/Peergroup/wiki) to get the most recent infos about Peergroups progress.
 
 ##License
 	Peergroup is free software: you can redistribute it and/or modify
@@ -71,6 +50,8 @@ See Wiki: https://github.com/smashnet/Peergroup/wiki
 	GNU General Public License for more details.
 
 For a copy of the license see _license.txt_
+
+Some of the used libraries in Peergroup are published under the Apache 2.0 license. They are used unchanged in Peergroup and stay under Apache license even as part of Peergroup.
 
 ##Contact
 * Mail: nicolas.inden@rwth-aachen.de

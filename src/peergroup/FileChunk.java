@@ -23,6 +23,7 @@ package peergroup;
 
 import java.util.LinkedList;
 import java.util.Random;
+import java.util.Arrays;
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
  /**
@@ -34,19 +35,19 @@ import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 public class FileChunk {
     
 	private String file;
-    private int id;
+  private int id;
 	private int version;
-    private byte[] chunkHash;
+  private byte[] chunkHash;
 	private long offset;
 	private int size;
 	private boolean complete;
 	private boolean downloading;
 	private boolean failed;
-    private LinkedList<P2Pdevice> peers;
+  private LinkedList<P2Pdevice> peers;
     
-    public FileChunk(){
+  public FileChunk(){
         
-    }
+  }
 	
 	public FileChunk(String name, int no, int size, int vers, String hash, P2Pdevice node, boolean comp){
 		this.file = name;
@@ -90,17 +91,17 @@ public class FileChunk {
     }
 	
     public FileChunk(String name, int no, int vers, byte[] digest, int s, long off, boolean compl){
-		this.file = name;
-        this.id = no;
-		this.version = vers;
-        this.chunkHash = digest;
-		this.size = s;
-		this.offset = off;
-		this.complete = compl;
-		this.downloading = false;
-		this.failed = false;
-		this.peers = new LinkedList<P2Pdevice>();
-		this.peers.add(new P2Pdevice(Constants.getJID(),Constants.ipAddress,Constants.p2pPort));
+			this.file = name;
+      this.id = no;
+			this.version = vers;
+      this.chunkHash = digest;
+			this.size = s;
+			this.offset = off;
+			this.complete = compl;
+			this.downloading = false;
+			this.failed = false;
+			this.peers = new LinkedList<P2Pdevice>();
+			this.peers.add(new P2Pdevice(Constants.getJID(),Constants.ipAddress,Constants.p2pPort));
     }
 	
 	/**
@@ -119,6 +120,12 @@ public class FileChunk {
 	public void setHexHash(String s){
 		HexBinaryAdapter adapter = new HexBinaryAdapter();
 		this.chunkHash = adapter.unmarshal(s);
+	}
+	
+	public boolean checkHash(byte[] data){
+		byte[] hash = FileHandle.calcHash(data,data.length);
+		
+		return Arrays.equals(hash,this.chunkHash);
 	}
 	
 	public static byte[] toByteHash(String s){

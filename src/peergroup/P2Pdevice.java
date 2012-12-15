@@ -52,7 +52,7 @@ public class P2Pdevice {
 		this.jid = newJID;
 		this.ip = newIP;
 		this.port = newPort;
-		this.transport = new TSocket(newIP, newPort);
+		this.transport = new TSocket(newIP, newPort);		
 	}
 	
 	private void openTransport(){
