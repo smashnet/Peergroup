@@ -34,7 +34,7 @@ import net.sbbi.upnp.impls.InternetGatewayDevice;
 public class Constants {
     
 	public final static String PROGNAME    = "peergroup";
-	public final static String VERSION     = "0.05 (development version)";
+	public final static String VERSION     = "0.05";
 	public static String config			   = "config.xml";
     
 	public final static Logger log = new Logger();
