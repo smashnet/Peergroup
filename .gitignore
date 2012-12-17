@@ -3,6 +3,7 @@
 *.log
 *.class
 *.*~
+Peergroup.zip
 copyto
 deploy
 nodes
