@@ -27,12 +27,19 @@ To reduce the commandline stuff a bit, Peergroup now reads all necessary informa
 
 	peergroup.jar
 	pg-start
+	pg-start.bat
+	README.mdown
+	config.smp
 	
-together in a directory. After the first start of _pg-start_ Peergroup creates you a _config.smp_ file where you can enter the information of your XMPP account and the conference channel you want to join.
+together in a directory. If you are on Linux or OSX, make the pg-start script runnable:
+
+	chmod +x pg-start
+	
+Now you can enter the information of your XMPP account and the conference channel in the _config.smp_ file.
 
 All preentered values in the sample config are required and need to be changed. Empty fields are optional.
 
-If you entered your information, rename the file from _config.smp_ to _config.xml_, then start _pg-start_ again, and have fun using Peergroup :)
+If you entered your information, rename the file from _config.smp_ to _config.xml_, then start _pg-start_. Have fun using Peergroup :)
 
 ##Status
 
