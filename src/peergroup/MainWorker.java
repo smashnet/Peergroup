@@ -375,12 +375,16 @@ public class MainWorker extends Thread {
 	}
 	
 	private void handleStartThreads(){
-		Constants.storage = new StorageWorker();
+		if(!Constants.serverMode)
+			Constants.storage = new StorageWorker();
+		
 		Constants.network = new NetworkWorker();
 		Constants.thrift = new ThriftServerWorker();
 		Constants.thriftClient = new ThriftClientWorker();
 		
-		Constants.storage.start();
+		if(!Constants.serverMode)
+			Constants.storage.start();
+		
 		Constants.network.start();
 		Constants.thrift.start();
 		Constants.thriftClient.start();

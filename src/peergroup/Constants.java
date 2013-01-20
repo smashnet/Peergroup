@@ -134,6 +134,7 @@ public class Constants {
 	/*
 	* Stuff
 	*/
+	public static boolean serverMode = false;
 	public static boolean doUPnP = true;
 	public static boolean enableModQueue = true;
 	public static String ipAddress = "";
