@@ -56,8 +56,10 @@ public class Peergroup {
 			public void handle(Signal signal) {
 				Constants.log.addMsg("Caught signal: " + signal + ". Gracefully shutting down!",1);
 				
-				if(Constants.storage != null)
-					Constants.storage.stopStorageWorker();
+				if(!Constants.serverMode){
+					if(Constants.storage != null)
+						Constants.storage.stopStorageWorker();
+				}
 				if(Constants.network != null)
 					Constants.network.stopNetworkWorker();
 				if(Constants.thriftClient != null)
@@ -83,7 +85,7 @@ public class Peergroup {
 			+ " with Java " + java_version,2);
       		
 		getCmdLineArgs(args);
-        getConfig();
+    getConfig();
 		getIPs();
 		doUPnP();
 		doInitialDirectoryScan();
@@ -108,7 +110,9 @@ public class Peergroup {
 		
 		// -- Wait for threads to terminate (only happens through SIGINT/SIGTERM see handler above)
 		try{
-			Constants.storage.join();
+			if(!Constants.serverMode)
+				Constants.storage.join();
+			
 			Constants.network.join();
 			Constants.thriftClient.join();
 			Constants.main.join();
@@ -138,6 +142,10 @@ public class Peergroup {
 			}
 			if(last.equals("-c")){
 				Constants.config = current;
+			}
+			if(current.equals("-s")){
+				Constants.serverMode = true;
+				Constants.log.addMsg("Running in server mode",2);
 			}
 			last = current;
 		}
@@ -364,8 +372,9 @@ public class Peergroup {
 	*/
 	private static String getHelpString(){
 		String out = "";
-		out += "  -h                            prints this help\n";
-		out += "  -c              [CONFIG]      set the config xml file\n";
+		out += "  -h                            Prints this help\n";
+		out += "  -c              [CONFIG]      Set the config xml file\n";
+		out += "  -s                            Server mode (no reaction on hd activity)\n";
 		return out;
 	}
     

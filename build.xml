@@ -134,12 +134,13 @@
 	
 	<target name="deploy-pkg" depends="jar, clean">
 		<delete file="Peergroup.zip" />
-		<mkdir dir="${deploydir}" />
-		<copy file="${exportdir}/peergroup.jar" todir="${deploydir}/" />
-		<copy file="config.smp" todir="${deploydir}/" />
-		<copy file="README.mdown" todir="${deploydir}/" />
-		<copy file="pg-start" todir="${deploydir}/" />
-		<copy file="pg-start.bat" todir="${deploydir}/" />
+		<mkdir dir="${deploydir}/Peergroup/" />
+		<copy file="${exportdir}/peergroup.jar" todir="${deploydir}/Peergroup/" />
+		<copy file="config.smp" todir="${deploydir}/Peergroup/" />
+		<copy file="README.mdown" todir="${deploydir}/Peergroup/" />
+		<copy file="license.txt" todir="${deploydir}/Peergroup/" />
+		<copy file="pg-start" todir="${deploydir}/Peergroup/" />
+		<copy file="pg-start.bat" todir="${deploydir}/Peergroup/" />
 		<zip basedir="${deploydir}" destfile="Peergroup.zip" />
 		<delete dir="${deploydir}" />
 	</target>
