@@ -152,12 +152,10 @@ public class MainWorker extends Thread {
 	 */
 	private void handleLocalFileCreate(FSRequest request) {
 		if (myStorage.fileExists(request.getContent()) != null) {
-			Constants.log.addMsg("MainWorker: File already exists, ignoring!",
-					4);
+			Constants.log.addMsg("MainWorker: File already exists, ignoring!", 4);
 			return;
 		}
-		FileHandle newFile = this.myStorage.newFileFromLocal(request
-				.getContent());
+		FileHandle newFile = this.myStorage.newFileFromLocal(request.getContent());
 		if (newFile != null)
 			this.myNetwork.sendMUCNewFile(newFile.getPath(), newFile.getSize(),
 					newFile.getByteHash(), newFile.getBlockIDwithHash());
@@ -229,8 +227,9 @@ public class MainWorker extends Thread {
 			handleLocalFileCreate(request);
 			return;
 		}
-		FileHandle newFile = this.myStorage.modifyFileFromLocal(request
-				.getContent());
+		
+		FileHandle newFile = this.myStorage.modifyFileFromLocal(request.getContent());
+		
 		if (newFile != null) {
 			LinkedList<Integer> updated = newFile.getUpdatedBlocks();
 			LinkedList<String> updatedWithHash = new LinkedList<String>();
@@ -243,12 +242,12 @@ public class MainWorker extends Thread {
 				updatedWithHash.add(tmp);
 			}
 			// Only send update, if updated blocks available
-			if (updatedWithHash.size() > 0) {
+			//if (updatedWithHash.size() > 0) {
 				this.myNetwork.sendMUCUpdateFile(newFile.getPath(),
 						newFile.getVersion(), newFile.getSize(),
 						updatedWithHash, newFile.getByteHash(),
 						newFile.getNoOfChunks());
-			}
+				//}
 
 			newFile.clearUpdatedBlocks();
 		}

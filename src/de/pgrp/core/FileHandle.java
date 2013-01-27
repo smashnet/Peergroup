@@ -196,7 +196,7 @@ public class FileHandle {
 		}
 		try {
 			FileInputStream stream = new FileInputStream(this.file);
-			MessageDigest sha = MessageDigest.getInstance("SHA-256");
+			MessageDigest sha = MessageDigest.getInstance(Constants.hashAlgo);
 			this.chunks = new LinkedList<FileChunk>();
 			int bytesRead = 0;
 			int id = 0;
@@ -244,7 +244,7 @@ public class FileHandle {
 	private byte[] calcHash(File in) {
 		try {
 			FileInputStream stream = new FileInputStream(in);
-			MessageDigest sha = MessageDigest.getInstance("SHA-256");
+			MessageDigest sha = MessageDigest.getInstance(Constants.hashAlgo);
 			int bytesRead = 0;
 			byte[] buffer = new byte[1024];
 
@@ -273,7 +273,7 @@ public class FileHandle {
 	 */
 	protected static byte[] calcHash(byte[] in, int bytes) {
 		try {
-			MessageDigest sha = MessageDigest.getInstance("SHA-256");
+			MessageDigest sha = MessageDigest.getInstance(Constants.hashAlgo);
 			sha.update(in, 0, bytes);
 
 			return sha.digest();
@@ -297,24 +297,21 @@ public class FileHandle {
 		FileInputStream stream = new FileInputStream(this.file);
 		int bytesRead = 0;
 		int id = 0;
+		MessageDigest hash = MessageDigest.getInstance(Constants.hashAlgo);
 		byte[] buffer = new byte[chunkSize];
 		this.fileVersion += 1;
-		if (!Arrays.equals(this.hash, calcHash(this.file))) {
-			this.hash = calcHash(this.file);
-			changed = true;
-		}
 		this.size = this.file.length();
 
 		while ((bytesRead = stream.read(buffer)) > 0) {
+			// update hash
+			hash.update(buffer, 0, bytesRead);
+			
 			// change is within existent chunks
 			if (id < this.chunks.size()) {
 				// new chunk hash != old chunk hash
-				if (!(Arrays.equals(calcHash(buffer, bytesRead), this.chunks
-						.get(id).getHash()))) {
+				if (!(Arrays.equals(calcHash(buffer, bytesRead), this.chunks.get(id).getHash()))) {
 					Constants.log
-					.addMsg("FileHandle: Chunk "
-							+ id
-							+ " changed! (Different Hashes) Updating chunklist...");
+					.addMsg("FileHandle: Chunk " + id	+ " changed! (Different Hashes) Updating chunklist...");
 					FileChunk updated = new FileChunk(this.getPath(), id,
 							this.chunks.get(id).getVersion() + 1, calcHash(
 									buffer, bytesRead), bytesRead, id
@@ -351,8 +348,7 @@ public class FileHandle {
 			} else {
 				// file is grown and needs more chunks
 				Constants.log
-				.addMsg("FileHandle: File needs more chunks than before! Adding new chunk: "
-						+ id);
+				.addMsg("FileHandle: File needs more chunks than before! Adding new chunk: " + id);
 				FileChunk next = new FileChunk(this.getPath(), id,
 						this.fileVersion, calcHash(buffer, bytesRead),
 						bytesRead, id * chunkSize, true);
@@ -361,6 +357,22 @@ public class FileHandle {
 				changed = true;
 			}
 			id++;
+		}
+		
+		// Less chunks than before -> file got smaller while remaining a multiple of
+		// the chunk size
+		if(id < this.chunks.size()){
+			int i = this.chunks.size() - 1;
+			while (i > id) {
+				this.chunks.removeLast();
+				i--;
+			}
+			changed = true;
+		}
+		
+		if (!Arrays.equals(this.hash, hash.digest())) {
+			this.hash = calcHash(this.file);
+			changed = true;
 		}
 
 		stream.close();
@@ -655,8 +667,9 @@ public class FileHandle {
 	 * @param node
 	 *            P2Pdevice that is in possession of the updated chunks
 	 */
-	public synchronized void updateBlocks(LinkedList<String> blocks, int vers,
-			int noOfChunks, P2Pdevice node) {
+	public synchronized void updateBlocks(LinkedList<String> blocks, int vers, int noOfChunks, P2Pdevice node) {
+		
+		/*		
 		int currentNo = this.getNoOfChunks();
 		if (noOfChunks < currentNo) {
 			// Less blocks than before
@@ -664,14 +677,20 @@ public class FileHandle {
 				this.chunks.removeLast();
 				currentNo--;
 			}
+		}*/
+		this.trimFile();
+		
+		if(blocks.size() == 0){
+			for (FileChunk f : this.chunks) {
+				f.setVersion(vers);
+			}
+			return;
 		}
-		// The case for "more blocks than before" is handled in the following
-		// loop
 
 		for (String s : blocks) {
+			System.out.println(s);
 			String tmp[] = s.split(":");
-			int index = s.charAt(0) - 48;
-			Constants.log.addMsg("Updating Block " + index, 1);
+			int index = Integer.valueOf(tmp[0]);
 			if (index > this.chunks.size() - 1) {
 				FileChunk tmp1 = new FileChunk(this.getPath(), index,
 						Integer.valueOf(tmp[3]), vers - 1, tmp[2], node, false);
@@ -694,7 +713,8 @@ public class FileHandle {
 		// Set versions of unchanged blocks to current version
 		int i = 0;
 		for (FileChunk f : this.chunks) {
-			if (f.getID() != blocks.get(i).charAt(0) - 48) {
+			int id = Integer.valueOf(blocks.get(i).split(":")[0]);
+			if (f.getID() != id) {
 				f.setVersion(vers);
 			} else {
 				if (i < blocks.size() - 1)

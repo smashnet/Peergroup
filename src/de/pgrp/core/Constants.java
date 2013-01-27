@@ -146,6 +146,7 @@ public class Constants {
 	public static boolean syncingFileList = false;
 	public static LinkedList<String> folders;
 	public static boolean quitting = false;
+	public static String hashAlgo = "MD5";
 
 	public static String getJID() {
 		return user + "@" + server + "/" + resource;

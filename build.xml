@@ -24,7 +24,7 @@
 	<property name="exportdir" location="./export" />
 	<property name="deploydir" location="./Peergroup" />
 	<property name="docdir" location="./doc" />
-	<property name="clientpkg" value="peergroup" />
+	<property name="clientpkg" value="de" />
 	<property name="test.class.name" value="peergroup.FileHandleTest" />
 	
 	<!-- set pathes-->
@@ -111,7 +111,7 @@
 				</fileset>
 				<zipgroupfileset dir="${lib}" includes="*.jar" excludes=""/>
 				<manifest>
-					<attribute name="Main-Class" value="peergroup/Peergroup"/>
+					<attribute name="Main-Class" value="de/pgrp/core/Peergroup"/>
 					<attribute name="Class-Path" value="name/Pachler"/>
 				</manifest>
 			</jar>

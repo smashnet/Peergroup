@@ -179,8 +179,7 @@ public class Storage {
 						return null;
 					}
 					if (tmp.localUpdate()) {
-						Constants.log.addMsg("Updated "
-								+ getFileList().get(i).getPath(), 4);
+						Constants.log.addMsg("Updated " + getFileList().get(i).getPath(), 4);
 						this.fileListVersion++;
 					} else {
 						Constants.log.addMsg("No need to update something.", 4);
@@ -236,14 +235,6 @@ public class Storage {
 			newFile.createEmptyLocalFile();
 			getFileList().add(newFile);
 			this.fileListVersion++;
-
-			/*
-			 * for(String s : blocks){ String[] tmp = s.split(":"); int id =
-			 * (Integer.valueOf(tmp[0])).intValue(); String hash = tmp[2];
-			 * 
-			 * Constants.downloadQueue.offer(new
-			 * DLRequest(Constants.DOWNLOAD_BLOCK,1,filename,id,hash,node)); }
-			 */
 		} catch (Exception e) {
 			Constants.log.addMsg(
 					"Couldn't create FileHandle for new file from XMPP! " + e,
