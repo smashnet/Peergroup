@@ -369,7 +369,7 @@ public class Network {
 	* @param list A list of the blocks that changed with this update (only IDs)
 	* @param hash The new SHA256 value of the file
 	*/
-	public void sendMUCUpdateFile(String filename, int vers, long size, LinkedList<String> list, byte[] hash){
+	public void sendMUCUpdateFile(String filename, int vers, long size, LinkedList<String> list, byte[] hash, int noOfChunks){
 		if(!this.joinedAChannel || !this.xmppCon.isConnected()){
 			Constants.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
 			return;
@@ -388,6 +388,7 @@ public class Network {
 		newMessage.setProperty("size",size);
 		newMessage.setProperty("blocks",list);
 		newMessage.setProperty("sha256",hash);
+        newMessage.setProperty("noOfChunks",noOfChunks);
 		
 		try{
 			this.muc.sendMessage(newMessage);

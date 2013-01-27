@@ -254,14 +254,14 @@ public class Storage {
 	* @param blocks The list of blocks that need to be downloaded
 	* @param hash The SHA256 of the updated file
 	*/
-	public void modifiedFileFromXMPP(String name, int vers, long size, LinkedList<String> blocks, byte[] hash, P2Pdevice node){
+	public void modifiedFileFromXMPP(String name, int vers, long size, LinkedList<String> blocks, byte[] hash, int noOfChunks, P2Pdevice node){
 		for(FileHandle h : getFileList()){
 			if(h.getPath().equals(name)){
 				h.setUpdating(true);
 				h.setVersion(vers);
 				h.setSize(size);
 				h.setByteHash(hash);
-				h.updateBlocks(blocks,vers,node);
+				h.updateBlocks(blocks, vers, noOfChunks, node);
 								
 				this.fileListVersion++;
 				

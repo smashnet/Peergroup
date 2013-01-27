@@ -218,7 +218,7 @@ public class MainWorker extends Thread {
 			// Only send update, if updated blocks available
 			if(updatedWithHash.size() > 0){
 				this.myNetwork.sendMUCUpdateFile(newFile.getPath(),newFile.getVersion(),
-					newFile.getSize(),updatedWithHash,newFile.getByteHash());
+					newFile.getSize(),updatedWithHash,newFile.getByteHash(),newFile.getNoOfChunks());
 			}
 			
 			newFile.clearUpdatedBlocks();
@@ -321,10 +321,11 @@ public class MainWorker extends Thread {
 		long size 	= ((Long)in.getProperty("size")).longValue();
 		LinkedList<String> blocks = (LinkedList<String>)in.getProperty("blocks");
 		byte[] hash = (byte[])in.getProperty("sha256");
+        int noOfChunks	= ((Integer)in.getProperty("noOfChunks")).intValue();
 		
 		P2Pdevice remoteNode = P2Pdevice.getDevice(jid,ip,port);
 		
-		myStorage.modifiedFileFromXMPP(name, vers, size, blocks, hash, remoteNode);
+		myStorage.modifiedFileFromXMPP(name, vers, size, blocks, hash, noOfChunks, remoteNode);
 		Network.getInstance().sendMUCmessage("Updating >> " + name + " (" + size + "Bytes) <<");
 	}
 	

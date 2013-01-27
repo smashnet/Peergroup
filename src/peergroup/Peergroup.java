@@ -23,6 +23,7 @@ package peergroup;
 
 import java.io.*;
 import java.net.*;
+import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.concurrent.BrokenBarrierException;
@@ -385,13 +386,33 @@ public class Peergroup {
 	*/
 	private static void getIPs(){
 		// Get local IP
-		try{
-			Constants.localIP = InetAddress.getLocalHost().getHostAddress();
-		}catch(UnknownHostException uhe){
-			Constants.log.addMsg("Cannot get local IP: " + uhe,4);
-		}
+        try{
+            InetAddress local = null;
+	        Enumeration<NetworkInterface> ifaces = NetworkInterface.getNetworkInterfaces();
+	    	while( ifaces.hasMoreElements() && local == null ){
+	    		NetworkInterface iface = ifaces.nextElement();
+	    		Enumeration<InetAddress> addresses = iface.getInetAddresses();
+
+	    		while( addresses.hasMoreElements() && local == null ){
+	    			InetAddress addr = addresses.nextElement();
+	    			if( addr instanceof Inet4Address && !addr.isLoopbackAddress() )
+	    			{
+	    				local = addr;
+	    			}
+	    		}
+	    	}
+
+	    	if( local == null )
+	    	{
+	    		System.out.println( "Could not determine local address!" );
+	    		System.exit( 0 );
+	    	}
 		
-		
+            Constants.localIP = local.getHostAddress();
+	    }catch(SocketException se){
+            Constants.log.addMsg("Cannot get local IP: " + se, 4);
+        }
+        	
 		// Get external IP
 		if(!Constants.ipAddress.equals("")){
 			Constants.log.addMsg("External IP was manually set, skipping the guessing.");
@@ -420,6 +441,7 @@ public class Peergroup {
 				// let's the the first device found
 				Constants.igd = IGDs[0];
 				Constants.log.addMsg( "Found device " + Constants.igd.getIGDRootDevice().getModelName() );
+                
 				// now let's open the port
 				// we assume that localHostIP is something else than 127.0.0.1
 				boolean mapped = Constants.igd.addPortMapping( "Peergroup", 

@@ -309,7 +309,7 @@ public class FileHandle {
 				}
 			}else{
 				// file is grown and needs more chunks
-				Constants.log.addMsg("FileHandle: File needs more chunks than before! Adding new chunks...");
+				Constants.log.addMsg("FileHandle: File needs more chunks than before! Adding new chunk: " + id);
 				FileChunk next = new FileChunk(this.getPath(),id,this.fileVersion,calcHash(buffer,bytesRead),bytesRead,id*chunkSize,true);
 				this.chunks.add(next);
 				this.updatedBlocks.add(new Integer(id));
@@ -573,22 +573,40 @@ public class FileHandle {
 	* @param vers The new file version
 	* @param node P2Pdevice that is in possession of the updated chunks
 	*/
-	public synchronized void updateBlocks(LinkedList<String> blocks, int vers, P2Pdevice node){
-		for(String s : blocks){
+	public synchronized void updateBlocks(LinkedList<String> blocks, int vers, int noOfChunks, P2Pdevice node){
+        int currentNo = this.getNoOfChunks();    
+        if(noOfChunks < currentNo){
+            //Less blocks than before
+            while(currentNo > noOfChunks){
+                this.chunks.removeLast();
+                currentNo--;
+            }
+        }
+        //The case for "more blocks than before" is handled in the following loop		
+
+        for(String s : blocks){
 			String tmp[] = s.split(":");
 			int index = s.charAt(0)-48;
-			FileChunk tmp1 = this.chunks.get(index);
-			//TODO: Handle case if we have less or more blocks
-			tmp1.setHexHash(tmp[2]);
-			tmp1.setSize(Integer.valueOf(tmp[3]));
-			tmp1.clearPeers();
-			tmp1.addPeer(node);
-			tmp1.setComplete(false);
+            Constants.log.addMsg("Updating Block " + index,1);
+            if(index > this.chunks.size()-1){
+                FileChunk tmp1 = new FileChunk(this.getPath(),index,Integer.valueOf(tmp[3]),vers-1,tmp[2],node,false);
+                this.chunks.add(tmp1);
+            }else if(0 <= index && index < this.chunks.size()){
+    			FileChunk tmp1 = this.chunks.get(index);
+	    		tmp1.setHexHash(tmp[2]);
+	    		tmp1.setSize(Integer.valueOf(tmp[3]));
+	    		tmp1.clearPeers();
+	    		tmp1.addPeer(node);
+	    		tmp1.setComplete(false);
+            }
 		}
+
 		if(blocks.size() == this.chunks.size()){
 			// Finished if all blocks have changed
 			return;
 		}
+
+        //Set versions of unchanged blocks to current version
 		int i = 0;
 		for(FileChunk f : this.chunks){
 			if(f.getID() != blocks.get(i).charAt(0)-48){
@@ -713,6 +731,10 @@ public class FileHandle {
 	public int getChunkSize(int i){
 		return this.chunks.get(i).getSize();
 	}
+
+    public int getNoOfChunks(){
+        return this.chunks.size();
+    }
 	
 	public void setSize(long newSize){
 		this.size = newSize;
