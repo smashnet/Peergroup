@@ -16,13 +16,13 @@
 * Author : Nicolas Inden
 * Contact: nicolas.inden@rwth-aachen.de
 *
-* Copyright (c) 2012 Nicolas Inden
+* Copyright (c) 2013 Nicolas Inden
 */
 
-namespace cpp peergroup
-namespace java peergroup
-namespace php peergroup
-namespace perl peergroup
+namespace cpp de.pgrp.thrift
+namespace java de.pgrp.thrift
+namespace php de.pgrp.thrift
+namespace perl de.pgrp.thrift
 
 struct ThriftP2PDevice {
 	1: string ip,

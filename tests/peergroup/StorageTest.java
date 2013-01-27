@@ -16,10 +16,10 @@
 * Author : Nicolas Inden
 * Contact: nicolas.inden@rwth-aachen.de
 *
-* Copyright (c) 2012 Nicolas Inden
+* Copyright (c) 2013 Nicolas Inden
 */
 
-package peergroup;
+package de.pgrp.core;
 
 import org.junit.After;
 import org.junit.AfterClass;
