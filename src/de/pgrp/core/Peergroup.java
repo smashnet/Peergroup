@@ -27,8 +27,6 @@ import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.concurrent.BrokenBarrierException;
-import sun.misc.Signal;
-import sun.misc.SignalHandler;
 import net.sbbi.upnp.impls.InternetGatewayDevice;
 import net.sbbi.upnp.messages.UPNPResponseException;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -51,36 +49,10 @@ public class Peergroup {
 	 *            the command line arguments
 	 */
 	public static void main(String[] args) {
-		// -- Handle SIGINT and SIGTERM
-		SignalHandler signalHandler = new SignalHandler() {
-			@Override
-			public void handle(Signal signal) {
-				Constants.log.addMsg("Caught signal: " + signal
-						+ ". Gracefully shutting down!", 1);
-
-				if (!Constants.serverMode) {
-					if (Constants.storage != null)
-						Constants.storage.stopStorageWorker();
-				}
-				if (Constants.network != null)
-					Constants.network.stopNetworkWorker();
-				if (Constants.thriftClient != null)
-					Constants.thriftClient.stopPoolExecutor();
-				if (Constants.enableModQueue) {
-					if (Constants.modQueue != null)
-						Constants.modQueue.interrupt();
-				}
-				if (Constants.main != null)
-					Constants.main.interrupt();
-
-			}
-		};
-		Signal.handle(new Signal("TERM"), signalHandler);
-		Signal.handle(new Signal("INT"), signalHandler);
-
 		// -- Here we go
 		String os = System.getProperty("os.name");
 		String java_version = System.getProperty("java.version");
+		Runtime.getRuntime().addShutdownHook(new Shutdown());
 
 		Constants.log.addMsg(
 				"Starting " + Constants.PROGNAME + " " + Constants.VERSION
@@ -103,7 +75,7 @@ public class Peergroup {
 		Constants.main.start();
 
 		try {
-			Constants.myBarrier.await();
+			Constants.bootupBarrier.await();
 		} catch (InterruptedException ie) {
 
 		} catch (BrokenBarrierException bbe) {
@@ -132,8 +104,16 @@ public class Peergroup {
 			.addMsg("Couldn't wait for all threads to cleanly shut down! Oh what a mess... Bye!",
 					1);
 		}
+		
+		cleanup(0);
+		
+		try {
+			Constants.shutdownBarrier.await();
+		} catch (InterruptedException ie) {
 
-		quit(0);
+		} catch (BrokenBarrierException bbe) {
+			Constants.log.addMsg(bbe.toString(), 4);
+		}
 	}
 
 	private static void getCmdLineArgs(String[] cmds) {
@@ -537,6 +517,31 @@ public class Peergroup {
 		Constants.requestQueue.offer(new Request(Constants.START_THREADS));
 	}
 
+	public static void cleanup(int no) {
+		if (Constants.quitting)
+			return;
+
+		Constants.quitting = true;
+
+		if (Constants.igd != null) {
+			try {
+				boolean unmapped = Constants.igd.deletePortMapping(null,
+						Constants.p2pPort, "TCP");
+				if (unmapped) {
+					Constants.log
+					.addMsg("Released port mapping for Peergroup on port "
+							+ Constants.p2pPort);
+				}
+			} catch (IOException ioe) {
+				Constants.log.addMsg("Error unmapping port: " + ioe, 4);
+			} catch (UPNPResponseException respEx) {
+				Constants.log.addMsg("Error unmapping port: " + respEx, 4);
+			}
+		}
+
+		Constants.log.closeLog();
+	}
+	
 	public static void quit(int no) {
 		if (Constants.quitting)
 			return;

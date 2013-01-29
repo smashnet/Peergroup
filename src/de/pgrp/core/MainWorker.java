@@ -418,7 +418,7 @@ public class MainWorker extends Thread {
 		}
 
 		try {
-			Constants.myBarrier.await();
+			Constants.bootupBarrier.await();
 		} catch (InterruptedException ie) {
 
 		} catch (BrokenBarrierException bbe) {
