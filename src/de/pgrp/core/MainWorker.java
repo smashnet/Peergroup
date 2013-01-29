@@ -157,8 +157,7 @@ public class MainWorker extends Thread {
 		}
 		FileHandle newFile = this.myStorage.newFileFromLocal(request.getContent());
 		if (newFile != null)
-			this.myNetwork.sendMUCNewFile(newFile.getPath(), newFile.getSize(),
-					newFile.getByteHash(), newFile.getBlockIDwithHash());
+			this.myNetwork.sendMUCNewFile(newFile.getPath(), newFile.getSize(), newFile.getByteHash(), newFile.getBlockIDwithHash());
 	}
 
 	/**
@@ -355,15 +354,13 @@ public class MainWorker extends Thread {
 		String name = (String) in.getProperty("name");
 		int vers = ((Integer) in.getProperty("version")).intValue();
 		long size = ((Long) in.getProperty("size")).longValue();
-		LinkedList<String> blocks = (LinkedList<String>) in
-				.getProperty("blocks");
+		LinkedList<String> blocks = (LinkedList<String>) in.getProperty("blocks");
 		byte[] hash = (byte[]) in.getProperty("sha256");
 		int noOfChunks = ((Integer) in.getProperty("noOfChunks")).intValue();
 
 		P2Pdevice remoteNode = P2Pdevice.getDevice(jid, ip, port);
 
-		myStorage.modifiedFileFromXMPP(name, vers, size, blocks, hash,
-				noOfChunks, remoteNode);
+		myStorage.modifiedFileFromXMPP(name, vers, size, blocks, hash, noOfChunks, remoteNode);
 		Network.getInstance().sendMUCmessage(
 				"Updating >> " + name + " (" + size + "Bytes) <<");
 	}

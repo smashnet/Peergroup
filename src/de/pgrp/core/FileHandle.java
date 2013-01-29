@@ -267,8 +267,8 @@ public class FileHandle {
 	/**
 	 * General function to calculate the hash of a given byte array
 	 * 
-	 * @param in
-	 *            the byte array
+	 * @param in The byte array
+	 * @param bytes Amount of bytes form the beginning to consider
 	 * @return hash as byte array
 	 */
 	protected static byte[] calcHash(byte[] in, int bytes) {
@@ -291,8 +291,7 @@ public class FileHandle {
 	 * @return true if file has changed, else false
 	 */
 	public synchronized boolean localUpdate() throws Exception {
-		Constants.log.addMsg("FileHandle: Local update triggered for "
-				+ this.file.getName() + ". Scanning for changes!");
+		Constants.log.addMsg("FileHandle: Local update triggered for " + this.file.getName() + ". Scanning for changes!");
 		boolean changed = false;
 		FileInputStream stream = new FileInputStream(this.file);
 		int bytesRead = 0;
@@ -310,12 +309,11 @@ public class FileHandle {
 			if (id < this.chunks.size()) {
 				// new chunk hash != old chunk hash
 				if (!(Arrays.equals(calcHash(buffer, bytesRead), this.chunks.get(id).getHash()))) {
-					Constants.log
-					.addMsg("FileHandle: Chunk " + id	+ " changed! (Different Hashes) Updating chunklist...");
-					FileChunk updated = new FileChunk(this.getPath(), id,
-							this.chunks.get(id).getVersion() + 1, calcHash(
-									buffer, bytesRead), bytesRead, id
-									* chunkSize, true);
+					Constants.log.addMsg("FileHandle: Chunk " + id	+ " changed! (Different Hashes) Updating chunklist...");
+					FileChunk updated = 
+						new FileChunk(
+							this.getPath(), id, this.chunks.get(id).getVersion() + 1, calcHash(buffer, bytesRead), bytesRead, id * chunkSize, true
+								);
 					this.updatedBlocks.add(new Integer(id));
 					this.chunks.set(id, updated);
 					changed = true;
@@ -323,8 +321,7 @@ public class FileHandle {
 				// chunk is smaller than others and is not the last chunk ->
 				// file got smaller
 				if (bytesRead < chunkSize && id < (this.chunks.size() - 1)) {
-					Constants.log
-					.addMsg("FileHandle: Smaller chunk is not last chunk! Pruning following chunks...");
+					Constants.log.addMsg("FileHandle: Smaller chunk is not last chunk! Pruning following chunks...");
 					int i = this.chunks.size() - 1;
 					while (i > id) {
 						this.chunks.removeLast();
@@ -333,25 +330,21 @@ public class FileHandle {
 					changed = true;
 				}
 				// Last chunk got bigger
-				if (bytesRead > this.chunks.get(id).getSize()
-						&& id == this.chunks.size() - 1) {
-					Constants.log.addMsg("FileHandle: Chunk " + id
-							+ " changed! Updating chunklist...");
-					FileChunk updated = new FileChunk(this.getPath(), id,
-							this.chunks.get(id).getVersion() + 1, calcHash(
-									buffer, bytesRead), bytesRead, id
-									* chunkSize, true);
+				if (bytesRead > this.chunks.get(id).getSize() && id == this.chunks.size() - 1) {
+					Constants.log.addMsg("FileHandle: Chunk " + id + " changed! Updating chunklist...");
+					FileChunk updated = 
+						new FileChunk(
+							this.getPath(), id,this.chunks.get(id).getVersion() + 1, calcHash(buffer, bytesRead), bytesRead, id * chunkSize, true
+								);
 					this.chunks.set(id, updated);
 					this.updatedBlocks.add(new Integer(id));
 					changed = true;
 				}
 			} else {
 				// file is grown and needs more chunks
-				Constants.log
-				.addMsg("FileHandle: File needs more chunks than before! Adding new chunk: " + id);
-				FileChunk next = new FileChunk(this.getPath(), id,
-						this.fileVersion, calcHash(buffer, bytesRead),
-						bytesRead, id * chunkSize, true);
+				Constants.log.addMsg("FileHandle: File needs more chunks than before! Adding new chunk: " + id);
+				FileChunk next = 
+					new FileChunk(this.getPath(), id, this.fileVersion, calcHash(buffer, bytesRead), bytesRead, id * chunkSize, true);
 				this.chunks.add(next);
 				this.updatedBlocks.add(new Integer(id));
 				changed = true;
@@ -393,8 +386,7 @@ public class FileHandle {
 	 */
 	public synchronized void addP2PdeviceToBlock(int id, P2Pdevice node) {
 		if (id >= this.chunks.size()) {
-			Constants.log.addMsg("Cannot add node to not existing chunk! (ID: "
-					+ id + " Size: " + this.chunks.size() + ")", 4);
+			Constants.log.addMsg("Cannot add node to not existing chunk! (ID: " + id + " Size: " + this.chunks.size() + ")", 4);
 			return;
 		}
 		this.chunks.get(id).addPeer(node);
@@ -434,8 +426,7 @@ public class FileHandle {
 			parentDir.mkdirs();
 			this.file.createNewFile();
 		} catch (IOException ioe) {
-			Constants.log.addMsg(
-					"FileHandle: Cannot create dummy file: " + ioe, 4);
+			Constants.log.addMsg("FileHandle: Cannot create dummy file: " + ioe, 4);
 		}
 	}
 
@@ -448,22 +439,17 @@ public class FileHandle {
 	 */
 	public byte[] getChunkData(int id) {
 		if (this.chunks == null) {
-			Constants.log.addMsg(
-					"Cannot return chunkData -> no chunk list available", 1);
+			Constants.log.addMsg("Cannot return chunkData -> no chunk list available", 1);
 			return null;
 		}
 
 		if (id >= this.chunks.size()) {
-			Constants.log.addMsg(
-					"Cannot return chunkData -> ID exceeds list: ID: " + id
-					+ " List: " + this.chunks.size(), 1);
+			Constants.log.addMsg("Cannot return chunkData -> ID exceeds list: ID: " + id + " List: " + this.chunks.size(), 1);
 			return null;
 		}
 		FileChunk recent = this.chunks.get(id);
 		if (!recent.isComplete()) {
-			Constants.log.addMsg(
-					"Cannot return chunkData -> chunk not complete (chunk" + id
-					+ ")", 1);
+			Constants.log.addMsg("Cannot return chunkData -> chunk not complete (chunk" + id + ")", 1);
 			return null;
 		}
 
@@ -475,8 +461,7 @@ public class FileHandle {
 			bytesSkipped = stream.skip(recent.getOffset()); // Jump to correct
 			// part of the file
 			if (bytesSkipped != recent.getOffset())
-				Constants.log
-				.addMsg("FileHandle: Skipped more or less bytes than offset",
+				Constants.log.addMsg("FileHandle: Skipped more or less bytes than offset",
 						4);
 
 			bytesRead = stream.read(buffer);
@@ -511,8 +496,7 @@ public class FileHandle {
 		}
 		FileChunk recent;
 		if (id >= this.chunks.size()) {
-			recent = new FileChunk(this.getPath(), id, Constants.chunkSize,
-					this.fileVersion, hash, node, true);
+			recent = new FileChunk(this.getPath(), id, Constants.chunkSize, this.fileVersion, hash, node, true);
 			this.chunks.add(recent);
 		} else {
 			recent = this.chunks.get(id);
@@ -557,7 +541,8 @@ public class FileHandle {
 	}
 
 	/**
-	 * Returns the SHA256 value for the specified block
+	 * Returns the hash value for the specified block where the
+	 * hash algorithm is defined in Constants.java
 	 * 
 	 * @param no
 	 *            The no of the chunk
@@ -649,8 +634,7 @@ public class FileHandle {
 	public LinkedList<String> getBlockIDwithHash() {
 		LinkedList<String> tmp = new LinkedList<String>();
 		for (FileChunk f : this.chunks) {
-			String newBlock = f.getID() + ":" + f.getVersion() + ":"
-					+ f.getHexHash() + ":" + f.getSize();
+			String newBlock = f.getID() + ":" + f.getVersion() + ":" + f.getHexHash() + ":" + f.getSize();
 			tmp.add(newBlock);
 		}
 		return tmp;
@@ -669,15 +653,8 @@ public class FileHandle {
 	 */
 	public synchronized void updateBlocks(LinkedList<String> blocks, int vers, int noOfChunks, P2Pdevice node) {
 		
-		/*		
-		int currentNo = this.getNoOfChunks();
-		if (noOfChunks < currentNo) {
-			// Less blocks than before
-			while (currentNo > noOfChunks) {
-				this.chunks.removeLast();
-				currentNo--;
-			}
-		}*/
+		// Before invoking updateBlocks, we already set the new size of the file, so we can trim
+		// unneccessary FileChunks, and the file on the storage device
 		this.trimFile();
 		
 		if(blocks.size() == 0){
@@ -692,8 +669,7 @@ public class FileHandle {
 			String tmp[] = s.split(":");
 			int index = Integer.valueOf(tmp[0]);
 			if (index > this.chunks.size() - 1) {
-				FileChunk tmp1 = new FileChunk(this.getPath(), index,
-						Integer.valueOf(tmp[3]), vers - 1, tmp[2], node, false);
+				FileChunk tmp1 = new FileChunk(this.getPath(), index, Integer.valueOf(tmp[3]), vers - 1, tmp[2], node, false);
 				this.chunks.add(tmp1);
 			} else if (0 <= index && index < this.chunks.size()) {
 				FileChunk tmp1 = this.chunks.get(index);
@@ -744,12 +720,9 @@ public class FileHandle {
 				}
 			}
 		} catch (FileNotFoundException e) {
-			Constants.log.addMsg("No file to trim, this should not happen!! ("
-					+ e + ")", 1);
+			Constants.log.addMsg("No file to trim, this should not happen!! (" + e + ")", 1);
 		} catch (IOException ioe) {
-			Constants.log.addMsg(
-					"Error trimming file, this should not happen!! (" + ioe
-					+ ")", 1);
+			Constants.log.addMsg("Error trimming file, this should not happen!! (" + ioe + ")", 1);
 		}
 	}
 
@@ -897,8 +870,7 @@ public class FileHandle {
 		out += "Size: \t\t" + this.size + " Byte\n";
 		out += "Chunks: \t" + this.chunks.size() + " pieces\n";
 		for (int i = 0; i < this.chunks.size(); i++) {
-			out += "\t" + i + ": \t" + toHexHash(this.chunks.get(i).getHash())
-					+ ", " + this.chunks.get(i).getSize() + " Bytes\n";
+			out += "\t" + i + ": \t" + toHexHash(this.chunks.get(i).getHash()) + ", " + this.chunks.get(i).getSize() + " Bytes\n";
 		}
 		out += "SHA-256: \t" + this.getHexHash() + "\n";
 		out += "Complete: \t" + this.isComplete() + "\n";

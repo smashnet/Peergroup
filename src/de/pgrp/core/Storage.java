@@ -73,8 +73,7 @@ public class Storage {
 				return newFile;
 			}
 		} catch (Exception ioe) {
-			Constants.log
-			.addMsg("Local file does not exist anymore: " + ioe, 4);
+			Constants.log.addMsg("Local file does not exist anymore: " + ioe, 4);
 		}
 		return null;
 	}
@@ -99,8 +98,8 @@ public class Storage {
 	}
 
 	/**
-	 * Removes a file from the storage list and from local storage device If
-	 * directory, only remove from storage device
+	 * Removes an item from the storage list and from local storage device.
+	 * If directory, only remove from storage device
 	 * 
 	 * @param file
 	 *            the filename+path (e.g. subdir/file.txt)
@@ -174,8 +173,7 @@ public class Storage {
 					tmp = getFileList().get(i);
 					if (tmp.isUpdating()) {
 						Constants.log
-						.addMsg("Ignoring FS update event. File gets remote updates!",
-								4);
+						.addMsg("Ignoring FS update event. File gets remote updates!", 4);
 						return null;
 					}
 					if (tmp.localUpdate()) {
@@ -194,8 +192,7 @@ public class Storage {
 			}
 			i++;
 		}
-		Constants.log
-		.addMsg("Locally modified file not found in file-list.", 4);
+		Constants.log.addMsg("Locally modified file not found in file-list.", 4);
 
 		return null;
 	}
@@ -229,8 +226,7 @@ public class Storage {
 						node, false));
 			}
 
-			FileHandle newFile = new FileHandle(filename, fileHash, fileSize,
-					chunks, cSize);
+			FileHandle newFile = new FileHandle(filename, fileHash, fileSize, chunks, cSize);
 			newFile.setUpdating(true);
 			newFile.createEmptyLocalFile();
 			getFileList().add(newFile);
@@ -280,15 +276,6 @@ public class Storage {
 				h.updateBlocks(blocks, vers, noOfChunks, node);
 
 				this.fileListVersion++;
-
-				/*
-				 * for(String s : blocks){ String tmp[] = s.split(":"); int
-				 * blockID = (Integer.valueOf(tmp[0])).intValue(); String
-				 * blockHash = tmp[2]; Constants.downloadQueue.offer(new
-				 * DLRequest
-				 * (Constants.DOWNLOAD_BLOCK,vers,name,blockID,blockHash,node));
-				 * }
-				 */
 
 				return;
 			}

@@ -50,26 +50,19 @@ public class DelayQueueWorker extends Thread {
 				long timeA, timeB;
 				timeA = System.currentTimeMillis();
 				do {
-					StoreBlock blockInfo = Constants.storeQueue.poll(100,
-							TimeUnit.MILLISECONDS);
+					StoreBlock blockInfo = Constants.storeQueue.poll(100, TimeUnit.MILLISECONDS);
 					if (blockInfo == null) {
 						timeB = System.currentTimeMillis();
 						continue;
 					}
 					FileHandle tmp = blockInfo.getFileHandle();
-					tmp.setChunkData(blockInfo.getID(), blockInfo.getHexHash(),
-							blockInfo.getDevice(), blockInfo.getData());
+					tmp.setChunkData(blockInfo.getID(), blockInfo.getHexHash(), blockInfo.getDevice(), blockInfo.getData());
 					tmp.updateChunkVersion(blockInfo.getID());
 
-					Network.getInstance().sendMUCCompletedChunk(
-							blockInfo.getName(), blockInfo.getID(),
-							blockInfo.getVersion());
+					Network.getInstance().sendMUCCompletedChunk(blockInfo.getName(), blockInfo.getID(), blockInfo.getVersion());
 
 					if (tmp.isComplete()) {
-						Constants.log.addMsg(
-								"Completed download: " + blockInfo.getName()
-								+ " - Version "
-								+ blockInfo.getVersion(), 2);
+						Constants.log.addMsg("Completed download: " + blockInfo.getName() + " - Version " + blockInfo.getVersion(), 2);
 						tmp.trimFile();
 						tmp.setUpdating(false);
 					}
@@ -91,8 +84,7 @@ public class DelayQueueWorker extends Thread {
 				 */
 				for (FileEvent e : Constants.delayQueue) {
 					if (curTime - e.getTime() > 2000) {
-						Constants.requestQueue.offer(new FSRequest(e.getType(),
-								e.getName()));
+						Constants.requestQueue.offer(new FSRequest(e.getType(), e.getName()));
 						Constants.delayQueue.remove(e);
 					}
 				}
