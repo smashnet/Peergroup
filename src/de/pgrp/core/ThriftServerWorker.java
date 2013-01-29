@@ -23,7 +23,6 @@ package de.pgrp.core;
 
 import de.pgrp.thrift.*;
 
-import java.util.*;
 import org.apache.thrift.server.*;
 import org.apache.thrift.transport.*;
 
@@ -35,6 +34,7 @@ import org.apache.thrift.transport.*;
 public class ThriftServerWorker extends Thread {
 
 	private TServerSocket serverTransport;
+	@SuppressWarnings("rawtypes")
 	private DataTransfer.Processor processor;
 	private TServer server;
 
@@ -45,6 +45,8 @@ public class ThriftServerWorker extends Thread {
 	/**
 	 * The run() method
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
 	public void run() {
 		this.setName("Thrift-Server Thread");
 		try {
@@ -69,6 +71,7 @@ public class ThriftServerWorker extends Thread {
 	 * is a bit intractable here, so we'd better use the deprecated
 	 * Thread.stop() instead of this function.
 	 */
+	@SuppressWarnings("deprecation")
 	public void stopThriftWorker() {
 		this.server.stop();
 		this.stop();

@@ -21,12 +21,8 @@
 
 package de.pgrp.core;
 
-import de.pgrp.thrift.*;
-
 import java.util.*;
-import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smackx.muc.*;
 
 /**
  * This thread listens for new information on the XMPP side and enqueues actions
@@ -44,6 +40,7 @@ public class NetworkWorker extends Thread {
 	public NetworkWorker() {
 	}
 
+	@SuppressWarnings("deprecation")
 	public void stopNetworkWorker() {
 		this.myNetwork.sendMUCleave();
 		this.myNetwork.leaveMUC();
@@ -55,6 +52,7 @@ public class NetworkWorker extends Thread {
 	/**
 	 * The run() method
 	 */
+	@Override
 	public void run() {
 		this.setName("XMPP Thread");
 		Constants.log.addMsg("Networking thread started...");

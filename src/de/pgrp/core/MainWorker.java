@@ -21,9 +21,6 @@
 
 package de.pgrp.core;
 
-import de.pgrp.thrift.*;
-
-import java.io.*;
 import java.util.*;
 import java.util.concurrent.BrokenBarrierException;
 import org.jivesoftware.smack.packet.*;
@@ -50,6 +47,7 @@ public class MainWorker extends Thread {
 	/**
 	 * The run() method
 	 */
+	@Override
 	public void run() {
 		this.setName("Main Thread");
 		Constants.log.addMsg("Main thread started...");
@@ -100,11 +98,6 @@ public class MainWorker extends Thread {
 					Constants.log
 					.addMsg("MainWorker: Handling REMOTE_ITEM_DELETE");
 					handleRemoteItemDelete((XMPPRequest) nextRequest);
-					break;
-				case Constants.REMOTE_DIR_DELETE:
-					Constants.log
-					.addMsg("MainWorker: Handling REMOTE_DIR_DELETE");
-					handleRemoteDirDelete((XMPPRequest) nextRequest);
 					break;
 				case Constants.REMOTE_FILE_MODIFY:
 					Constants.log
@@ -259,6 +252,7 @@ public class MainWorker extends Thread {
 	 *            The request containing the XMPP Message object, including its
 	 *            properties
 	 */
+	@SuppressWarnings("unchecked")
 	private void handleRemoteFileCreate(XMPPRequest request) {
 		/*
 		 * Someone announced a new file via XMPP Available information:
@@ -272,8 +266,7 @@ public class MainWorker extends Thread {
 		int port = ((Integer) in.getProperty("Port")).intValue();
 		String name = (String) in.getProperty("name");
 		long size = ((Long) in.getProperty("size")).longValue();
-		LinkedList<String> blocks = (LinkedList<String>) in
-				.getProperty("blocks");
+		LinkedList<String> blocks = (LinkedList<String>) in.getProperty("blocks");
 		byte[] hash = (byte[]) in.getProperty("sha256");
 
 		P2Pdevice remoteNode = P2Pdevice.getDevice(jid, ip, port);
@@ -298,7 +291,7 @@ public class MainWorker extends Thread {
 
 		Message in = request.getContent();
 
-		String jid = (String) in.getProperty("JID");
+		//String jid = (String) in.getProperty("JID");
 		String dirname = (String) in.getProperty("name");
 
 		myStorage.newDirFromXMPP(dirname);
@@ -324,22 +317,13 @@ public class MainWorker extends Thread {
 	}
 
 	/**
-	 * Delete the directory (and including files) received via XMPP
-	 * 
-	 * @param request
-	 *            The name of the directory to be deleted
-	 */
-	private void handleRemoteDirDelete(XMPPRequest request) {
-		// TODO
-	}
-
-	/**
 	 * Process a remotely modified file
 	 * 
 	 * @param request
 	 *            The request containing the XMPP Message object, including its
 	 *            properties
 	 */
+	@SuppressWarnings("unchecked")
 	private void handleRemoteFileModify(XMPPRequest request) {
 		/*
 		 * Someone announced a fileupdate via XMPP Available information:
@@ -374,7 +358,7 @@ public class MainWorker extends Thread {
 		int port = ((Integer) in.getProperty("Port")).intValue();
 		String name = (String) in.getProperty("name");
 		int chunkID = ((Integer) in.getProperty("chunkID")).intValue();
-		int chunkVers = ((Integer) in.getProperty("chunkVers")).intValue();
+		//int chunkVers = ((Integer) in.getProperty("chunkVers")).intValue();
 
 		P2Pdevice remoteNode = P2Pdevice.getDevice(jid, ip, port);
 
@@ -406,9 +390,9 @@ public class MainWorker extends Thread {
 
 	private void handleRemoteJoinedChannel(XMPPRequest request) {
 		// Available: "JID"
-		Message in = request.getContent();
+		//Message in = request.getContent();
 
-		String jid = (String) in.getProperty("JID");
+		//String jid = (String) in.getProperty("JID");
 
 		Network.getInstance().sendMUCFileListVersion();
 	}

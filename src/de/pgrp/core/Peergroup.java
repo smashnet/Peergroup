@@ -21,8 +21,6 @@
 
 package de.pgrp.core;
 
-import de.pgrp.thrift.*;
-
 import java.io.*;
 import java.net.*;
 import java.util.Enumeration;
@@ -31,8 +29,6 @@ import java.util.Random;
 import java.util.concurrent.BrokenBarrierException;
 import sun.misc.Signal;
 import sun.misc.SignalHandler;
-import java.util.concurrent.CyclicBarrier;
-import net.sbbi.upnp.*;
 import net.sbbi.upnp.impls.InternetGatewayDevice;
 import net.sbbi.upnp.messages.UPNPResponseException;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -57,6 +53,7 @@ public class Peergroup {
 	public static void main(String[] args) {
 		// -- Handle SIGINT and SIGTERM
 		SignalHandler signalHandler = new SignalHandler() {
+			@Override
 			public void handle(Signal signal) {
 				Constants.log.addMsg("Caught signal: " + signal
 						+ ". Gracefully shutting down!", 1);
@@ -356,7 +353,7 @@ public class Peergroup {
 	private static String getTagValue(String sTag, Element eElement) {
 		NodeList nlList = eElement.getElementsByTagName(sTag).item(0)
 				.getChildNodes();
-		Node nValue = (Node) nlList.item(0);
+		Node nValue = nlList.item(0);
 
 		if (nValue == null || nValue.getNodeValue() == null)
 			return null;

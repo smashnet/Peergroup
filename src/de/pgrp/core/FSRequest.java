@@ -49,10 +49,12 @@ public class FSRequest extends Request {
 		this.content = newContent;
 	}
 
+	@Override
 	public void setID(int newID) {
 		super.type = newID;
 	}
 
+	@Override
 	public void setLamport(long newLamp) {
 		super.lamportTime = newLamp;
 	}
@@ -61,10 +63,12 @@ public class FSRequest extends Request {
 		this.content = newContent;
 	}
 
+	@Override
 	public int getID() {
 		return super.type;
 	}
 
+	@Override
 	public long getLamportTime() {
 		return super.lamportTime;
 	}

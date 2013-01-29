@@ -51,10 +51,12 @@ public class XMPPRequest extends Request {
 		this.content = newMessage;
 	}
 
+	@Override
 	public void setID(int newID) {
 		this.type = newID;
 	}
 
+	@Override
 	public void setLamport(long newLamp) {
 		this.lamportTime = newLamp;
 	}
@@ -63,10 +65,12 @@ public class XMPPRequest extends Request {
 		this.content = newContent;
 	}
 
+	@Override
 	public int getID() {
 		return this.type;
 	}
 
+	@Override
 	public long getLamportTime() {
 		return this.lamportTime;
 	}

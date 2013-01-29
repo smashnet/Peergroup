@@ -456,7 +456,7 @@ public class FileHandle {
 		try {
 			FileInputStream stream = new FileInputStream(this.file);
 			long bytesSkipped, bytesRead;
-			byte[] buffer = new byte[(int) recent.getSize()];
+			byte[] buffer = new byte[recent.getSize()];
 
 			bytesSkipped = stream.skip(recent.getOffset()); // Jump to correct
 			// part of the file
@@ -709,8 +709,8 @@ public class FileHandle {
 			thisFile.setLength(this.size);
 			thisFile.close();
 
-			double fileSize = (double) this.size;
-			double cSize = (double) this.chunkSize;
+			double fileSize = this.size;
+			double cSize = this.chunkSize;
 			int blocks = (int) Math.ceil(fileSize / cSize);
 
 			int diff = this.chunks.size() - blocks;
@@ -869,9 +869,9 @@ public class FileHandle {
 		out += "Filename: \t" + this.getPath() + "\n";
 		out += "Size: \t\t" + this.size + " Byte\n";
 		out += "Chunks: \t" + this.chunks.size() + " pieces\n";
-		for (int i = 0; i < this.chunks.size(); i++) {
+		/*for (int i = 0; i < this.chunks.size(); i++) {
 			out += "\t" + i + ": \t" + toHexHash(this.chunks.get(i).getHash()) + ", " + this.chunks.get(i).getSize() + " Bytes\n";
-		}
+		}*/
 		out += "SHA-256: \t" + this.getHexHash() + "\n";
 		out += "Complete: \t" + this.isComplete() + "\n";
 		out += "------------ End toString -------------";

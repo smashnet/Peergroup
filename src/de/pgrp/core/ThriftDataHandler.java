@@ -25,7 +25,6 @@ import de.pgrp.thrift.*;
 
 import java.util.*;
 import java.nio.ByteBuffer;
-import org.apache.thrift.*;
 import javax.crypto.*;
 import javax.crypto.spec.*;
 import java.security.spec.*;
@@ -39,6 +38,7 @@ import java.security.AlgorithmParameters;
  */
 public class ThriftDataHandler implements DataTransfer.Iface {
 
+	@Override
 	public ThriftStorage getStorage() throws org.apache.thrift.TException {
 		return toThriftStorage(Storage.getInstance());
 	}
@@ -47,6 +47,7 @@ public class ThriftDataHandler implements DataTransfer.Iface {
 	 * Reads the requested data block from storage and returns it as a byte
 	 * array.
 	 */
+	@Override
 	public ByteBuffer getDataBlock(String filename, int blockID, String hash)
 			throws org.apache.thrift.TException {
 		FileHandle tmp;

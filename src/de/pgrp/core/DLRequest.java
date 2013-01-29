@@ -60,18 +60,22 @@ public class DLRequest extends Request {
 		this.node = newNode;
 	}
 
+	@Override
 	public void setID(int newID) {
 		super.type = newID;
 	}
 
+	@Override
 	public void setLamport(long newLamp) {
 		super.lamportTime = newLamp;
 	}
 
+	@Override
 	public int getID() {
 		return super.type;
 	}
 
+	@Override
 	public long getLamportTime() {
 		return super.lamportTime;
 	}

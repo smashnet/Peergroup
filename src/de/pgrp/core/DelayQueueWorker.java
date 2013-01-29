@@ -41,6 +41,7 @@ public class DelayQueueWorker extends Thread {
 	/**
 	 * The run() method
 	 */
+	@Override
 	public void run() {
 		this.setName("ModifyQueue Thread");
 		Constants.log.addMsg("ModifyQueue thread started...");
@@ -65,6 +66,8 @@ public class DelayQueueWorker extends Thread {
 						Constants.log.addMsg("Completed download: " + blockInfo.getName() + " - Version " + blockInfo.getVersion(), 2);
 						tmp.trimFile();
 						tmp.setUpdating(false);
+						//Debug:
+						Constants.log.addMsg(tmp.toString());
 					}
 
 					timeB = System.currentTimeMillis();

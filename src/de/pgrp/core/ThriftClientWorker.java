@@ -21,13 +21,7 @@
 
 package de.pgrp.core;
 
-import de.pgrp.thrift.*;
-
-import java.util.*;
 import java.util.concurrent.*;
-import org.apache.thrift.TException;
-import org.apache.thrift.protocol.*;
-import org.apache.thrift.transport.*;
 
 /**
  * This thread requests blocks or FileList information from other peers.
@@ -58,6 +52,7 @@ public class ThriftClientWorker extends Thread {
 	/**
 	 * The run() method
 	 */
+	@Override
 	public void run() {
 		this.setName("ThriftClientThreadPool");
 

@@ -21,13 +21,6 @@
 
 package de.pgrp.core;
 
-import de.pgrp.thrift.*;
-
-import java.util.*;
-import java.nio.ByteBuffer;
-import org.apache.thrift.TException;
-import org.apache.thrift.protocol.*;
-import org.apache.thrift.transport.*;
 import javax.crypto.*;
 import javax.crypto.spec.*;
 import java.security.spec.*;
@@ -48,6 +41,7 @@ public class ThriftClientGetData implements Runnable {
 	/**
 	 * The run() method
 	 */
+	@Override
 	public void run() {
 		FileHandle tmp;
 		if ((tmp = Storage.getInstance().getFileHandle(chunk.getName())) == null) {

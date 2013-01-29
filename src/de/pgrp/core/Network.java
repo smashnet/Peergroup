@@ -21,8 +21,6 @@
 
 package de.pgrp.core;
 
-import de.pgrp.thrift.*;
-
 import java.util.LinkedList;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.*;
@@ -118,7 +116,7 @@ public class Network {
 	 * @return The Connection object managing the connection to the XMPP Server
 	 */
 	public Connection getConnection() {
-		return this.getInstance().xmppCon;
+		return Network.getInstance().xmppCon;
 	}
 
 	/**
@@ -228,7 +226,7 @@ public class Network {
 	public void xmppDisconnect() {
 		if (!this.xmppCon.isConnected())
 			return;
-		this.getInstance().xmppCon.disconnect();
+		Network.getInstance().xmppCon.disconnect();
 		Constants.log.addMsg("Disconnected from XMPP Server: "
 				+ Constants.server, 4);
 	}

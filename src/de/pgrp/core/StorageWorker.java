@@ -66,6 +66,8 @@ public class StorageWorker extends Thread {
 	 * changes. Any kind of changes (create/delete/modify) are packed into a
 	 * request and are enqueued to be processed by the main thread.
 	 */
+	@SuppressWarnings("rawtypes")
+	@Override
 	public void run() {
 		this.setName("Storage Thread");
 		Constants.log.addMsg("Storage thread started...");
