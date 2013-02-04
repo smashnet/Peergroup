@@ -49,10 +49,12 @@ public class Peergroup {
 	 *            the command line arguments
 	 */
 	public static void main(String[] args) {
+		// Register Shutdown hook to gracefully close threads on ctrl-c
+		Runtime.getRuntime().addShutdownHook(new Shutdown());
 		// -- Here we go
 		String os = System.getProperty("os.name");
 		String java_version = System.getProperty("java.version");
-		Runtime.getRuntime().addShutdownHook(new Shutdown());
+		
 
 		Constants.log.addMsg(
 				"Starting " + Constants.PROGNAME + " " + Constants.VERSION
@@ -66,9 +68,6 @@ public class Peergroup {
 		doInitialDirectoryScan();
 		joinXMPP();
 		enqueueThreadStart();
-
-		if (os.equals("Linux") || os.equals("Windows 7"))
-			Constants.enableModQueue = true;
 
 		// -- Create main thread
 		Constants.main = new MainWorker();
@@ -100,9 +99,7 @@ public class Peergroup {
 			}
 
 		} catch (InterruptedException ie) {
-			Constants.log
-			.addMsg("Couldn't wait for all threads to cleanly shut down! Oh what a mess... Bye!",
-					1);
+			Constants.log.addMsg("Couldn't wait for all threads to cleanly shut down! Oh what a mess... Bye!", 1);
 		}
 		
 		cleanup(0);
@@ -141,8 +138,7 @@ public class Peergroup {
 	private static void getConfig() {
 		try {
 			File xmlConfig = new File(Constants.config);
-			DocumentBuilderFactory dbFactory = DocumentBuilderFactory
-					.newInstance();
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 			Document doc = dBuilder.parse(xmlConfig);
 			doc.getDocumentElement().normalize();
@@ -162,9 +158,7 @@ public class Peergroup {
 					if (val != null) {
 						Constants.server = val;
 					} else {
-						Constants.log
-						.addMsg("Required value missing in config: xmpp-account -> server",
-								1);
+						Constants.log.addMsg("Required value missing in config: xmpp-account -> server", 1);
 						quit(9);
 					}
 
@@ -172,9 +166,7 @@ public class Peergroup {
 					if (val != null) {
 						Constants.user = val;
 					} else {
-						Constants.log
-						.addMsg("Required value missing in config: xmpp-account -> user",
-								1);
+						Constants.log.addMsg("Required value missing in config: xmpp-account -> user", 1);
 						quit(9);
 					}
 
@@ -182,9 +174,7 @@ public class Peergroup {
 					if (val != null) {
 						Constants.pass = val;
 					} else {
-						Constants.log
-						.addMsg("Required value missing in config: xmpp-account -> pass",
-								1);
+						Constants.log.addMsg("Required value missing in config: xmpp-account -> pass", 1);
 						quit(9);
 					}
 
@@ -203,9 +193,7 @@ public class Peergroup {
 								&& Integer.parseInt(val) < 65536) {
 							Constants.port = Integer.parseInt(val);
 						} else {
-							Constants.log
-							.addMsg("XMPP Port not in valid range: xmpp-account -> port (should be 1025-65535)",
-									1);
+							Constants.log.addMsg("XMPP Port not in valid range: xmpp-account -> port (should be 1025-65535)", 1);
 							quit(9);
 						}
 					}
@@ -228,9 +216,7 @@ public class Peergroup {
 					if (val != null) {
 						Constants.conference_server = val;
 					} else {
-						Constants.log
-						.addMsg("Required value missing in config: conference -> server",
-								1);
+						Constants.log.addMsg("Required value missing in config: conference -> server", 1);
 						quit(9);
 					}
 
@@ -238,9 +224,7 @@ public class Peergroup {
 					if (val != null) {
 						Constants.conference_channel = val;
 					} else {
-						Constants.log
-						.addMsg("Required value missing in config: conference -> channel",
-								1);
+						Constants.log.addMsg("Required value missing in config: conference -> channel", 1);
 						quit(9);
 					}
 
@@ -270,18 +254,14 @@ public class Peergroup {
 					if (val != null) {
 						String parts[] = val.split(".");
 						if (parts.length != 4) {
-							Constants.log
-							.addMsg("Not a valid IP address in config: "
-									+ val);
+							Constants.log.addMsg("Not a valid IP address in config: " + val);
 							quit(8);
 						}
 						int test;
 						for (String part : parts) {
 							test = Integer.parseInt(part);
 							if (test < 0 || test > 255) {
-								Constants.log
-								.addMsg("Not a valid IP address in config: "
-										+ val);
+								Constants.log.addMsg("Not a valid IP address in config: " + val);
 								quit(8);
 							}
 						}
@@ -295,9 +275,7 @@ public class Peergroup {
 								&& Integer.parseInt(val) < 65536) {
 							Constants.p2pPort = Integer.parseInt(val);
 						} else {
-							Constants.log
-							.addMsg("P2P Port not in valid range: xmpp-account -> port (should be 1025-65535)",
-									1);
+							Constants.log.addMsg("P2P Port not in valid range: xmpp-account -> port (should be 1025-65535)", 1);
 							quit(9);
 						}
 					}
@@ -308,20 +286,15 @@ public class Peergroup {
 		} catch (FileNotFoundException fnf) {
 			Constants.log.addMsg(
 					"Could not find config file! Creating sample file...", 1);
-			Constants.log
-			.addMsg("Please edit config.smp to your needs and rename it to config.xml",
-					4);
+			Constants.log.addMsg("Please edit config.smp to your needs and rename it to config.xml", 4);
 			createSampleConfig();
 			quit(10);
 		} catch (NumberFormatException nfe) {
-			Constants.log.addMsg("Value is not a number: " + nfe.getMessage()
-					+ " - Correct your config file!", 1);
+			Constants.log.addMsg("Value is not a number: " + nfe.getMessage() + " - Correct your config file!", 1);
 			quit(11);
 		} catch (NullPointerException npe) {
 			Constants.log.addMsg("Value missing in config: " + npe, 1);
-			Constants.log
-			.addMsg("Please edit config.smp to your needs and rename it to config.xml",
-					4);
+			Constants.log.addMsg("Please edit config.smp to your needs and rename it to config.xml", 4);
 			createSampleConfig();
 			quit(12);
 		} catch (Exception ioe) {
@@ -331,8 +304,7 @@ public class Peergroup {
 	}
 
 	private static String getTagValue(String sTag, Element eElement) {
-		NodeList nlList = eElement.getElementsByTagName(sTag).item(0)
-				.getChildNodes();
+		NodeList nlList = eElement.getElementsByTagName(sTag).item(0).getChildNodes();
 		Node nValue = nlList.item(0);
 
 		if (nValue == null || nValue.getNodeValue() == null)
@@ -393,16 +365,14 @@ public class Peergroup {
 		// Get local IP
 		try {
 			InetAddress local = null;
-			Enumeration<NetworkInterface> ifaces = NetworkInterface
-					.getNetworkInterfaces();
+			Enumeration<NetworkInterface> ifaces = NetworkInterface.getNetworkInterfaces();
 			while (ifaces.hasMoreElements() && local == null) {
 				NetworkInterface iface = ifaces.nextElement();
 				Enumeration<InetAddress> addresses = iface.getInetAddresses();
 
 				while (addresses.hasMoreElements() && local == null) {
 					InetAddress addr = addresses.nextElement();
-					if (addr instanceof Inet4Address
-							&& !addr.isLoopbackAddress()) {
+					if (addr instanceof Inet4Address && !addr.isLoopbackAddress()) {
 						local = addr;
 					}
 				}
@@ -420,20 +390,17 @@ public class Peergroup {
 
 		// Get external IP
 		if (!Constants.ipAddress.equals("")) {
-			Constants.log
-			.addMsg("External IP was manually set, skipping the guessing.");
+			Constants.log.addMsg("External IP was manually set, skipping the guessing.");
 			return;
 		}
 		try {
 			URL whatismyip = new URL("http://files.smashnet.de/getIP.php");
-			BufferedReader in = new BufferedReader(new InputStreamReader(
-					whatismyip.openStream()));
+			BufferedReader in = new BufferedReader(new InputStreamReader(whatismyip.openStream()));
 
 			Constants.ipAddress = in.readLine();
 			Constants.log.addMsg("Found external IP: " + Constants.ipAddress);
 		} catch (Exception e) {
-			Constants.log.addMsg("Couldn't get external IP! " + e
-					+ " Try setting it manually!", 1);
+			Constants.log.addMsg("Couldn't get external IP! " + e + " Try setting it manually!", 1);
 			quit(1);
 		}
 	}

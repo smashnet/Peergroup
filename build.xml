@@ -55,7 +55,7 @@ Copyright (c) 2013 Nicolas Inden
 	<!-- default target, will export the client and the java doc -->
 	<target name="all" depends="jar, clean"/>
 	
-	<!-- JUnit-Test  target -->
+	<!-- JUnit-Test  target 
 	<target name="test" depends="compile-tests">
 	  <junit fork="yes" haltonfailure="yes" printsummary="true">
 	    <classpath refid="test.classpath" />
@@ -64,7 +64,6 @@ Copyright (c) 2013 Nicolas Inden
 				<formatter type="plain" usefile="false"/>
         </batchtest>
 	  </junit>
-	  <!--<delete dir="${tmp}" />-->
 	</target>
 	
 	<target name="compile-tests" depends="compile">
@@ -74,7 +73,7 @@ Copyright (c) 2013 Nicolas Inden
 			includeantruntime="false">
 			<classpath refid="test.classpath"/>
 		</javac>
-	</target>
+	</target> -->
 	
 	<!-- wipeout target, will delete all unnecessary data as tmp dirs reports and javadoc so we only commit pure source-code into GIT -->
 	<target name="wipeout">

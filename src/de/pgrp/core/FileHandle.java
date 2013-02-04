@@ -89,7 +89,7 @@ public class FileHandle {
 	 *            directory
 	 */
 	public FileHandle(String filename) throws Exception {
-		this.file = new File(filename);
+		this.file = new File(Constants.rootDirectory + filename);
 		this.updating = true;
 		this.fileVersion = 1;
 		this.size = this.file.length();
