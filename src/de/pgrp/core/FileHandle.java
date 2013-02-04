@@ -356,7 +356,8 @@ public class FileHandle {
 		// the chunk size
 		if(id < this.chunks.size()){
 			int i = this.chunks.size() - 1;
-			while (i > id) {
+			while (i >= id) {
+				System.out.println("Removed chunk " + i);
 				this.chunks.removeLast();
 				i--;
 			}
@@ -869,9 +870,9 @@ public class FileHandle {
 		out += "Filename: \t" + this.getPath() + "\n";
 		out += "Size: \t\t" + this.size + " Byte\n";
 		out += "Chunks: \t" + this.chunks.size() + " pieces\n";
-		/*for (int i = 0; i < this.chunks.size(); i++) {
+		for (int i = 0; i < this.chunks.size(); i++) {
 			out += "\t" + i + ": \t" + toHexHash(this.chunks.get(i).getHash()) + ", " + this.chunks.get(i).getSize() + " Bytes\n";
-		}*/
+		}
 		out += "SHA-256: \t" + this.getHexHash() + "\n";
 		out += "Complete: \t" + this.isComplete() + "\n";
 		out += "------------ End toString -------------";

@@ -172,8 +172,7 @@ public class Storage {
 				try {
 					tmp = getFileList().get(i);
 					if (tmp.isUpdating()) {
-						Constants.log
-						.addMsg("Ignoring FS update event. File gets remote updates!", 4);
+						Constants.log.addMsg("Ignoring FS update event. File gets remote updates!", 4);
 						return null;
 					}
 					if (tmp.localUpdate()) {
@@ -274,6 +273,8 @@ public class Storage {
 				h.setSize(size);
 				h.setByteHash(hash);
 				h.updateBlocks(blocks, vers, noOfChunks, node);
+				
+				System.out.println(h.toString());
 
 				this.fileListVersion++;
 
