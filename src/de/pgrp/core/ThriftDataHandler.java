@@ -25,6 +25,9 @@ import de.pgrp.thrift.*;
 
 import java.util.*;
 import java.nio.ByteBuffer;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import javax.crypto.*;
 import javax.crypto.spec.*;
 import java.security.spec.*;
@@ -38,6 +41,32 @@ import java.security.AlgorithmParameters;
  */
 public class ThriftDataHandler implements DataTransfer.Iface {
 
+	/*
+	* Gets a hash of "channelpasswd" + "first half of local ip"
+	*/
+	@Override
+	public String getLocalIP(String otherHash)	throws org.apache.thrift.TException {
+		String res = null;
+		String localIP[] = Constants.localIP.split("\\.");
+		String toBeHashed = Constants.conference_pass + localIP[0] + localIP[1];
+		
+		try{
+			MessageDigest hash = MessageDigest.getInstance(Constants.hashAlgo);
+			hash.update(toBeHashed.getBytes("UTF-8"));
+			
+			//Should be enough security check if peer is authorized to request local IP
+			if(otherHash.equals(hash.toString())){
+				res = Constants.localIP;
+			}
+		} catch (NoSuchAlgorithmException na) {
+			Constants.log.addMsg("Hash error: " + na, 1);
+		} catch (UnsupportedEncodingException uee) {
+			Constants.log.addMsg("Encoding error: " + uee, 1);
+		}
+		
+		return res;
+	}
+	
 	@Override
 	public ThriftStorage getStorage() throws org.apache.thrift.TException {
 		return toThriftStorage(Storage.getInstance());

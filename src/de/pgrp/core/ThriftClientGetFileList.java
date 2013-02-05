@@ -56,7 +56,7 @@ public class ThriftClientGetFileList extends Thread {
 				LinkedList<P2Pdevice> devices = new LinkedList<P2Pdevice>();
 
 				for (ThriftP2PDevice dev : fc.getDevices()) {
-					P2Pdevice newDev = new P2Pdevice(dev.getJid(), dev.getIp(),
+					P2Pdevice newDev = P2Pdevice.getDevice(dev.getJid(), dev.getIp(),
 							dev.getPort());
 					devices.add(newDev);
 				}

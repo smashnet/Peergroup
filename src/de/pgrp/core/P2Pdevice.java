@@ -24,6 +24,9 @@ package de.pgrp.core;
 import de.pgrp.thrift.*;
 
 import java.nio.ByteBuffer;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.*;
 import org.apache.thrift.transport.*;
@@ -36,23 +39,26 @@ import org.apache.thrift.transport.*;
 public class P2Pdevice {
 
 	private String ip;
+	private String localIP;
 	private int port;
 	private String jid;
 	private TTransport transport;
 	private DataTransfer.Client client;
+	private boolean usingLocalIP;
 
 	public P2Pdevice() {
 
 	}
 
 	/**
-	 * Use this constructor to add a new P2Pdevice
+	 * Use this constructor to add a P2Pdevice.getDevice
 	 */
 	public P2Pdevice(String newJID, String newIP, int newPort) {
 		this.jid = newJID;
 		this.ip = newIP;
 		this.port = newPort;
 		this.transport = new TSocket(newIP, newPort);
+		this.usingLocalIP = false;
 	}
 
 	private void openTransport() {
@@ -116,7 +122,38 @@ public class P2Pdevice {
 		}
 		P2Pdevice newPeer = new P2Pdevice(newJID, newIP, newPort);
 		Constants.p2pDevices.add(newPeer);
+		newPeer.checkLocal();
 		return newPeer;
+	}
+	
+	private void checkLocal(){
+		//TODO: If peer has same external IP, get local IP for direct access
+		if(this.ip.equals(Constants.ipAddress)){
+			openTransport();
+			try {
+				String localIP[] = Constants.localIP.split("\\.");
+				String toBeHashed = Constants.conference_pass + localIP[0] + localIP[1];
+				MessageDigest hash = MessageDigest.getInstance(Constants.hashAlgo);
+				hash.update(toBeHashed.getBytes("UTF-8"));
+			
+				String peerLocalIP = client.getLocalIP(hash.toString());
+				
+				this.closeTransport();
+				
+				if(peerLocalIP != null){
+					Constants.log.addMsg("Using local IP for " + this.jid + ": " + peerLocalIP,2);
+					this.localIP = peerLocalIP;
+					this.transport = new TSocket(this.localIP, this.port);
+					this.usingLocalIP = true;
+				}
+			} catch (TException te) {
+				Constants.log.addMsg("Thrift error: " + te, 1);
+			} catch (NoSuchAlgorithmException na) {
+				Constants.log.addMsg("Hash error: " + na, 1);
+			} catch (UnsupportedEncodingException uee) {
+				Constants.log.addMsg("Encoding error: " + uee, 1);
+			}
+		}
 	}
 
 	public boolean equals(P2Pdevice node) {
@@ -146,6 +183,9 @@ public class P2Pdevice {
 	}
 
 	public String getIP() {
+		if(this.usingLocalIP)
+			return this.localIP;
+		
 		return this.ip;
 	}
 

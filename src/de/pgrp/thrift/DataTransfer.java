@@ -12,20 +12,29 @@ import org.apache.thrift.scheme.StandardScheme;
 
 import org.apache.thrift.scheme.TupleScheme;
 import org.apache.thrift.protocol.TTupleProtocol;
+import org.apache.thrift.protocol.TProtocolException;
 import org.apache.thrift.EncodingUtils;
+import org.apache.thrift.TException;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.EnumMap;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.EnumSet;
 import java.util.Collections;
 import java.util.BitSet;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DataTransfer {
 
   public interface Iface {
+
+    public String getLocalIP(String hash) throws org.apache.thrift.TException;
 
     public ThriftStorage getStorage() throws org.apache.thrift.TException;
 
@@ -34,6 +43,8 @@ public class DataTransfer {
   }
 
   public interface AsyncIface {
+
+    public void getLocalIP(String hash, org.apache.thrift.async.AsyncMethodCallback<AsyncClient.getLocalIP_call> resultHandler) throws org.apache.thrift.TException;
 
     public void getStorage(org.apache.thrift.async.AsyncMethodCallback<AsyncClient.getStorage_call> resultHandler) throws org.apache.thrift.TException;
 
@@ -44,12 +55,10 @@ public class DataTransfer {
   public static class Client extends org.apache.thrift.TServiceClient implements Iface {
     public static class Factory implements org.apache.thrift.TServiceClientFactory<Client> {
       public Factory() {}
-      @Override
-	public Client getClient(org.apache.thrift.protocol.TProtocol prot) {
+      public Client getClient(org.apache.thrift.protocol.TProtocol prot) {
         return new Client(prot);
       }
-      @Override
-	public Client getClient(org.apache.thrift.protocol.TProtocol iprot, org.apache.thrift.protocol.TProtocol oprot) {
+      public Client getClient(org.apache.thrift.protocol.TProtocol iprot, org.apache.thrift.protocol.TProtocol oprot) {
         return new Client(iprot, oprot);
       }
     }
@@ -63,8 +72,30 @@ public class DataTransfer {
       super(iprot, oprot);
     }
 
-    @Override
-	public ThriftStorage getStorage() throws org.apache.thrift.TException
+    public String getLocalIP(String hash) throws org.apache.thrift.TException
+    {
+      send_getLocalIP(hash);
+      return recv_getLocalIP();
+    }
+
+    public void send_getLocalIP(String hash) throws org.apache.thrift.TException
+    {
+      getLocalIP_args args = new getLocalIP_args();
+      args.setHash(hash);
+      sendBase("getLocalIP", args);
+    }
+
+    public String recv_getLocalIP() throws org.apache.thrift.TException
+    {
+      getLocalIP_result result = new getLocalIP_result();
+      receiveBase(result, "getLocalIP");
+      if (result.isSetSuccess()) {
+        return result.success;
+      }
+      throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "getLocalIP failed: unknown result");
+    }
+
+    public ThriftStorage getStorage() throws org.apache.thrift.TException
     {
       send_getStorage();
       return recv_getStorage();
@@ -86,8 +117,7 @@ public class DataTransfer {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "getStorage failed: unknown result");
     }
 
-    @Override
-	public ByteBuffer getDataBlock(String filename, int blockID, String hash) throws org.apache.thrift.TException
+    public ByteBuffer getDataBlock(String filename, int blockID, String hash) throws org.apache.thrift.TException
     {
       send_getDataBlock(filename, blockID, hash);
       return recv_getDataBlock();
@@ -121,8 +151,7 @@ public class DataTransfer {
         this.clientManager = clientManager;
         this.protocolFactory = protocolFactory;
       }
-      @Override
-	public AsyncClient getAsyncClient(org.apache.thrift.transport.TNonblockingTransport transport) {
+      public AsyncClient getAsyncClient(org.apache.thrift.transport.TNonblockingTransport transport) {
         return new AsyncClient(protocolFactory, clientManager, transport);
       }
     }
@@ -131,8 +160,39 @@ public class DataTransfer {
       super(protocolFactory, clientManager, transport);
     }
 
-    @Override
-	public void getStorage(org.apache.thrift.async.AsyncMethodCallback<getStorage_call> resultHandler) throws org.apache.thrift.TException {
+    public void getLocalIP(String hash, org.apache.thrift.async.AsyncMethodCallback<getLocalIP_call> resultHandler) throws org.apache.thrift.TException {
+      checkReady();
+      getLocalIP_call method_call = new getLocalIP_call(hash, resultHandler, this, ___protocolFactory, ___transport);
+      this.___currentMethod = method_call;
+      ___manager.call(method_call);
+    }
+
+    public static class getLocalIP_call extends org.apache.thrift.async.TAsyncMethodCall {
+      private String hash;
+      public getLocalIP_call(String hash, org.apache.thrift.async.AsyncMethodCallback<getLocalIP_call> resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+        super(client, protocolFactory, transport, resultHandler, false);
+        this.hash = hash;
+      }
+
+      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+        prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("getLocalIP", org.apache.thrift.protocol.TMessageType.CALL, 0));
+        getLocalIP_args args = new getLocalIP_args();
+        args.setHash(hash);
+        args.write(prot);
+        prot.writeMessageEnd();
+      }
+
+      public String getResult() throws org.apache.thrift.TException {
+        if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
+          throw new IllegalStateException("Method call not finished!");
+        }
+        org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
+        org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
+        return (new Client(prot)).recv_getLocalIP();
+      }
+    }
+
+    public void getStorage(org.apache.thrift.async.AsyncMethodCallback<getStorage_call> resultHandler) throws org.apache.thrift.TException {
       checkReady();
       getStorage_call method_call = new getStorage_call(resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
@@ -144,8 +204,7 @@ public class DataTransfer {
         super(client, protocolFactory, transport, resultHandler, false);
       }
 
-      @Override
-	public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("getStorage", org.apache.thrift.protocol.TMessageType.CALL, 0));
         getStorage_args args = new getStorage_args();
         args.write(prot);
@@ -162,8 +221,7 @@ public class DataTransfer {
       }
     }
 
-    @Override
-	public void getDataBlock(String filename, int blockID, String hash, org.apache.thrift.async.AsyncMethodCallback<getDataBlock_call> resultHandler) throws org.apache.thrift.TException {
+    public void getDataBlock(String filename, int blockID, String hash, org.apache.thrift.async.AsyncMethodCallback<getDataBlock_call> resultHandler) throws org.apache.thrift.TException {
       checkReady();
       getDataBlock_call method_call = new getDataBlock_call(filename, blockID, hash, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
@@ -181,8 +239,7 @@ public class DataTransfer {
         this.hash = hash;
       }
 
-      @Override
-	public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("getDataBlock", org.apache.thrift.protocol.TMessageType.CALL, 0));
         getDataBlock_args args = new getDataBlock_args();
         args.setFilename(filename);
@@ -215,9 +272,30 @@ public class DataTransfer {
     }
 
     private static <I extends Iface> Map<String,  org.apache.thrift.ProcessFunction<I, ? extends  org.apache.thrift.TBase>> getProcessMap(Map<String,  org.apache.thrift.ProcessFunction<I, ? extends  org.apache.thrift.TBase>> processMap) {
+      processMap.put("getLocalIP", new getLocalIP());
       processMap.put("getStorage", new getStorage());
       processMap.put("getDataBlock", new getDataBlock());
       return processMap;
+    }
+
+    public static class getLocalIP<I extends Iface> extends org.apache.thrift.ProcessFunction<I, getLocalIP_args> {
+      public getLocalIP() {
+        super("getLocalIP");
+      }
+
+      public getLocalIP_args getEmptyArgsInstance() {
+        return new getLocalIP_args();
+      }
+
+      protected boolean isOneway() {
+        return false;
+      }
+
+      public getLocalIP_result getResult(I iface, getLocalIP_args args) throws org.apache.thrift.TException {
+        getLocalIP_result result = new getLocalIP_result();
+        result.success = iface.getLocalIP(args.hash);
+        return result;
+      }
     }
 
     public static class getStorage<I extends Iface> extends org.apache.thrift.ProcessFunction<I, getStorage_args> {
@@ -225,18 +303,15 @@ public class DataTransfer {
         super("getStorage");
       }
 
-      @Override
-	public getStorage_args getEmptyArgsInstance() {
+      public getStorage_args getEmptyArgsInstance() {
         return new getStorage_args();
       }
 
-      @Override
-	protected boolean isOneway() {
+      protected boolean isOneway() {
         return false;
       }
 
-      @Override
-	public getStorage_result getResult(I iface, getStorage_args args) throws org.apache.thrift.TException {
+      public getStorage_result getResult(I iface, getStorage_args args) throws org.apache.thrift.TException {
         getStorage_result result = new getStorage_result();
         result.success = iface.getStorage();
         return result;
@@ -248,21 +323,726 @@ public class DataTransfer {
         super("getDataBlock");
       }
 
-      @Override
-	public getDataBlock_args getEmptyArgsInstance() {
+      public getDataBlock_args getEmptyArgsInstance() {
         return new getDataBlock_args();
       }
 
-      @Override
-	protected boolean isOneway() {
+      protected boolean isOneway() {
         return false;
       }
 
-      @Override
-	public getDataBlock_result getResult(I iface, getDataBlock_args args) throws org.apache.thrift.TException {
+      public getDataBlock_result getResult(I iface, getDataBlock_args args) throws org.apache.thrift.TException {
         getDataBlock_result result = new getDataBlock_result();
         result.success = iface.getDataBlock(args.filename, args.blockID, args.hash);
         return result;
+      }
+    }
+
+  }
+
+  public static class getLocalIP_args implements org.apache.thrift.TBase<getLocalIP_args, getLocalIP_args._Fields>, java.io.Serializable, Cloneable   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("getLocalIP_args");
+
+    private static final org.apache.thrift.protocol.TField HASH_FIELD_DESC = new org.apache.thrift.protocol.TField("hash", org.apache.thrift.protocol.TType.STRING, (short)1);
+
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    static {
+      schemes.put(StandardScheme.class, new getLocalIP_argsStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new getLocalIP_argsTupleSchemeFactory());
+    }
+
+    public String hash; // required
+
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+      HASH((short)1, "hash");
+
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        switch(fieldId) {
+          case 1: // HASH
+            return HASH;
+          default:
+            return null;
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
+    }
+
+    // isset id assignments
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    static {
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.HASH, new org.apache.thrift.meta_data.FieldMetaData("hash", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(getLocalIP_args.class, metaDataMap);
+    }
+
+    public getLocalIP_args() {
+    }
+
+    public getLocalIP_args(
+      String hash)
+    {
+      this();
+      this.hash = hash;
+    }
+
+    /**
+     * Performs a deep copy on <i>other</i>.
+     */
+    public getLocalIP_args(getLocalIP_args other) {
+      if (other.isSetHash()) {
+        this.hash = other.hash;
+      }
+    }
+
+    public getLocalIP_args deepCopy() {
+      return new getLocalIP_args(this);
+    }
+
+    @Override
+    public void clear() {
+      this.hash = null;
+    }
+
+    public String getHash() {
+      return this.hash;
+    }
+
+    public getLocalIP_args setHash(String hash) {
+      this.hash = hash;
+      return this;
+    }
+
+    public void unsetHash() {
+      this.hash = null;
+    }
+
+    /** Returns true if field hash is set (has been assigned a value) and false otherwise */
+    public boolean isSetHash() {
+      return this.hash != null;
+    }
+
+    public void setHashIsSet(boolean value) {
+      if (!value) {
+        this.hash = null;
+      }
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
+      case HASH:
+        if (value == null) {
+          unsetHash();
+        } else {
+          setHash((String)value);
+        }
+        break;
+
+      }
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
+      case HASH:
+        return getHash();
+
+      }
+      throw new IllegalStateException();
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
+      switch (field) {
+      case HASH:
+        return isSetHash();
+      }
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if (that == null)
+        return false;
+      if (that instanceof getLocalIP_args)
+        return this.equals((getLocalIP_args)that);
+      return false;
+    }
+
+    public boolean equals(getLocalIP_args that) {
+      if (that == null)
+        return false;
+
+      boolean this_present_hash = true && this.isSetHash();
+      boolean that_present_hash = true && that.isSetHash();
+      if (this_present_hash || that_present_hash) {
+        if (!(this_present_hash && that_present_hash))
+          return false;
+        if (!this.hash.equals(that.hash))
+          return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      return 0;
+    }
+
+    public int compareTo(getLocalIP_args other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+      getLocalIP_args typedOther = (getLocalIP_args)other;
+
+      lastComparison = Boolean.valueOf(isSetHash()).compareTo(typedOther.isSetHash());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetHash()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.hash, typedOther.hash);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
+    }
+
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+      schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("getLocalIP_args(");
+      boolean first = true;
+
+      sb.append("hash:");
+      if (this.hash == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.hash);
+      }
+      first = false;
+      sb.append(")");
+      return sb.toString();
+    }
+
+    public void validate() throws org.apache.thrift.TException {
+      // check for required fields
+      // check for sub-struct validity
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private static class getLocalIP_argsStandardSchemeFactory implements SchemeFactory {
+      public getLocalIP_argsStandardScheme getScheme() {
+        return new getLocalIP_argsStandardScheme();
+      }
+    }
+
+    private static class getLocalIP_argsStandardScheme extends StandardScheme<getLocalIP_args> {
+
+      public void read(org.apache.thrift.protocol.TProtocol iprot, getLocalIP_args struct) throws org.apache.thrift.TException {
+        org.apache.thrift.protocol.TField schemeField;
+        iprot.readStructBegin();
+        while (true)
+        {
+          schemeField = iprot.readFieldBegin();
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+            break;
+          }
+          switch (schemeField.id) {
+            case 1: // HASH
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                struct.hash = iprot.readString();
+                struct.setHashIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            default:
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+          }
+          iprot.readFieldEnd();
+        }
+        iprot.readStructEnd();
+
+        // check for required fields of primitive type, which can't be checked in the validate method
+        struct.validate();
+      }
+
+      public void write(org.apache.thrift.protocol.TProtocol oprot, getLocalIP_args struct) throws org.apache.thrift.TException {
+        struct.validate();
+
+        oprot.writeStructBegin(STRUCT_DESC);
+        if (struct.hash != null) {
+          oprot.writeFieldBegin(HASH_FIELD_DESC);
+          oprot.writeString(struct.hash);
+          oprot.writeFieldEnd();
+        }
+        oprot.writeFieldStop();
+        oprot.writeStructEnd();
+      }
+
+    }
+
+    private static class getLocalIP_argsTupleSchemeFactory implements SchemeFactory {
+      public getLocalIP_argsTupleScheme getScheme() {
+        return new getLocalIP_argsTupleScheme();
+      }
+    }
+
+    private static class getLocalIP_argsTupleScheme extends TupleScheme<getLocalIP_args> {
+
+      @Override
+      public void write(org.apache.thrift.protocol.TProtocol prot, getLocalIP_args struct) throws org.apache.thrift.TException {
+        TTupleProtocol oprot = (TTupleProtocol) prot;
+        BitSet optionals = new BitSet();
+        if (struct.isSetHash()) {
+          optionals.set(0);
+        }
+        oprot.writeBitSet(optionals, 1);
+        if (struct.isSetHash()) {
+          oprot.writeString(struct.hash);
+        }
+      }
+
+      @Override
+      public void read(org.apache.thrift.protocol.TProtocol prot, getLocalIP_args struct) throws org.apache.thrift.TException {
+        TTupleProtocol iprot = (TTupleProtocol) prot;
+        BitSet incoming = iprot.readBitSet(1);
+        if (incoming.get(0)) {
+          struct.hash = iprot.readString();
+          struct.setHashIsSet(true);
+        }
+      }
+    }
+
+  }
+
+  public static class getLocalIP_result implements org.apache.thrift.TBase<getLocalIP_result, getLocalIP_result._Fields>, java.io.Serializable, Cloneable   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("getLocalIP_result");
+
+    private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.STRING, (short)0);
+
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    static {
+      schemes.put(StandardScheme.class, new getLocalIP_resultStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new getLocalIP_resultTupleSchemeFactory());
+    }
+
+    public String success; // required
+
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+      SUCCESS((short)0, "success");
+
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        switch(fieldId) {
+          case 0: // SUCCESS
+            return SUCCESS;
+          default:
+            return null;
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
+    }
+
+    // isset id assignments
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    static {
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(getLocalIP_result.class, metaDataMap);
+    }
+
+    public getLocalIP_result() {
+    }
+
+    public getLocalIP_result(
+      String success)
+    {
+      this();
+      this.success = success;
+    }
+
+    /**
+     * Performs a deep copy on <i>other</i>.
+     */
+    public getLocalIP_result(getLocalIP_result other) {
+      if (other.isSetSuccess()) {
+        this.success = other.success;
+      }
+    }
+
+    public getLocalIP_result deepCopy() {
+      return new getLocalIP_result(this);
+    }
+
+    @Override
+    public void clear() {
+      this.success = null;
+    }
+
+    public String getSuccess() {
+      return this.success;
+    }
+
+    public getLocalIP_result setSuccess(String success) {
+      this.success = success;
+      return this;
+    }
+
+    public void unsetSuccess() {
+      this.success = null;
+    }
+
+    /** Returns true if field success is set (has been assigned a value) and false otherwise */
+    public boolean isSetSuccess() {
+      return this.success != null;
+    }
+
+    public void setSuccessIsSet(boolean value) {
+      if (!value) {
+        this.success = null;
+      }
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
+      case SUCCESS:
+        if (value == null) {
+          unsetSuccess();
+        } else {
+          setSuccess((String)value);
+        }
+        break;
+
+      }
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
+      case SUCCESS:
+        return getSuccess();
+
+      }
+      throw new IllegalStateException();
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
+      switch (field) {
+      case SUCCESS:
+        return isSetSuccess();
+      }
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if (that == null)
+        return false;
+      if (that instanceof getLocalIP_result)
+        return this.equals((getLocalIP_result)that);
+      return false;
+    }
+
+    public boolean equals(getLocalIP_result that) {
+      if (that == null)
+        return false;
+
+      boolean this_present_success = true && this.isSetSuccess();
+      boolean that_present_success = true && that.isSetSuccess();
+      if (this_present_success || that_present_success) {
+        if (!(this_present_success && that_present_success))
+          return false;
+        if (!this.success.equals(that.success))
+          return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      return 0;
+    }
+
+    public int compareTo(getLocalIP_result other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+      getLocalIP_result typedOther = (getLocalIP_result)other;
+
+      lastComparison = Boolean.valueOf(isSetSuccess()).compareTo(typedOther.isSetSuccess());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetSuccess()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.success, typedOther.success);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
+    }
+
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+      schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
+      }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("getLocalIP_result(");
+      boolean first = true;
+
+      sb.append("success:");
+      if (this.success == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.success);
+      }
+      first = false;
+      sb.append(")");
+      return sb.toString();
+    }
+
+    public void validate() throws org.apache.thrift.TException {
+      // check for required fields
+      // check for sub-struct validity
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private static class getLocalIP_resultStandardSchemeFactory implements SchemeFactory {
+      public getLocalIP_resultStandardScheme getScheme() {
+        return new getLocalIP_resultStandardScheme();
+      }
+    }
+
+    private static class getLocalIP_resultStandardScheme extends StandardScheme<getLocalIP_result> {
+
+      public void read(org.apache.thrift.protocol.TProtocol iprot, getLocalIP_result struct) throws org.apache.thrift.TException {
+        org.apache.thrift.protocol.TField schemeField;
+        iprot.readStructBegin();
+        while (true)
+        {
+          schemeField = iprot.readFieldBegin();
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+            break;
+          }
+          switch (schemeField.id) {
+            case 0: // SUCCESS
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                struct.success = iprot.readString();
+                struct.setSuccessIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            default:
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+          }
+          iprot.readFieldEnd();
+        }
+        iprot.readStructEnd();
+
+        // check for required fields of primitive type, which can't be checked in the validate method
+        struct.validate();
+      }
+
+      public void write(org.apache.thrift.protocol.TProtocol oprot, getLocalIP_result struct) throws org.apache.thrift.TException {
+        struct.validate();
+
+        oprot.writeStructBegin(STRUCT_DESC);
+        if (struct.success != null) {
+          oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
+          oprot.writeString(struct.success);
+          oprot.writeFieldEnd();
+        }
+        oprot.writeFieldStop();
+        oprot.writeStructEnd();
+      }
+
+    }
+
+    private static class getLocalIP_resultTupleSchemeFactory implements SchemeFactory {
+      public getLocalIP_resultTupleScheme getScheme() {
+        return new getLocalIP_resultTupleScheme();
+      }
+    }
+
+    private static class getLocalIP_resultTupleScheme extends TupleScheme<getLocalIP_result> {
+
+      @Override
+      public void write(org.apache.thrift.protocol.TProtocol prot, getLocalIP_result struct) throws org.apache.thrift.TException {
+        TTupleProtocol oprot = (TTupleProtocol) prot;
+        BitSet optionals = new BitSet();
+        if (struct.isSetSuccess()) {
+          optionals.set(0);
+        }
+        oprot.writeBitSet(optionals, 1);
+        if (struct.isSetSuccess()) {
+          oprot.writeString(struct.success);
+        }
+      }
+
+      @Override
+      public void read(org.apache.thrift.protocol.TProtocol prot, getLocalIP_result struct) throws org.apache.thrift.TException {
+        TTupleProtocol iprot = (TTupleProtocol) prot;
+        BitSet incoming = iprot.readBitSet(1);
+        if (incoming.get(0)) {
+          struct.success = iprot.readString();
+          struct.setSuccessIsSet(true);
+        }
       }
     }
 
@@ -326,13 +1106,11 @@ public class DataTransfer {
         _fieldName = fieldName;
       }
 
-      @Override
-	public short getThriftFieldId() {
+      public short getThriftFieldId() {
         return _thriftId;
       }
 
-      @Override
-	public String getFieldName() {
+      public String getFieldName() {
         return _fieldName;
       }
     }
@@ -352,8 +1130,7 @@ public class DataTransfer {
     public getStorage_args(getStorage_args other) {
     }
 
-    @Override
-	public getStorage_args deepCopy() {
+    public getStorage_args deepCopy() {
       return new getStorage_args(this);
     }
 
@@ -361,22 +1138,19 @@ public class DataTransfer {
     public void clear() {
     }
 
-    @Override
-	public void setFieldValue(_Fields field, Object value) {
+    public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       }
     }
 
-    @Override
-	public Object getFieldValue(_Fields field) {
+    public Object getFieldValue(_Fields field) {
       switch (field) {
       }
       throw new IllegalStateException();
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    @Override
-	public boolean isSet(_Fields field) {
+    public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -407,30 +1181,26 @@ public class DataTransfer {
       return 0;
     }
 
-    @Override
-	public int compareTo(getStorage_args other) {
+    public int compareTo(getStorage_args other) {
       if (!getClass().equals(other.getClass())) {
         return getClass().getName().compareTo(other.getClass().getName());
       }
 
       int lastComparison = 0;
-      getStorage_args typedOther = other;
+      getStorage_args typedOther = (getStorage_args)other;
 
       return 0;
     }
 
-    @Override
-	public _Fields fieldForId(int fieldId) {
+    public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    @Override
-	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    @Override
-	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
     }
 
@@ -465,16 +1235,14 @@ public class DataTransfer {
     }
 
     private static class getStorage_argsStandardSchemeFactory implements SchemeFactory {
-      @Override
-	public getStorage_argsStandardScheme getScheme() {
+      public getStorage_argsStandardScheme getScheme() {
         return new getStorage_argsStandardScheme();
       }
     }
 
     private static class getStorage_argsStandardScheme extends StandardScheme<getStorage_args> {
 
-      @Override
-	public void read(org.apache.thrift.protocol.TProtocol iprot, getStorage_args struct) throws org.apache.thrift.TException {
+      public void read(org.apache.thrift.protocol.TProtocol iprot, getStorage_args struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
@@ -495,8 +1263,7 @@ public class DataTransfer {
         struct.validate();
       }
 
-      @Override
-	public void write(org.apache.thrift.protocol.TProtocol oprot, getStorage_args struct) throws org.apache.thrift.TException {
+      public void write(org.apache.thrift.protocol.TProtocol oprot, getStorage_args struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -507,8 +1274,7 @@ public class DataTransfer {
     }
 
     private static class getStorage_argsTupleSchemeFactory implements SchemeFactory {
-      @Override
-	public getStorage_argsTupleScheme getScheme() {
+      public getStorage_argsTupleScheme getScheme() {
         return new getStorage_argsTupleScheme();
       }
     }
@@ -590,13 +1356,11 @@ public class DataTransfer {
         _fieldName = fieldName;
       }
 
-      @Override
-	public short getThriftFieldId() {
+      public short getThriftFieldId() {
         return _thriftId;
       }
 
-      @Override
-	public String getFieldName() {
+      public String getFieldName() {
         return _fieldName;
       }
     }
@@ -630,8 +1394,7 @@ public class DataTransfer {
       }
     }
 
-    @Override
-	public getStorage_result deepCopy() {
+    public getStorage_result deepCopy() {
       return new getStorage_result(this);
     }
 
@@ -664,8 +1427,7 @@ public class DataTransfer {
       }
     }
 
-    @Override
-	public void setFieldValue(_Fields field, Object value) {
+    public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case SUCCESS:
         if (value == null) {
@@ -678,8 +1440,7 @@ public class DataTransfer {
       }
     }
 
-    @Override
-	public Object getFieldValue(_Fields field) {
+    public Object getFieldValue(_Fields field) {
       switch (field) {
       case SUCCESS:
         return getSuccess();
@@ -689,8 +1450,7 @@ public class DataTransfer {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    @Override
-	public boolean isSet(_Fields field) {
+    public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -732,14 +1492,13 @@ public class DataTransfer {
       return 0;
     }
 
-    @Override
-	public int compareTo(getStorage_result other) {
+    public int compareTo(getStorage_result other) {
       if (!getClass().equals(other.getClass())) {
         return getClass().getName().compareTo(other.getClass().getName());
       }
 
       int lastComparison = 0;
-      getStorage_result typedOther = other;
+      getStorage_result typedOther = (getStorage_result)other;
 
       lastComparison = Boolean.valueOf(isSetSuccess()).compareTo(typedOther.isSetSuccess());
       if (lastComparison != 0) {
@@ -754,18 +1513,15 @@ public class DataTransfer {
       return 0;
     }
 
-    @Override
-	public _Fields fieldForId(int fieldId) {
+    public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    @Override
-	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    @Override
-	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
       }
 
@@ -810,16 +1566,14 @@ public class DataTransfer {
     }
 
     private static class getStorage_resultStandardSchemeFactory implements SchemeFactory {
-      @Override
-	public getStorage_resultStandardScheme getScheme() {
+      public getStorage_resultStandardScheme getScheme() {
         return new getStorage_resultStandardScheme();
       }
     }
 
     private static class getStorage_resultStandardScheme extends StandardScheme<getStorage_result> {
 
-      @Override
-	public void read(org.apache.thrift.protocol.TProtocol iprot, getStorage_result struct) throws org.apache.thrift.TException {
+      public void read(org.apache.thrift.protocol.TProtocol iprot, getStorage_result struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
@@ -849,8 +1603,7 @@ public class DataTransfer {
         struct.validate();
       }
 
-      @Override
-	public void write(org.apache.thrift.protocol.TProtocol oprot, getStorage_result struct) throws org.apache.thrift.TException {
+      public void write(org.apache.thrift.protocol.TProtocol oprot, getStorage_result struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -866,8 +1619,7 @@ public class DataTransfer {
     }
 
     private static class getStorage_resultTupleSchemeFactory implements SchemeFactory {
-      @Override
-	public getStorage_resultTupleScheme getScheme() {
+      public getStorage_resultTupleScheme getScheme() {
         return new getStorage_resultTupleScheme();
       }
     }
@@ -973,13 +1725,11 @@ public class DataTransfer {
         _fieldName = fieldName;
       }
 
-      @Override
-	public short getThriftFieldId() {
+      public short getThriftFieldId() {
         return _thriftId;
       }
 
-      @Override
-	public String getFieldName() {
+      public String getFieldName() {
         return _fieldName;
       }
     }
@@ -1029,8 +1779,7 @@ public class DataTransfer {
       }
     }
 
-    @Override
-	public getDataBlock_args deepCopy() {
+    public getDataBlock_args deepCopy() {
       return new getDataBlock_args(this);
     }
 
@@ -1113,8 +1862,7 @@ public class DataTransfer {
       }
     }
 
-    @Override
-	public void setFieldValue(_Fields field, Object value) {
+    public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case FILENAME:
         if (value == null) {
@@ -1143,8 +1891,7 @@ public class DataTransfer {
       }
     }
 
-    @Override
-	public Object getFieldValue(_Fields field) {
+    public Object getFieldValue(_Fields field) {
       switch (field) {
       case FILENAME:
         return getFilename();
@@ -1160,8 +1907,7 @@ public class DataTransfer {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    @Override
-	public boolean isSet(_Fields field) {
+    public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -1225,14 +1971,13 @@ public class DataTransfer {
       return 0;
     }
 
-    @Override
-	public int compareTo(getDataBlock_args other) {
+    public int compareTo(getDataBlock_args other) {
       if (!getClass().equals(other.getClass())) {
         return getClass().getName().compareTo(other.getClass().getName());
       }
 
       int lastComparison = 0;
-      getDataBlock_args typedOther = other;
+      getDataBlock_args typedOther = (getDataBlock_args)other;
 
       lastComparison = Boolean.valueOf(isSetFilename()).compareTo(typedOther.isSetFilename());
       if (lastComparison != 0) {
@@ -1267,18 +2012,15 @@ public class DataTransfer {
       return 0;
     }
 
-    @Override
-	public _Fields fieldForId(int fieldId) {
+    public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    @Override
-	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    @Override
-	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
     }
 
@@ -1334,16 +2076,14 @@ public class DataTransfer {
     }
 
     private static class getDataBlock_argsStandardSchemeFactory implements SchemeFactory {
-      @Override
-	public getDataBlock_argsStandardScheme getScheme() {
+      public getDataBlock_argsStandardScheme getScheme() {
         return new getDataBlock_argsStandardScheme();
       }
     }
 
     private static class getDataBlock_argsStandardScheme extends StandardScheme<getDataBlock_args> {
 
-      @Override
-	public void read(org.apache.thrift.protocol.TProtocol iprot, getDataBlock_args struct) throws org.apache.thrift.TException {
+      public void read(org.apache.thrift.protocol.TProtocol iprot, getDataBlock_args struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
@@ -1388,8 +2128,7 @@ public class DataTransfer {
         struct.validate();
       }
 
-      @Override
-	public void write(org.apache.thrift.protocol.TProtocol oprot, getDataBlock_args struct) throws org.apache.thrift.TException {
+      public void write(org.apache.thrift.protocol.TProtocol oprot, getDataBlock_args struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -1413,8 +2152,7 @@ public class DataTransfer {
     }
 
     private static class getDataBlock_argsTupleSchemeFactory implements SchemeFactory {
-      @Override
-	public getDataBlock_argsTupleScheme getScheme() {
+      public getDataBlock_argsTupleScheme getScheme() {
         return new getDataBlock_argsTupleScheme();
       }
     }
@@ -1529,13 +2267,11 @@ public class DataTransfer {
         _fieldName = fieldName;
       }
 
-      @Override
-	public short getThriftFieldId() {
+      public short getThriftFieldId() {
         return _thriftId;
       }
 
-      @Override
-	public String getFieldName() {
+      public String getFieldName() {
         return _fieldName;
       }
     }
@@ -1570,8 +2306,7 @@ public class DataTransfer {
       }
     }
 
-    @Override
-	public getDataBlock_result deepCopy() {
+    public getDataBlock_result deepCopy() {
       return new getDataBlock_result(this);
     }
 
@@ -1614,8 +2349,7 @@ public class DataTransfer {
       }
     }
 
-    @Override
-	public void setFieldValue(_Fields field, Object value) {
+    public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case SUCCESS:
         if (value == null) {
@@ -1628,8 +2362,7 @@ public class DataTransfer {
       }
     }
 
-    @Override
-	public Object getFieldValue(_Fields field) {
+    public Object getFieldValue(_Fields field) {
       switch (field) {
       case SUCCESS:
         return getSuccess();
@@ -1639,8 +2372,7 @@ public class DataTransfer {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    @Override
-	public boolean isSet(_Fields field) {
+    public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -1682,14 +2414,13 @@ public class DataTransfer {
       return 0;
     }
 
-    @Override
-	public int compareTo(getDataBlock_result other) {
+    public int compareTo(getDataBlock_result other) {
       if (!getClass().equals(other.getClass())) {
         return getClass().getName().compareTo(other.getClass().getName());
       }
 
       int lastComparison = 0;
-      getDataBlock_result typedOther = other;
+      getDataBlock_result typedOther = (getDataBlock_result)other;
 
       lastComparison = Boolean.valueOf(isSetSuccess()).compareTo(typedOther.isSetSuccess());
       if (lastComparison != 0) {
@@ -1704,18 +2435,15 @@ public class DataTransfer {
       return 0;
     }
 
-    @Override
-	public _Fields fieldForId(int fieldId) {
+    public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    @Override
-	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    @Override
-	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
       }
 
@@ -1757,16 +2485,14 @@ public class DataTransfer {
     }
 
     private static class getDataBlock_resultStandardSchemeFactory implements SchemeFactory {
-      @Override
-	public getDataBlock_resultStandardScheme getScheme() {
+      public getDataBlock_resultStandardScheme getScheme() {
         return new getDataBlock_resultStandardScheme();
       }
     }
 
     private static class getDataBlock_resultStandardScheme extends StandardScheme<getDataBlock_result> {
 
-      @Override
-	public void read(org.apache.thrift.protocol.TProtocol iprot, getDataBlock_result struct) throws org.apache.thrift.TException {
+      public void read(org.apache.thrift.protocol.TProtocol iprot, getDataBlock_result struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
@@ -1795,8 +2521,7 @@ public class DataTransfer {
         struct.validate();
       }
 
-      @Override
-	public void write(org.apache.thrift.protocol.TProtocol oprot, getDataBlock_result struct) throws org.apache.thrift.TException {
+      public void write(org.apache.thrift.protocol.TProtocol oprot, getDataBlock_result struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -1812,8 +2537,7 @@ public class DataTransfer {
     }
 
     private static class getDataBlock_resultTupleSchemeFactory implements SchemeFactory {
-      @Override
-	public getDataBlock_resultTupleScheme getScheme() {
+      public getDataBlock_resultTupleScheme getScheme() {
         return new getDataBlock_resultTupleScheme();
       }
     }

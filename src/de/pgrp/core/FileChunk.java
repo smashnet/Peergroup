@@ -90,7 +90,7 @@ public class FileChunk {
 		this.downloading = false;
 		this.failed = false;
 		this.peers = new LinkedList<P2Pdevice>();
-		this.peers.add(new P2Pdevice(Constants.getJID(), Constants.ipAddress,
+		this.peers.add(P2Pdevice.getDevice(Constants.getJID(), Constants.ipAddress,
 				Constants.p2pPort));
 	}
 
@@ -106,7 +106,7 @@ public class FileChunk {
 		this.downloading = false;
 		this.failed = false;
 		this.peers = new LinkedList<P2Pdevice>();
-		this.peers.add(new P2Pdevice(Constants.getJID(), Constants.ipAddress,
+		this.peers.add(P2Pdevice.getDevice(Constants.getJID(), Constants.ipAddress,
 				Constants.p2pPort));
 	}
 

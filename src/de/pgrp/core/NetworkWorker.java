@@ -202,7 +202,7 @@ public class NetworkWorker extends Thread {
 				if (Constants.syncingFileList) {
 					if (vers > maxListVersion) {
 						maxListVersion = vers;
-						maxListNode = new P2Pdevice(jid, ip, port);
+						maxListNode = P2Pdevice.getDevice(jid, ip, port);
 					} else if (vers == -1) {
 						break;
 					}

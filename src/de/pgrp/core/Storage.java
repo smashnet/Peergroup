@@ -353,7 +353,7 @@ public class Storage {
 	 * @return The first found FileChunk with the rarest distribution, or null
 	 *         if no files exist
 	 */
-	public FileChunk getRarestChunk() {
+	public synchronized FileChunk getRarestChunk() {
 		Random gen = new Random(System.currentTimeMillis());
 		LinkedList<FileChunk> rareChunkList = new LinkedList<FileChunk>();
 		LinkedList<FileChunk> chunkList = new LinkedList<FileChunk>();
@@ -482,7 +482,7 @@ public class Storage {
 		return this.files;
 	}
 
-	public FileHandle getFileHandle(String name) {
+	public synchronized FileHandle getFileHandle(String name) {
 		for (FileHandle f : getFileList()) {
 			if (f.getPath().equals(name)) {
 				return f;

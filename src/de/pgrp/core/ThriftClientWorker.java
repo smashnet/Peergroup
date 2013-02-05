@@ -66,7 +66,7 @@ public class ThriftClientWorker extends Thread {
 					tmp.setDownloading(true);
 					this.runTask(new ThriftClientGetData(tmp));
 				} else {
-					Thread.sleep(400);
+					Thread.sleep(100);
 				}
 			} catch (InterruptedException ie) {
 				interrupt();

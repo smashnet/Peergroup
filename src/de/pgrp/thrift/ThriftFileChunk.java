@@ -12,15 +12,23 @@ import org.apache.thrift.scheme.StandardScheme;
 
 import org.apache.thrift.scheme.TupleScheme;
 import org.apache.thrift.protocol.TTupleProtocol;
+import org.apache.thrift.protocol.TProtocolException;
 import org.apache.thrift.EncodingUtils;
+import org.apache.thrift.TException;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.EnumMap;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.EnumSet;
 import java.util.Collections;
 import java.util.BitSet;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ThriftFileChunk implements org.apache.thrift.TBase<ThriftFileChunk, ThriftFileChunk._Fields>, java.io.Serializable, Cloneable {
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("ThriftFileChunk");
@@ -104,13 +112,11 @@ public class ThriftFileChunk implements org.apache.thrift.TBase<ThriftFileChunk,
       _fieldName = fieldName;
     }
 
-    @Override
-	public short getThriftFieldId() {
+    public short getThriftFieldId() {
       return _thriftId;
     }
 
-    @Override
-	public String getFieldName() {
+    public String getFieldName() {
       return _fieldName;
     }
   }
@@ -179,8 +185,7 @@ public class ThriftFileChunk implements org.apache.thrift.TBase<ThriftFileChunk,
     }
   }
 
-  @Override
-public ThriftFileChunk deepCopy() {
+  public ThriftFileChunk deepCopy() {
     return new ThriftFileChunk(this);
   }
 
@@ -328,8 +333,7 @@ public ThriftFileChunk deepCopy() {
     }
   }
 
-  @Override
-public void setFieldValue(_Fields field, Object value) {
+  public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case CHUNK_ID:
       if (value == null) {
@@ -374,8 +378,7 @@ public void setFieldValue(_Fields field, Object value) {
     }
   }
 
-  @Override
-public Object getFieldValue(_Fields field) {
+  public Object getFieldValue(_Fields field) {
     switch (field) {
     case CHUNK_ID:
       return Integer.valueOf(getChunkID());
@@ -397,8 +400,7 @@ public Object getFieldValue(_Fields field) {
   }
 
   /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-  @Override
-public boolean isSet(_Fields field) {
+  public boolean isSet(_Fields field) {
     if (field == null) {
       throw new IllegalArgumentException();
     }
@@ -484,14 +486,13 @@ public boolean isSet(_Fields field) {
     return 0;
   }
 
-  @Override
-public int compareTo(ThriftFileChunk other) {
+  public int compareTo(ThriftFileChunk other) {
     if (!getClass().equals(other.getClass())) {
       return getClass().getName().compareTo(other.getClass().getName());
     }
 
     int lastComparison = 0;
-    ThriftFileChunk typedOther = other;
+    ThriftFileChunk typedOther = (ThriftFileChunk)other;
 
     lastComparison = Boolean.valueOf(isSetChunkID()).compareTo(typedOther.isSetChunkID());
     if (lastComparison != 0) {
@@ -546,18 +547,15 @@ public int compareTo(ThriftFileChunk other) {
     return 0;
   }
 
-  @Override
-public _Fields fieldForId(int fieldId) {
+  public _Fields fieldForId(int fieldId) {
     return _Fields.findByThriftId(fieldId);
   }
 
-  @Override
-public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+  public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
     schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
   }
 
-  @Override
-public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+  public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
     schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
   }
 
@@ -621,16 +619,14 @@ public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.
   }
 
   private static class ThriftFileChunkStandardSchemeFactory implements SchemeFactory {
-    @Override
-	public ThriftFileChunkStandardScheme getScheme() {
+    public ThriftFileChunkStandardScheme getScheme() {
       return new ThriftFileChunkStandardScheme();
     }
   }
 
   private static class ThriftFileChunkStandardScheme extends StandardScheme<ThriftFileChunk> {
 
-    @Override
-	public void read(org.apache.thrift.protocol.TProtocol iprot, ThriftFileChunk struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot, ThriftFileChunk struct) throws org.apache.thrift.TException {
       org.apache.thrift.protocol.TField schemeField;
       iprot.readStructBegin();
       while (true)
@@ -702,8 +698,7 @@ public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.
       struct.validate();
     }
 
-    @Override
-	public void write(org.apache.thrift.protocol.TProtocol oprot, ThriftFileChunk struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot, ThriftFileChunk struct) throws org.apache.thrift.TException {
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
@@ -740,8 +735,7 @@ public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.
   }
 
   private static class ThriftFileChunkTupleSchemeFactory implements SchemeFactory {
-    @Override
-	public ThriftFileChunkTupleScheme getScheme() {
+    public ThriftFileChunkTupleScheme getScheme() {
       return new ThriftFileChunkTupleScheme();
     }
   }

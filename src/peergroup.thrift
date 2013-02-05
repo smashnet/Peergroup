@@ -53,6 +53,7 @@ struct ThriftStorage {
 }
 
 service DataTransfer {
+	string getLocalIP(1:string hash),
 	ThriftStorage getStorage(),
 	binary getDataBlock(1:string filename, 2:i32 blockID, 3:string hash)
 }
