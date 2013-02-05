@@ -16,6 +16,5 @@ dist/
 build/
 tmp/
 share/
-thrift/
 nico/
 eval/
