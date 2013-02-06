@@ -461,10 +461,19 @@ public class Peergroup {
 				iterateFilesOnInitScan(newFile);
 			} else if (newFile.isFile()) {
 				Constants.log.addMsg("Found: " + newFile.getName(), 2);
-				Constants.requestQueue.offer(new FSRequest(
+				handleLocalFileInitScan(new FSRequest(
 						Constants.LOCAL_FILE_INITSCAN, newFile.getPath()));
 			}
 		}
+	}
+	
+	private static void handleLocalFileInitScan(FSRequest request) {
+		String newEntry = StorageWorker.getPurePath(request.getContent());
+		if (Storage.getInstance().fileExists(newEntry) != null) {
+			Constants.log.addMsg("InitScan: File already exists, ignoring!", 4);
+			return;
+		}
+		Storage.getInstance().newFileFromLocal(newEntry);
 	}
 
 	private static void joinXMPP() {
@@ -474,9 +483,7 @@ public class Peergroup {
 			// so we need to shut down Peergroup
 			quit(5);
 		}
-		xmppNet.joinMUC(Constants.user, Constants.conference_pass,
-				Constants.conference_channel + "@"
-						+ Constants.conference_server);
+		xmppNet.joinMUC(Constants.user, Constants.conference_pass, Constants.conference_channel + "@" + Constants.conference_server);
 		xmppNet.sendMUCmessage("Hi, I'm a peergroup client. I do awesome things :-)");
 	}
 
@@ -492,11 +499,8 @@ public class Peergroup {
 
 		if (Constants.igd != null) {
 			try {
-				boolean unmapped = Constants.igd.deletePortMapping(null,
-						Constants.p2pPort, "TCP");
-				if (unmapped) {
-					Constants.log
-					.addMsg("Released port mapping for Peergroup on port "
+				boolean unmapped = Constants.igd.deletePortMapping(null, Constants.p2pPort, "TCP");
+				if (unmapped) {Constants.log.addMsg("Released port mapping for Peergroup on port "
 							+ Constants.p2pPort);
 				}
 			} catch (IOException ioe) {
