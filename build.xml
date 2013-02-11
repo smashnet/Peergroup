@@ -116,10 +116,12 @@ Copyright (c) 2013 Nicolas Inden
 				<fileset dir="${tmpclasses}">
 					<include name="${clientpkg}/**/*.class" />
 				</fileset>
+				<fileset dir="./">
+					<include name="art/**/*.png"/>
+				</fileset>
 				<zipgroupfileset dir="${lib}" includes="*.jar" excludes=""/>
 				<manifest>
 					<attribute name="Main-Class" value="de/pgrp/core/Peergroup"/>
-					<attribute name="Class-Path" value="name/Pachler"/>
 				</manifest>
 			</jar>
 	</target>

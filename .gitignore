@@ -2,6 +2,7 @@
 *.log
 *.class
 *.*~
+config.xml
 Peergroup.zip
 copyto
 deploy

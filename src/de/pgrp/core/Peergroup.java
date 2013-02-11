@@ -21,6 +21,7 @@
 
 package de.pgrp.core;
 
+import java.awt.EventQueue;
 import java.io.*;
 import java.net.*;
 import java.util.Enumeration;
@@ -35,6 +36,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
+
+import de.pgrp.gui.EnterUserDataFrame;
+import de.pgrp.gui.PGTrayIcon;
 
 /**
  * This processes cmd-line args, initializes all needed settings and starts
@@ -53,14 +57,54 @@ public class Peergroup {
 		String os = System.getProperty("os.name");
 		String java_version = System.getProperty("java.version");
 		
-
 		Constants.log.addMsg(
 				"Starting " + Constants.PROGNAME + " " + Constants.VERSION
 				+ " on " + os + " " + System.getProperty("os.version")
 				+ " with Java " + java_version, 2);
 
 		getCmdLineArgs(args);
-		getConfig();
+		if(!getConfig()){
+			//In this case the config file either does not exist, or it has wrong format/missing values
+			if(Constants.useGUI){
+				//If we use GUI, show EnterUserDataFrame
+				EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						try {
+							EnterUserDataFrame.getInstance().setVisible(true);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+				});
+				
+				//Wait until data is entered
+				try {
+					Constants.inputBarrier.await();
+				} catch (InterruptedException ie) {
+
+				} catch (BrokenBarrierException bbe) {
+					Constants.log.addMsg(bbe.toString(), 4);
+				}
+				
+				Constants.inputBarrier.reset();
+				
+				//Create config file from entered values to avoid reentering the data each start
+				createConfig();
+				
+				PGTrayIcon icon = PGTrayIcon.getInstance();
+				icon.createTray();
+			}else{
+				//In headless mode we shutdown Peergroup
+				quit(10);
+			}
+		}else{
+			//Here we have a valid config file, and can thus continue either with or without GUI
+			if(Constants.useGUI){
+				//TODO: We need to initialize the TrayIcon here
+				PGTrayIcon icon = PGTrayIcon.getInstance();
+				icon.createTray();
+			}
+		}
 		getIPs();
 		doUPnP();
 		doInitialDirectoryScan();
@@ -129,14 +173,20 @@ public class Peergroup {
 				Constants.serverMode = true;
 				Constants.log.addMsg("Running in server mode", 2);
 			}
+			if (current.equals("-noGUI")) {
+				Constants.useGUI = false;
+				Constants.log.addMsg("Running in headless mode", 2);
+			}
 			last = current;
 		}
 	}
 
 	/**
 	 * Reads config from config.xml
+	 * 
+	 * @return true, if config file exists and is valid, else false
 	 */
-	private static void getConfig() {
+	private static boolean getConfig() {
 		try {
 			File xmlConfig = new File(Constants.config);
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -160,7 +210,7 @@ public class Peergroup {
 						Constants.server = val;
 					} else {
 						Constants.log.addMsg("Required value missing in config: xmpp-account -> server", 1);
-						quit(9);
+						return false;
 					}
 
 					val = getTagValue("user", eElement);
@@ -168,7 +218,7 @@ public class Peergroup {
 						Constants.user = val;
 					} else {
 						Constants.log.addMsg("Required value missing in config: xmpp-account -> user", 1);
-						quit(9);
+						return false;
 					}
 
 					val = getTagValue("pass", eElement);
@@ -176,7 +226,7 @@ public class Peergroup {
 						Constants.pass = val;
 					} else {
 						Constants.log.addMsg("Required value missing in config: xmpp-account -> pass", 1);
-						quit(9);
+						return false;
 					}
 
 					val = getTagValue("resource", eElement);
@@ -195,7 +245,7 @@ public class Peergroup {
 							Constants.port = Integer.parseInt(val);
 						} else {
 							Constants.log.addMsg("XMPP Port not in valid range: xmpp-account -> port (should be 1025-65535)", 1);
-							quit(9);
+							return false;
 						}
 					}
 
@@ -218,7 +268,7 @@ public class Peergroup {
 						Constants.conference_server = val;
 					} else {
 						Constants.log.addMsg("Required value missing in config: conference -> server", 1);
-						quit(9);
+						return false;
 					}
 
 					val = getTagValue("channel", eElement);
@@ -226,7 +276,7 @@ public class Peergroup {
 						Constants.conference_channel = val;
 					} else {
 						Constants.log.addMsg("Required value missing in config: conference -> channel", 1);
-						quit(9);
+						return false;
 					}
 
 					val = getTagValue("pass", eElement);
@@ -256,14 +306,14 @@ public class Peergroup {
 						String parts[] = val.split(".");
 						if (parts.length != 4) {
 							Constants.log.addMsg("Not a valid IP address in config: " + val);
-							quit(8);
+							return false;
 						}
 						int test;
 						for (String part : parts) {
 							test = Integer.parseInt(part);
 							if (test < 0 || test > 255) {
 								Constants.log.addMsg("Not a valid IP address in config: " + val);
-								quit(8);
+								return false;
 							}
 						}
 						Constants.ipAddress = val;
@@ -277,7 +327,7 @@ public class Peergroup {
 							Constants.p2pPort = Integer.parseInt(val);
 						} else {
 							Constants.log.addMsg("P2P Port not in valid range: xmpp-account -> port (should be 1025-65535)", 1);
-							quit(9);
+							return false;
 						}
 					}
 				}
@@ -289,19 +339,20 @@ public class Peergroup {
 					"Could not find config file! Creating sample file...", 1);
 			Constants.log.addMsg("Please edit config.smp to your needs and rename it to config.xml", 4);
 			createSampleConfig();
-			quit(10);
+			return false;
 		} catch (NumberFormatException nfe) {
 			Constants.log.addMsg("Value is not a number: " + nfe.getMessage() + " - Correct your config file!", 1);
-			quit(11);
+			return false;
 		} catch (NullPointerException npe) {
 			Constants.log.addMsg("Value missing in config: " + npe, 1);
 			Constants.log.addMsg("Please edit config.smp to your needs and rename it to config.xml", 4);
 			createSampleConfig();
-			quit(12);
+			return false;
 		} catch (Exception ioe) {
 			Constants.log.addMsg("Error reading config: " + ioe, 1);
-			quit(13);
+			return false;
 		}
+		return true;
 	}
 
 	private static String getTagValue(String sTag, Element eElement) {
@@ -312,6 +363,35 @@ public class Peergroup {
 			return null;
 
 		return nValue.getNodeValue();
+	}
+	
+	private static void createConfig() {
+		try {
+			File conf = new File("config.xml");
+			conf.delete();
+			conf.createNewFile();
+			FileWriter fw = new FileWriter(conf);
+			BufferedWriter bw = new BufferedWriter(fw);
+			String sample = "<?xml version=\"1.0\"?>\n" + "<peergroup>\n"
+					+ "\t<xmpp-account>\n"
+					+ "\t\t<server>" + Constants.server + "</server>\n"
+					+ "\t\t<user>" + Constants.user + "</user>\n"
+					+ "\t\t<pass>" + Constants.pass + "</pass>\n"
+					+ "\t\t<resource></resource>\n" + "\t\t<port></port>\n"
+					+ "\t</xmpp-account>\n" + "\t<conference>\n"
+					+ "\t\t<server>" + Constants.conference_server + "</server>\n"
+					+ "\t\t<channel>" + Constants.conference_channel + "</channel>\n"
+					+ "\t\t<pass>" + Constants.conference_pass + "</pass>\n" + "\t</conference>\n"
+					+ "\t<pg-settings>\n" + "\t\t<share>./share/</share>\n"
+					+ "\t\t<extIP></extIP>\n" + "\t\t<port>" + Constants.p2pPort + "</port>\n"
+					+ "\t</pg-settings>\n" + "</peergroup>";
+			bw.write(sample, 0, sample.length());
+			bw.close();
+		} catch (Exception e) {
+			Constants.log.addMsg("Couldn't create config", 1);
+			quit(12);
+		}
+
 	}
 
 	private static void createSampleConfig() {

@@ -23,6 +23,8 @@ package de.pgrp.core;
 
 import java.util.concurrent.*;
 import java.util.LinkedList;
+import java.util.Random;
+
 import net.sbbi.upnp.impls.InternetGatewayDevice;
 
 /**
@@ -42,6 +44,7 @@ public class Constants {
 	public static LinkedBlockingQueue<StoreBlock> storeQueue = new LinkedBlockingQueue<StoreBlock>();
 
 	public static CyclicBarrier bootupBarrier = new CyclicBarrier(2);
+	public static CyclicBarrier inputBarrier = new CyclicBarrier(2);
 	public static CyclicBarrier shutdownBarrier = new CyclicBarrier(2);
 
 	/*
@@ -87,7 +90,6 @@ public class Constants {
 	 */
 	public static String rootDirectory = "./share/";
 	public static String tmpDirectory = "./tmp/";
-	public static long shareLimit = 2048; // MegaBytes
 	public static InternetGatewayDevice igd;
 
 	/*
@@ -137,12 +139,12 @@ public class Constants {
 	 * Stuff
 	 */
 	public static boolean serverMode = false;
+	public static boolean useGUI = true;
 	public static boolean doUPnP = true;
 	public static boolean enableModQueue = true;
 	public static String ipAddress = "";
 	public static String localIP = "";
-	public static int p2pPort = 43334;
-	public static boolean caughtSignal = false;
+	public static int p2pPort = 50000 + new Random(System.currentTimeMillis()).nextInt(10000);
 	public static int chunkSize = 512000; // In bytes
 	public static boolean syncingFileList = false;
 	public static LinkedList<String> folders;
