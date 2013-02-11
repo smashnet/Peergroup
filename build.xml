@@ -116,9 +116,8 @@ Copyright (c) 2013 Nicolas Inden
 				<fileset dir="${tmpclasses}">
 					<include name="${clientpkg}/**/*.class" />
 				</fileset>
-				<fileset dir="./">
-					<include name="art/**/*.png"/>
-					<include name="art/**/*.jpg"/>
+				<fileset dir="./art">
+					<include name="*.png"/>
 				</fileset>
 				<zipgroupfileset dir="${lib}" includes="*.jar" excludes=""/>
 				<manifest>
