@@ -118,6 +118,7 @@ Copyright (c) 2013 Nicolas Inden
 				</fileset>
 				<fileset dir="./">
 					<include name="art/**/*.png"/>
+					<include name="art/**/*.jpg"/>
 				</fileset>
 				<zipgroupfileset dir="${lib}" includes="*.jar" excludes=""/>
 				<manifest>

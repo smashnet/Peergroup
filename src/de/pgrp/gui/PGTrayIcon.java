@@ -21,7 +21,7 @@ public class PGTrayIcon {
 	private TrayIcon ico;
 	
 	public PGTrayIcon(){
-		URL imgURL = ClassLoader.getSystemResource("art/pg_logo.png");
+		URL imgURL = ClassLoader.getSystemResource("art/logo_small.jpg");
 		this.img = Toolkit.getDefaultToolkit().getImage(imgURL);
 		this.ico = new TrayIcon(img,"PGTray");
 	}
