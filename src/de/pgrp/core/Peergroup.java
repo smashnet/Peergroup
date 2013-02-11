@@ -49,8 +49,6 @@ public class Peergroup {
 	 *            the command line arguments
 	 */
 	public static void main(String[] args) {
-		// Register Shutdown hook to gracefully close threads on ctrl-c
-		Runtime.getRuntime().addShutdownHook(new Shutdown());
 		// -- Here we go
 		String os = System.getProperty("os.name");
 		String java_version = System.getProperty("java.version");
@@ -72,6 +70,9 @@ public class Peergroup {
 		// -- Create main thread
 		Constants.main = new MainWorker();
 		Constants.main.start();
+		
+		// Register Shutdown hook to gracefully close threads on ctrl-c
+		Runtime.getRuntime().addShutdownHook(new Shutdown());
 
 		try {
 			Constants.bootupBarrier.await();
