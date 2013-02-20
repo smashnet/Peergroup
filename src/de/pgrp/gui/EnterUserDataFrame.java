@@ -18,9 +18,7 @@ import java.util.concurrent.BrokenBarrierException;
 
 public class EnterUserDataFrame extends JFrame {
 
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = -3512918865856302797L;
 	private static EnterUserDataFrame instance = new EnterUserDataFrame();
 	private JPanel contentPane;
@@ -29,21 +27,6 @@ public class EnterUserDataFrame extends JFrame {
 	private JTextField txtConference;
 	private JPasswordField pwdConference;
 
-	
-	/*
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					EnterUserDataFrame frame = new EnterUserDataFrame();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
-	*/
 	
 	public static EnterUserDataFrame getInstance(){
 		return instance;

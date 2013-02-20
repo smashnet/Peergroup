@@ -100,7 +100,6 @@ public class Peergroup {
 		}else{
 			//Here we have a valid config file, and can thus continue either with or without GUI
 			if(Constants.useGUI){
-				//TODO: We need to initialize the TrayIcon here
 				PGTrayIcon icon = PGTrayIcon.getInstance();
 				icon.createTray();
 			}

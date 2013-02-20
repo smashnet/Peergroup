@@ -21,6 +21,7 @@
 
 package de.pgrp.core;
 
+import java.io.File;
 import java.util.concurrent.*;
 import java.util.LinkedList;
 import java.util.Random;
@@ -38,7 +39,7 @@ public class Constants {
 	public final static String VERSION = "0.06dev";
 	public static String config = "config.xml";
 
-	public final static Logger log = new Logger();
+	public final static Logger log = new Logger(false);
 
 	public static LinkedList<P2Pdevice> p2pDevices = new LinkedList<P2Pdevice>();
 	public static LinkedBlockingQueue<StoreBlock> storeQueue = new LinkedBlockingQueue<StoreBlock>();
@@ -153,5 +154,10 @@ public class Constants {
 
 	public static String getJID() {
 		return user + "@" + server + "/" + resource;
+	}
+	
+	public static String getAbsoluteShareFolderPath(){
+		File folder = new File(Constants.rootDirectory);
+		return folder.getAbsolutePath();
 	}
 }

@@ -1,6 +1,8 @@
 package de.pgrp.gui;
 
 import java.awt.AWTException;
+import java.awt.Desktop;
+import java.awt.EventQueue;
 import java.awt.Image;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
@@ -10,9 +12,15 @@ import java.awt.TrayIcon;
 import java.awt.TrayIcon.MessageType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import javax.swing.JOptionPane;
+
+import de.pgrp.core.Constants;
 
 public class PGTrayIcon {
 	
@@ -49,9 +57,17 @@ public class PGTrayIcon {
 		    MenuItem openFolderItem = new MenuItem("Open shared folder");
 		    openFolderItem.addActionListener(new ActionListener() {
 		    	public void actionPerformed(ActionEvent e) {
-		    		JOptionPane.showMessageDialog(null, "Here we'd show the configuration frame.");
+		    		try {
+						Desktop.getDesktop().open(new File(Constants.getAbsoluteShareFolderPath()));
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						Constants.log.addMsg("Could not open shared folder with Desktop! " + e1, 4);
+					}
 		    	}
 		    });
+		    if(!Desktop.isDesktopSupported()){
+		    	openFolderItem.setEnabled(false);
+		    }
 		    menu.add(openFolderItem);
 		    
 		    menu.addSeparator();
@@ -62,9 +78,24 @@ public class PGTrayIcon {
 		    downRateItem.setEnabled(false);
 		    MenuItem upRateItem = new MenuItem("Upload: x KB/s");
 		    upRateItem.setEnabled(false);
+		    MenuItem showLogItem = new MenuItem("Show log window");
+		    showLogItem.addActionListener(new ActionListener() {
+		    	public void actionPerformed(ActionEvent e) {
+		    		EventQueue.invokeLater(new Runnable() {
+		    			public void run() {
+		    				try {
+		    					LogWindow.getInstance().setVisible(true);
+		    				} catch (Exception e) {
+		    					e.printStackTrace();
+		    				}
+		    			}
+		    		});
+		    	}
+		    });
 		    menu.add(folderSizeItem);
 		    menu.add(downRateItem);
 		    menu.add(upRateItem);
+		    menu.add(showLogItem);
 		    
 		    menu.addSeparator();
 
