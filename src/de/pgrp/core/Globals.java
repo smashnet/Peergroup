@@ -33,9 +33,9 @@ import net.sbbi.upnp.impls.InternetGatewayDevice;
  * 
  * @author Nicolas Inden
  */
-public class Constants {
+public class Globals {
 
-	public final static String PROGNAME = "peergroup";
+	public final static String PROGNAME = "Peergroup";
 	public final static String VERSION = "0.06dev";
 	public static String config = "config.xml";
 
@@ -53,7 +53,15 @@ public class Constants {
 	 * to, which are then processed by the MainWorker.
 	 */
 	public static LinkedBlockingQueue<Request> requestQueue = new LinkedBlockingQueue<Request>();
-	public static LinkedBlockingQueue<Request> downloadQueue = new LinkedBlockingQueue<Request>();
+	
+	/*
+	 * This list contains information about all items that are currently downloaded
+	 */
+	public static LinkedList<DLULItem> downloadsList = new LinkedList<DLULItem>();
+	/*
+	 * This list contains information about all items that are currently uploaded
+	 */
+	public static LinkedList<DLULItem> uploadsList = new LinkedList<DLULItem>();
 
 	/*
 	 * Linux and Windows support instant events on file changes. Copying a big
@@ -151,13 +159,14 @@ public class Constants {
 	public static LinkedList<String> folders;
 	public static boolean quitting = false;
 	public static String hashAlgo = "MD5";
+	public static int guiRefreshRate = 1000;
 
 	public static String getJID() {
 		return user + "@" + server + "/" + resource;
 	}
 	
 	public static String getAbsoluteShareFolderPath(){
-		File folder = new File(Constants.rootDirectory);
+		File folder = new File(Globals.rootDirectory);
 		return folder.getAbsolutePath();
 	}
 }

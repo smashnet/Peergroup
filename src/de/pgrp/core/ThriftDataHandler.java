@@ -47,21 +47,21 @@ public class ThriftDataHandler implements DataTransfer.Iface {
 	@Override
 	public String getLocalIP(String otherHash)	throws org.apache.thrift.TException {
 		String res = null;
-		String localIP[] = Constants.localIP.split("\\.");
-		String toBeHashed = Constants.conference_pass + localIP[0] + localIP[1];
+		String localIP[] = Globals.localIP.split("\\.");
+		String toBeHashed = Globals.conference_pass + localIP[0] + localIP[1];
 		
 		try{
-			MessageDigest hash = MessageDigest.getInstance(Constants.hashAlgo);
+			MessageDigest hash = MessageDigest.getInstance(Globals.hashAlgo);
 			hash.update(toBeHashed.getBytes("UTF-8"));
 			
 			//Should be enough security check if peer is authorized to request local IP
 			if(otherHash.equals(hash.toString())){
-				res = Constants.localIP;
+				res = Globals.localIP;
 			}
 		} catch (NoSuchAlgorithmException na) {
-			Constants.log.addMsg("Hash error: " + na, 1);
+			Globals.log.addMsg("Hash error: " + na, 1);
 		} catch (UnsupportedEncodingException uee) {
-			Constants.log.addMsg("Encoding error: " + uee, 1);
+			Globals.log.addMsg("Encoding error: " + uee, 1);
 		}
 		
 		return res;
@@ -91,8 +91,8 @@ public class ThriftDataHandler implements DataTransfer.Iface {
 			String plainkey = "P33rgr0up";
 			byte[] salt = { 0x12, 0x78, 0x4F, 0x33, 0x13, 0x4B, 0x6B, 0x2F };
 			// If we use a password for our channel, use it to encrypt the data
-			if (!Constants.conference_pass.equals(""))
-				plainkey = Constants.conference_pass;
+			if (!Globals.conference_pass.equals(""))
+				plainkey = Globals.conference_pass;
 
 			try {
 				SecretKeyFactory fac = SecretKeyFactory
@@ -117,7 +117,7 @@ public class ThriftDataHandler implements DataTransfer.Iface {
 				ByteBuffer buffer = ByteBuffer.wrap(sendbuffer);
 				return buffer;
 			} catch (Exception e) {
-				Constants.log.addMsg(e.toString());
+				Globals.log.addMsg(e.toString());
 			}
 
 			return null;

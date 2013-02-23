@@ -21,6 +21,7 @@
 
 package de.pgrp.core;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.Arrays;
@@ -54,7 +55,7 @@ public class FileChunk {
 		this.file = name;
 		this.id = no;
 		this.size = size;
-		this.offset = id * Constants.chunkSize;
+		this.offset = id * Globals.chunkSize;
 		this.version = vers;
 		this.chunkHash = toByteHash(hash);
 		this.complete = comp;
@@ -69,7 +70,7 @@ public class FileChunk {
 		this.file = name;
 		this.id = no;
 		this.size = size;
-		this.offset = id * Constants.chunkSize;
+		this.offset = id * Globals.chunkSize;
 		this.version = vers;
 		this.chunkHash = toByteHash(hash);
 		this.complete = comp;
@@ -90,8 +91,8 @@ public class FileChunk {
 		this.downloading = false;
 		this.failed = false;
 		this.peers = new LinkedList<P2Pdevice>();
-		this.peers.add(P2Pdevice.getDevice(Constants.getJID(), Constants.ipAddress,
-				Constants.p2pPort));
+		this.peers.add(P2Pdevice.getDevice(Globals.getJID(), Globals.ipAddress,
+				Globals.p2pPort));
 	}
 
 	public FileChunk(String name, int no, int vers, byte[] digest, int s,
@@ -106,8 +107,8 @@ public class FileChunk {
 		this.downloading = false;
 		this.failed = false;
 		this.peers = new LinkedList<P2Pdevice>();
-		this.peers.add(P2Pdevice.getDevice(Constants.getJID(), Constants.ipAddress,
-				Constants.p2pPort));
+		this.peers.add(P2Pdevice.getDevice(Globals.getJID(), Globals.ipAddress,
+				Globals.p2pPort));
 	}
 
 	/**
@@ -141,10 +142,15 @@ public class FileChunk {
 	}
 
 	public void deletePeer(String jid) {
-		for (int i = 0; i < this.peers.size(); i++) {
-			if (this.peers.get(i).getJID().equals(jid))
-				this.peers.remove(i);
+		Iterator<P2Pdevice> it = this.peers.iterator();
+		
+		while(it.hasNext()){
+			P2Pdevice tmp = it.next();
+			if(tmp.getJID().equals(jid)){
+				it.remove();
+			}
 		}
+		
 	}
 
 	public int getID() {

@@ -44,14 +44,14 @@ public class DelayQueueWorker extends Thread {
 	@Override
 	public void run() {
 		this.setName("ModifyQueue Thread");
-		Constants.log.addMsg("ModifyQueue thread started...");
+		Globals.log.addMsg("ModifyQueue thread started...");
 		while (!isInterrupted()) {
 			try {
 				// Process data from storeQueue
 				long timeA, timeB;
 				timeA = System.currentTimeMillis();
 				do {
-					StoreBlock blockInfo = Constants.storeQueue.poll(100, TimeUnit.MILLISECONDS);
+					StoreBlock blockInfo = Globals.storeQueue.poll(100, TimeUnit.MILLISECONDS);
 					if (blockInfo == null) {
 						timeB = System.currentTimeMillis();
 						continue;
@@ -63,11 +63,11 @@ public class DelayQueueWorker extends Thread {
 					Network.getInstance().sendMUCCompletedChunk(blockInfo.getName(), blockInfo.getID(), blockInfo.getVersion());
 
 					if (tmp.isComplete()) {
-						Constants.log.addMsg("Completed download: " + blockInfo.getName() + " - Version " + blockInfo.getVersion(), 2);
+						Globals.log.addMsg("Completed download: " + blockInfo.getName() + " - Version " + blockInfo.getVersion(), 2);
 						tmp.trimFile();
 						tmp.setUpdating(false);
 						//Debug:
-						Constants.log.addMsg(tmp.toString());
+						Globals.log.addMsg(tmp.toString());
 					}
 
 					timeB = System.currentTimeMillis();
@@ -85,10 +85,10 @@ public class DelayQueueWorker extends Thread {
 				 * while the file is still not complete (eg while copying a file
 				 * into the shared folder)
 				 */
-				for (FileEvent e : Constants.delayQueue) {
+				for (FileEvent e : Globals.delayQueue) {
 					if (curTime - e.getTime() > 2000) {
-						Constants.requestQueue.offer(new FSRequest(e.getType(), e.getName()));
-						Constants.delayQueue.remove(e);
+						Globals.requestQueue.offer(new FSRequest(e.getType(), e.getName()));
+						Globals.delayQueue.remove(e);
 					}
 				}
 			} catch (InterruptedException ie) {
@@ -96,7 +96,7 @@ public class DelayQueueWorker extends Thread {
 				break;
 			}
 		}
-		Constants.log.addMsg("ModifyQueue thread interrupted. Closing...", 4);
+		Globals.log.addMsg("ModifyQueue thread interrupted. Closing...", 4);
 	}
 
 }

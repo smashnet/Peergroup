@@ -21,6 +21,7 @@
 
 package de.pgrp.core;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
 import java.io.*;
@@ -41,7 +42,7 @@ public class Storage {
 	public Storage() {
 		this.fileListVersion = 0;
 		this.files = new LinkedList<FileHandle>();
-		this.sharedDir = new File(Constants.rootDirectory);
+		this.sharedDir = new File(Globals.rootDirectory);
 		this.sharedDir.mkdirs();
 	}
 
@@ -63,7 +64,7 @@ public class Storage {
 	 */
 	public FileHandle newFileFromLocal(String filename) {
 		try {
-			FileHandle newFile = new FileHandle(Constants.rootDirectory
+			FileHandle newFile = new FileHandle(Globals.rootDirectory
 					+ filename);
 			if (newFile.isValid()) {
 				getFileList().add(newFile);
@@ -73,7 +74,8 @@ public class Storage {
 				return newFile;
 			}
 		} catch (Exception ioe) {
-			Constants.log.addMsg("Local file does not exist anymore: " + ioe, 4);
+			Globals.log
+					.addMsg("Local file does not exist anymore: " + ioe, 4);
 		}
 		return null;
 	}
@@ -85,37 +87,38 @@ public class Storage {
 	 *            the filename+path (e.g. subdir/file.txt)
 	 */
 	public void removeFile(String file) {
-		int i = 0;
-		while (i < getFileList().size()) {
-			if (getFileList().get(i).getPath().equals(file)) {
-				getFileList().remove(i);
-				Constants.log.addMsg("Deleted " + file, 4);
+		Iterator<FileHandle> it = getFileList().iterator();
+		
+		while(it.hasNext()){
+			if(it.next().getPath().equals(file)){
+				it.remove();
+				Globals.log.addMsg("Deleted " + file, 4);
 				break;
 			}
-			i++;
 		}
+		
 		this.fileListVersion++;
 	}
 
 	/**
-	 * Removes an item from the storage list and from local storage device.
-	 * If directory, only remove from storage device
+	 * Removes an item from the storage list and from local storage device. If
+	 * directory, only remove from storage device
 	 * 
 	 * @param file
 	 *            the filename+path (e.g. subdir/file.txt)
 	 */
 	public void remoteRemoveItem(String file) {
-		File delItem = new File(Constants.rootDirectory + file);
+		File delItem = new File(Globals.rootDirectory + file);
 		if (delItem.isDirectory()) {
 			deleteDirectory(delItem);
-			Constants.log.addMsg("Deleted directory: " + file, 4);
+			Globals.log.addMsg("Deleted directory: " + file, 4);
 			return;
 		}
 		for (FileHandle h : getFileList()) {
 			if (h.getPath().equals(file)) {
 				h.getFile().delete();
 				getFileList().remove(h);
-				Constants.log.addMsg("Deleted " + file, 4);
+				Globals.log.addMsg("Deleted " + file, 4);
 				break;
 			}
 		}
@@ -138,7 +141,7 @@ public class Storage {
 				dir.delete();
 			}
 		} catch (Exception e) {
-			Constants.log.addMsg("Error while deleting: " + e);
+			Globals.log.addMsg("Error while deleting: " + e);
 		}
 
 	}
@@ -166,32 +169,33 @@ public class Storage {
 	 */
 	public FileHandle modifyFileFromLocal(String file) {
 		FileHandle tmp;
-		int i = 0;
-		while (i < getFileList().size()) {
-			if (getFileList().get(i).getPath().equals(file)) {
+		Iterator<FileHandle> it = getFileList().iterator();
+		while(it.hasNext()){
+			tmp = it.next();
+			if(tmp.getPath().equals(file)) {
 				try {
-					tmp = getFileList().get(i);
 					if (tmp.isUpdating()) {
-						Constants.log.addMsg("Ignoring FS update event. File gets remote updates!", 4);
+						Globals.log
+								.addMsg("Ignoring FS update event. File gets remote updates!",
+										4);
 						return null;
 					}
 					if (tmp.localUpdate()) {
-						Constants.log.addMsg("Updated " + getFileList().get(i).getPath(), 4);
+						Globals.log.addMsg("Updated " + tmp.getPath(), 4);
 						this.fileListVersion++;
 					} else {
-						Constants.log.addMsg("No need to update something.", 4);
+						Globals.log.addMsg("No need to update something.", 4);
 						return null;
 					}
 
 					return tmp;
 				} catch (Exception ioe) {
-					Constants.log.addMsg("Error updating file: " + ioe, 1);
+					Globals.log.addMsg("Error updating file: " + ioe, 1);
 					break;
 				}
 			}
-			i++;
 		}
-		Constants.log.addMsg("Locally modified file not found in file-list.", 4);
+		Globals.log.addMsg("Locally modified file not found in file-list.", 4);
 
 		return null;
 	}
@@ -200,7 +204,7 @@ public class Storage {
 	 * Adds a remote file to the storage list
 	 * 
 	 * @param filename
-	 *            the filename+path (e.g. subdir/file.txt)
+	 *            the path+filename (e.g. subdir/file.txt)
 	 * @param fileHash
 	 *            the SHA256 value of the file
 	 * @param fileSize
@@ -225,13 +229,14 @@ public class Storage {
 						node, false));
 			}
 
-			FileHandle newFile = new FileHandle(filename, fileHash, fileSize, chunks, cSize);
+			FileHandle newFile = new FileHandle(filename, fileHash, fileSize,
+					chunks, cSize);
 			newFile.setUpdating(true);
 			newFile.createEmptyLocalFile();
 			getFileList().add(newFile);
 			this.fileListVersion++;
 		} catch (Exception e) {
-			Constants.log.addMsg(
+			Globals.log.addMsg(
 					"Couldn't create FileHandle for new file from XMPP! " + e,
 					4);
 		}
@@ -244,8 +249,8 @@ public class Storage {
 	 *            The name of the directory (relative to share folder)
 	 */
 	public void newDirFromXMPP(String name) {
-		Constants.folders.add(Constants.rootDirectory + name);
-		File newDir = new File(Constants.rootDirectory + name);
+		Globals.folders.add(Globals.rootDirectory + name);
+		File newDir = new File(Globals.rootDirectory + name);
 		newDir.mkdirs();
 	}
 
@@ -273,7 +278,7 @@ public class Storage {
 				h.setSize(size);
 				h.setByteHash(hash);
 				h.updateBlocks(blocks, vers, noOfChunks, node);
-				
+
 				System.out.println(h.toString());
 
 				this.fileListVersion++;
@@ -386,7 +391,7 @@ public class Storage {
 	public void mergeWithRemoteStorage(int remoteVersion,
 			LinkedList<FileHandle> newList) {
 
-		Constants.log.addMsg("Merging file lists - Local size: "
+		Globals.log.addMsg("Merging file lists - Local size: "
 				+ getFileList().size() + ", Remote size: " + newList.size());
 		// Update FileList version number
 		if (remoteVersion > this.fileListVersion) {
@@ -466,6 +471,32 @@ public class Storage {
 		}
 	}
 
+	public synchronized FileHandle getFileHandle(String name) {
+		for (FileHandle f : getFileList()) {
+			if (f.getPath().equals(name)) {
+				return f;
+			}
+		}
+		return null;
+	}
+
+	public synchronized void setFileList(LinkedList<FileHandle> newList) {
+		this.files = newList;
+	}
+
+	/**
+	 * Returns the total size of the shared folder in kB
+	 * 
+	 * @return the size
+	 */
+	public int getFolderSize() {
+		int size = 0;
+		for (FileHandle f : getFileList()) {
+			size += f.getSize();
+		}
+		return size;
+	}
+
 	public File getDirHandle() {
 		return this.sharedDir;
 	}
@@ -482,28 +513,14 @@ public class Storage {
 		return this.files;
 	}
 
-	public synchronized FileHandle getFileHandle(String name) {
-		for (FileHandle f : getFileList()) {
-			if (f.getPath().equals(name)) {
-				return f;
-			}
-		}
-		return null;
-	}
-
-	public synchronized void setFileList(LinkedList<FileHandle> newList) {
-		this.files = newList;
-	}
-
 	@Override
 	public String toString() {
-		int i = 0;
+		Iterator<FileHandle> it = getFileList().iterator();
 		String out = "\n--- Storage ---\n";
 		out += "Version:\t" + this.fileListVersion + "\n";
-		while (i < getFileList().size()) {
-			FileHandle tmp = getFileList().get(i);
+		while (it.hasNext()) {
+			FileHandle tmp = (FileHandle) it.next();
 			out += "- " + tmp.getPath() + "\t-\t" + tmp.getHexHash() + "\n";
-			i++;
 		}
 		out += "--- End ---";
 		return out;

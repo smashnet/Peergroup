@@ -45,7 +45,7 @@ public class StorageWorker extends Thread {
 			this.watcher = FileSystems.getDefault().newWatchService();
 			this.keys = new HashMap<WatchKey, Path>();
 		} catch (IOException ioe) {
-			Constants.log
+			Globals.log
 			.addMsg("Cannot create file-system watcher: " + ioe, 1);
 		}
 
@@ -57,7 +57,7 @@ public class StorageWorker extends Thread {
 			this.interrupt();
 		} catch (IOException ioe) {
 			this.interrupt();
-			Constants.log.addMsg("Error: " + ioe, 4);
+			Globals.log.addMsg("Error: " + ioe, 4);
 		}
 	}
 
@@ -70,10 +70,10 @@ public class StorageWorker extends Thread {
 	@Override
 	public void run() {
 		this.setName("Storage Thread");
-		Constants.log.addMsg("Storage thread started...");
+		Globals.log.addMsg("Storage thread started...");
 
 		// Init WatchService
-		registerNewPath(Constants.rootDirectory);
+		registerNewPath(Globals.rootDirectory);
 
 		while (!isInterrupted()) {
 			WatchKey signaledKey;
@@ -120,16 +120,16 @@ public class StorageWorker extends Thread {
 					if (newEntry.isFile()) {
 						// System.out.println(" -- is a file!");
 						// System.out.println(pathWithoutRoot);
-						insertElement(Constants.delayQueue, new FileEvent(
-								Constants.LOCAL_FILE_CREATE, pathWithoutRoot));
+						insertElement(Globals.delayQueue, new FileEvent(
+								Globals.LOCAL_FILE_CREATE, pathWithoutRoot));
 					} else if (newEntry.isDirectory()) {
 						if (registeredFolder(newEntry.getPath())) {
 							continue;
 						}
 						// System.out.println(" -- is a directory!");
 						registerThisAndSubs(newEntry.getPath());
-						insertElement(Constants.delayQueue, new FileEvent(
-								Constants.LOCAL_DIR_CREATE, pathWithoutRoot));
+						insertElement(Globals.delayQueue, new FileEvent(
+								Globals.LOCAL_DIR_CREATE, pathWithoutRoot));
 					}
 				} else if (e.kind() == StandardWatchEventKinds.ENTRY_DELETE) {
 					// Entry deleted
@@ -144,13 +144,13 @@ public class StorageWorker extends Thread {
 							+ context.toString());
 					if (!registeredFolder(delEntry.getPath())) {
 						// System.out.println("File: " + pathWithoutRoot);
-						Constants.requestQueue.offer(new FSRequest(
-								Constants.LOCAL_FILE_DELETE, pathWithoutRoot));
+						Globals.requestQueue.offer(new FSRequest(
+								Globals.LOCAL_FILE_DELETE, pathWithoutRoot));
 					} else {
 						// System.out.println("Folder: " + pathWithoutRoot);
 						deleteThisAndSubs(delEntry.getPath());
-						Constants.requestQueue.offer(new FSRequest(
-								Constants.LOCAL_DIR_DELETE, pathWithoutRoot));
+						Globals.requestQueue.offer(new FSRequest(
+								Globals.LOCAL_DIR_DELETE, pathWithoutRoot));
 					}
 				} else if (e.kind() == StandardWatchEventKinds.ENTRY_MODIFY) {
 					// Entry modified
@@ -164,17 +164,17 @@ public class StorageWorker extends Thread {
 					if (modEntry.isFile()) {
 						String pathWithoutRoot = getPurePath(dir.toString()
 								+ "/" + context.toString());
-						insertElement(Constants.delayQueue, new FileEvent(
+						insertElement(Globals.delayQueue, new FileEvent(
 								pathWithoutRoot));
 					}
 				} else if (e.kind() == StandardWatchEventKinds.OVERFLOW) {
-					Constants.log
+					Globals.log
 					.addMsg("OVERFLOW: more changes happened than we could retrieve",
 							4);
 				}
 			}
 		}
-		Constants.log.addMsg("Storage thread interrupted. Closing...", 4);
+		Globals.log.addMsg("Storage thread interrupted. Closing...", 4);
 	}
 
 	/**
@@ -188,7 +188,7 @@ public class StorageWorker extends Thread {
 	 * @return The path to this file relative to the shared folder
 	 */
 	public static String getPurePath(String entry) {
-		int rootLength = Constants.rootDirectory.length();
+		int rootLength = Globals.rootDirectory.length();
 		return entry.substring(rootLength, entry.length());
 	}
 
@@ -222,14 +222,14 @@ public class StorageWorker extends Thread {
 		for (File sub : contents) {
 			if (sub.isDirectory()) {
 				registerThisAndSubs(sub.getPath());
-				insertElement(Constants.delayQueue, new FileEvent(
-						Constants.LOCAL_DIR_CREATE, getPurePath(sub.getPath())));
+				insertElement(Globals.delayQueue, new FileEvent(
+						Globals.LOCAL_DIR_CREATE, getPurePath(sub.getPath())));
 			} else if (sub.isFile()) {
 				if (sub.getName().charAt(0) == '.') {
 					continue;
 				}
-				insertElement(Constants.delayQueue,
-						new FileEvent(Constants.LOCAL_FILE_CREATE,
+				insertElement(Globals.delayQueue,
+						new FileEvent(Globals.LOCAL_FILE_CREATE,
 								getPurePath(sub.getPath())));
 			}
 		}
@@ -246,13 +246,13 @@ public class StorageWorker extends Thread {
 	private void deleteThisAndSubs(String delDir) {
 		LinkedList<String> toBeDeleted = new LinkedList<String>();
 
-		for (String folder : Constants.folders) {
+		for (String folder : Globals.folders) {
 			if (folder.startsWith(delDir))
 				toBeDeleted.add(folder);
 		}
 
 		for (String del : toBeDeleted) {
-			Constants.folders.remove(del);
+			Globals.folders.remove(del);
 		}
 	}
 
@@ -265,7 +265,7 @@ public class StorageWorker extends Thread {
 	 */
 	public void registerNewPath(String newPath) {
 		Path path = Paths.get(newPath);
-		Constants.folders.add(newPath);
+		Globals.folders.add(newPath);
 
 		WatchKey key = null;
 		try {
@@ -292,6 +292,6 @@ public class StorageWorker extends Thread {
 	}
 
 	private boolean registeredFolder(String name) {
-		return Constants.folders.contains(name);
+		return Globals.folders.contains(name);
 	}
 }

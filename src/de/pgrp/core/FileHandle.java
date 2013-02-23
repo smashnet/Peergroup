@@ -22,6 +22,7 @@
 package de.pgrp.core;
 
 import java.io.*;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Arrays;
 import java.security.MessageDigest;
@@ -94,8 +95,8 @@ public class FileHandle {
 		this.fileVersion = 1;
 		this.size = this.file.length();
 		this.updatedBlocks = new LinkedList<Integer>();
-		this.chunkSize = Constants.chunkSize;
-		Constants.log.addMsg("FileHandle: New file from storage: "
+		this.chunkSize = Globals.chunkSize;
+		Globals.log.addMsg("FileHandle: New file from storage: "
 				+ this.getPath() + " (Size: " + this.size + " Bytes)");
 
 		int res = this.createChunks(this.chunkSize, 1);
@@ -127,7 +128,7 @@ public class FileHandle {
 	 */
 	public FileHandle(String filename, int vers, long fileSize, String hexHash,
 			int cSize, LinkedList<FileChunk> chunks) throws Exception {
-		this.file = new File(Constants.rootDirectory + filename);
+		this.file = new File(Globals.rootDirectory + filename);
 		this.fileVersion = vers;
 		this.hash = toByteHash(hexHash);
 		this.size = fileSize;
@@ -155,7 +156,7 @@ public class FileHandle {
 	 */
 	public FileHandle(String filename, byte[] fileHash, long fileSize,
 			LinkedList<FileChunk> chunks, int chunkSize) throws Exception {
-		this.file = new File(Constants.rootDirectory + filename);
+		this.file = new File(Globals.rootDirectory + filename);
 		this.updating = true;
 		this.fileVersion = 1;
 		this.hash = fileHash;
@@ -163,7 +164,7 @@ public class FileHandle {
 		this.chunks = chunks;
 		this.chunkSize = chunkSize;
 		this.updatedBlocks = new LinkedList<Integer>();
-		Constants.log
+		Globals.log
 		.addMsg("FileHandle: New file from network: " + filename
 				+ " (Size: " + this.size + ", Hash: "
 				+ this.getHexHash() + ")");
@@ -190,13 +191,13 @@ public class FileHandle {
 	 */
 	private synchronized int createChunks(int size, int vers) {
 		if (!(this.chunks == null)) {
-			Constants.log.addMsg("(" + this.file.getName()
+			Globals.log.addMsg("(" + this.file.getName()
 					+ ") Chunklist not empty!", 4);
 			return 1;
 		}
 		try {
 			FileInputStream stream = new FileInputStream(this.file);
-			MessageDigest sha = MessageDigest.getInstance(Constants.hashAlgo);
+			MessageDigest sha = MessageDigest.getInstance(Globals.hashAlgo);
 			this.chunks = new LinkedList<FileChunk>();
 			int bytesRead = 0;
 			int id = 0;
@@ -221,14 +222,14 @@ public class FileHandle {
 
 			stream.close();
 
-			Constants.log.addMsg("FileHandle: " + this.file.getPath() + " has "
+			Globals.log.addMsg("FileHandle: " + this.file.getPath() + " has "
 					+ this.chunks.size() + " chunks");
 			return 0;
 		} catch (IOException ioe) {
-			Constants.log.addMsg("createChunks: IOException: " + ioe, 1);
+			Globals.log.addMsg("createChunks: IOException: " + ioe, 1);
 			return 2;
 		} catch (NoSuchAlgorithmException alge) {
-			Constants.log.addMsg("calcHash Error: " + alge, 1);
+			Globals.log.addMsg("calcHash Error: " + alge, 1);
 			System.exit(1);
 		}
 		return 3;
@@ -244,7 +245,7 @@ public class FileHandle {
 	private byte[] calcHash(File in) {
 		try {
 			FileInputStream stream = new FileInputStream(in);
-			MessageDigest sha = MessageDigest.getInstance(Constants.hashAlgo);
+			MessageDigest sha = MessageDigest.getInstance(Globals.hashAlgo);
 			int bytesRead = 0;
 			byte[] buffer = new byte[1024];
 
@@ -256,9 +257,9 @@ public class FileHandle {
 
 			return sha.digest();
 		} catch (IOException ioe) {
-			Constants.log.addMsg("calcHash Error: " + ioe, 1);
+			Globals.log.addMsg("calcHash Error: " + ioe, 1);
 		} catch (NoSuchAlgorithmException na) {
-			Constants.log.addMsg("calcHash Error: " + na, 1);
+			Globals.log.addMsg("calcHash Error: " + na, 1);
 			System.exit(1);
 		}
 		return null;
@@ -273,12 +274,12 @@ public class FileHandle {
 	 */
 	protected static byte[] calcHash(byte[] in, int bytes) {
 		try {
-			MessageDigest sha = MessageDigest.getInstance(Constants.hashAlgo);
+			MessageDigest sha = MessageDigest.getInstance(Globals.hashAlgo);
 			sha.update(in, 0, bytes);
 
 			return sha.digest();
 		} catch (NoSuchAlgorithmException na) {
-			Constants.log.addMsg("calcHash Error: " + na, 1);
+			Globals.log.addMsg("calcHash Error: " + na, 1);
 			System.exit(1);
 		}
 		return null;
@@ -291,12 +292,12 @@ public class FileHandle {
 	 * @return true if file has changed, else false
 	 */
 	public synchronized boolean localUpdate() throws Exception {
-		Constants.log.addMsg("FileHandle: Local update triggered for " + this.file.getName() + ". Scanning for changes!");
+		Globals.log.addMsg("FileHandle: Local update triggered for " + this.file.getName() + ". Scanning for changes!");
 		boolean changed = false;
 		FileInputStream stream = new FileInputStream(this.file);
 		int bytesRead = 0;
 		int id = 0;
-		MessageDigest hash = MessageDigest.getInstance(Constants.hashAlgo);
+		MessageDigest hash = MessageDigest.getInstance(Globals.hashAlgo);
 		byte[] buffer = new byte[chunkSize];
 		this.fileVersion += 1;
 		this.size = this.file.length();
@@ -309,7 +310,7 @@ public class FileHandle {
 			if (id < this.chunks.size()) {
 				// new chunk hash != old chunk hash
 				if (!(Arrays.equals(calcHash(buffer, bytesRead), this.chunks.get(id).getHash()))) {
-					Constants.log.addMsg("FileHandle: Chunk " + id	+ " changed! (Different Hashes) Updating chunklist...");
+					Globals.log.addMsg("FileHandle: Chunk " + id	+ " changed! (Different Hashes) Updating chunklist...");
 					FileChunk updated = 
 						new FileChunk(
 							this.getPath(), id, this.chunks.get(id).getVersion() + 1, calcHash(buffer, bytesRead), bytesRead, id * chunkSize, true
@@ -321,7 +322,7 @@ public class FileHandle {
 				// chunk is smaller than others and is not the last chunk ->
 				// file got smaller
 				if (bytesRead < chunkSize && id < (this.chunks.size() - 1)) {
-					Constants.log.addMsg("FileHandle: Smaller chunk is not last chunk! Pruning following chunks...");
+					Globals.log.addMsg("FileHandle: Smaller chunk is not last chunk! Pruning following chunks...");
 					int i = this.chunks.size() - 1;
 					while (i > id) {
 						this.chunks.removeLast();
@@ -331,7 +332,7 @@ public class FileHandle {
 				}
 				// Last chunk got bigger
 				if (bytesRead > this.chunks.get(id).getSize() && id == this.chunks.size() - 1) {
-					Constants.log.addMsg("FileHandle: Chunk " + id + " changed! Updating chunklist...");
+					Globals.log.addMsg("FileHandle: Chunk " + id + " changed! Updating chunklist...");
 					FileChunk updated = 
 						new FileChunk(
 							this.getPath(), id,this.chunks.get(id).getVersion() + 1, calcHash(buffer, bytesRead), bytesRead, id * chunkSize, true
@@ -342,7 +343,7 @@ public class FileHandle {
 				}
 			} else {
 				// file is grown and needs more chunks
-				Constants.log.addMsg("FileHandle: File needs more chunks than before! Adding new chunk: " + id);
+				Globals.log.addMsg("FileHandle: File needs more chunks than before! Adding new chunk: " + id);
 				FileChunk next = 
 					new FileChunk(this.getPath(), id, this.fileVersion, calcHash(buffer, bytesRead), bytesRead, id * chunkSize, true);
 				this.chunks.add(next);
@@ -372,7 +373,7 @@ public class FileHandle {
 		stream.close();
 
 		if (!changed)
-			Constants.log.addMsg("No changes found...", 4);
+			Globals.log.addMsg("No changes found...", 4);
 		return changed;
 	}
 
@@ -387,7 +388,7 @@ public class FileHandle {
 	 */
 	public synchronized void addP2PdeviceToBlock(int id, P2Pdevice node) {
 		if (id >= this.chunks.size()) {
-			Constants.log.addMsg("Cannot add node to not existing chunk! (ID: " + id + " Size: " + this.chunks.size() + ")", 4);
+			Globals.log.addMsg("Cannot add node to not existing chunk! (ID: " + id + " Size: " + this.chunks.size() + ")", 4);
 			return;
 		}
 		this.chunks.get(id).addPeer(node);
@@ -427,7 +428,7 @@ public class FileHandle {
 			parentDir.mkdirs();
 			this.file.createNewFile();
 		} catch (IOException ioe) {
-			Constants.log.addMsg("FileHandle: Cannot create dummy file: " + ioe, 4);
+			Globals.log.addMsg("FileHandle: Cannot create dummy file: " + ioe, 4);
 		}
 	}
 
@@ -440,17 +441,17 @@ public class FileHandle {
 	 */
 	public byte[] getChunkData(int id) {
 		if (this.chunks == null) {
-			Constants.log.addMsg("Cannot return chunkData -> no chunk list available", 1);
+			Globals.log.addMsg("Cannot return chunkData -> no chunk list available", 1);
 			return null;
 		}
 
 		if (id >= this.chunks.size()) {
-			Constants.log.addMsg("Cannot return chunkData -> ID exceeds list: ID: " + id + " List: " + this.chunks.size(), 1);
+			Globals.log.addMsg("Cannot return chunkData -> ID exceeds list: ID: " + id + " List: " + this.chunks.size(), 1);
 			return null;
 		}
 		FileChunk recent = this.chunks.get(id);
 		if (!recent.isComplete()) {
-			Constants.log.addMsg("Cannot return chunkData -> chunk not complete (chunk" + id + ")", 1);
+			Globals.log.addMsg("Cannot return chunkData -> chunk not complete (chunk" + id + ")", 1);
 			return null;
 		}
 
@@ -462,20 +463,20 @@ public class FileHandle {
 			bytesSkipped = stream.skip(recent.getOffset()); // Jump to correct
 			// part of the file
 			if (bytesSkipped != recent.getOffset())
-				Constants.log.addMsg("FileHandle: Skipped more or less bytes than offset",
+				Globals.log.addMsg("FileHandle: Skipped more or less bytes than offset",
 						4);
 
 			bytesRead = stream.read(buffer);
 
 			if (bytesRead == -1)
-				Constants.log.addMsg(
+				Globals.log.addMsg(
 						"FileHandle: getChunkData EOF - ID: " + id, 4);
 
 			stream.close();
 
 			return buffer;
 		} catch (IOException ioe) {
-			Constants.log.addMsg("Error skipping bytes in chunk:" + ioe, 1);
+			Globals.log.addMsg("Error skipping bytes in chunk:" + ioe, 1);
 			return null;
 		}
 	}
@@ -491,13 +492,13 @@ public class FileHandle {
 	public synchronized void setChunkData(int id, String hash, P2Pdevice node,
 			byte[] data) {
 		if (this.chunks == null) {
-			Constants.log.addMsg(
+			Globals.log.addMsg(
 					"Cannot set chunkData -> no chunk list available", 1);
 			return;
 		}
 		FileChunk recent;
 		if (id >= this.chunks.size()) {
-			recent = new FileChunk(this.getPath(), id, Constants.chunkSize, this.fileVersion, hash, node, true);
+			recent = new FileChunk(this.getPath(), id, Globals.chunkSize, this.fileVersion, hash, node, true);
 			this.chunks.add(recent);
 		} else {
 			recent = this.chunks.get(id);
@@ -513,7 +514,7 @@ public class FileHandle {
 			recent.setComplete(true);
 			recent.setDownloading(false);
 		} catch (IOException ioe) {
-			Constants.log.addMsg("Error writing to file:" + ioe, 1);
+			Globals.log.addMsg("Error writing to file:" + ioe, 1);
 		}
 	}
 
@@ -721,9 +722,9 @@ public class FileHandle {
 				}
 			}
 		} catch (FileNotFoundException e) {
-			Constants.log.addMsg("No file to trim, this should not happen!! (" + e + ")", 1);
+			Globals.log.addMsg("No file to trim, this should not happen!! (" + e + ")", 1);
 		} catch (IOException ioe) {
-			Constants.log.addMsg("Error trimming file, this should not happen!! (" + ioe + ")", 1);
+			Globals.log.addMsg("Error trimming file, this should not happen!! (" + ioe + ")", 1);
 		}
 	}
 
@@ -734,7 +735,7 @@ public class FileHandle {
 	 *         /subdir/file.txt)
 	 */
 	public String getPath() {
-		return this.file.getPath().substring(Constants.rootDirectory.length());
+		return this.file.getPath().substring(Globals.rootDirectory.length());
 	}
 
 	/**
@@ -866,12 +867,16 @@ public class FileHandle {
 
 	@Override
 	public String toString() {
+		int i = 0;
+		Iterator<FileChunk> it = this.chunks.iterator();
 		String out = "\n---------- FileHandle toString ----------\n";
 		out += "Filename: \t" + this.getPath() + "\n";
 		out += "Size: \t\t" + this.size + " Byte\n";
 		out += "Chunks: \t" + this.chunks.size() + " pieces\n";
-		for (int i = 0; i < this.chunks.size(); i++) {
-			out += "\t" + i + ": \t" + toHexHash(this.chunks.get(i).getHash()) + ", " + this.chunks.get(i).getSize() + " Bytes\n";
+		while(it.hasNext()){
+			FileChunk tmp = it.next();
+			out += "\t" + i + ": \t" + toHexHash(tmp.getHash()) + ", " + tmp.getSize() + " Bytes\n";
+			i++;
 		}
 		out += "SHA-256: \t" + this.getHexHash() + "\n";
 		out += "Complete: \t" + this.isComplete() + "\n";

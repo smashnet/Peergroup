@@ -9,7 +9,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 
-import de.pgrp.core.Constants;
+import de.pgrp.core.Globals;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -131,8 +131,8 @@ public class EnterUserDataFrame extends JFrame {
 					JOptionPane.showMessageDialog(new JFrame(), "Not a valid Jabber ID!", "Input Error", JOptionPane.WARNING_MESSAGE);
 					return;
 				}else{
-					Constants.user = jid[0];
-					Constants.server = jid[1];
+					Globals.user = jid[0];
+					Globals.server = jid[1];
 				}
 				
 				//Get Conference Channel
@@ -141,20 +141,20 @@ public class EnterUserDataFrame extends JFrame {
 					JOptionPane.showMessageDialog(new JFrame(), "Not a valid Conference Channel!", "Input Error", JOptionPane.WARNING_MESSAGE);
 					return;
 				}else{
-					Constants.conference_channel = conference[0];
-					Constants.conference_server = conference[1];
+					Globals.conference_channel = conference[0];
+					Globals.conference_server = conference[1];
 				}
 				
 				//Get Passwords
-				Constants.pass = String.valueOf(pwdJID.getPassword());
-				Constants.conference_pass = String.valueOf(pwdConference.getPassword());
+				Globals.pass = String.valueOf(pwdJID.getPassword());
+				Globals.conference_pass = String.valueOf(pwdConference.getPassword());
 				
 				try {
-					Constants.inputBarrier.await();
+					Globals.inputBarrier.await();
 				} catch (InterruptedException ie) {
 
 				} catch (BrokenBarrierException bbe) {
-					Constants.log.addMsg(bbe.toString(), 4);
+					Globals.log.addMsg(bbe.toString(), 4);
 				}
 				
 				EnterUserDataFrame.getInstance().dispose();

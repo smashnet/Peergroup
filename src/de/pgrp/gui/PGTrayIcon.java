@@ -14,19 +14,20 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 
 import javax.swing.JOptionPane;
 
-import de.pgrp.core.Constants;
+import de.pgrp.core.Globals;
 
 public class PGTrayIcon {
 	
 	private static PGTrayIcon instance = new PGTrayIcon();
 	private Image img;
 	private TrayIcon ico;
+	private MenuItem folderSizeItem;
+	private MenuItem downRateItem;
+	private MenuItem upRateItem;
 	
 	public PGTrayIcon(){
 		URL imgURL = ClassLoader.getSystemResource("man.png");
@@ -58,10 +59,9 @@ public class PGTrayIcon {
 		    openFolderItem.addActionListener(new ActionListener() {
 		    	public void actionPerformed(ActionEvent e) {
 		    		try {
-						Desktop.getDesktop().open(new File(Constants.getAbsoluteShareFolderPath()));
+						Desktop.getDesktop().open(new File(Globals.getAbsoluteShareFolderPath()));
 					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						Constants.log.addMsg("Could not open shared folder with Desktop! " + e1, 4);
+						Globals.log.addMsg("Could not open shared folder with Desktop! " + e1, 4);
 					}
 		    	}
 		    });
@@ -70,13 +70,11 @@ public class PGTrayIcon {
 		    }
 		    menu.add(openFolderItem);
 		    
-		    menu.addSeparator();
-		    
-		    MenuItem folderSizeItem = new MenuItem("Folder Size: x MB");
+		    folderSizeItem = new MenuItem("Folder Size: Waiting");
 		    folderSizeItem.setEnabled(false);
-		    MenuItem downRateItem = new MenuItem("Download: x KB/s");
+		    downRateItem = new MenuItem("Download: Waiting");
 		    downRateItem.setEnabled(false);
-		    MenuItem upRateItem = new MenuItem("Upload: x KB/s");
+		    upRateItem = new MenuItem("Upload: Waiting");
 		    upRateItem.setEnabled(false);
 		    MenuItem showLogItem = new MenuItem("Show log window");
 		    showLogItem.addActionListener(new ActionListener() {
@@ -92,10 +90,12 @@ public class PGTrayIcon {
 		    		});
 		    	}
 		    });
-		    menu.add(folderSizeItem);
-		    menu.add(downRateItem);
-		    menu.add(upRateItem);
 		    menu.add(showLogItem);
+		    menu.addSeparator();
+		    
+		    menu.add(folderSizeItem);
+		    //menu.add(downRateItem);
+		    //menu.add(upRateItem);
 		    
 		    menu.addSeparator();
 
@@ -116,5 +116,15 @@ public class PGTrayIcon {
 		    
 		    ico.displayMessage("Peergroup", "Starting the magic...", MessageType.INFO);
 		}
+	}
+	
+	public void setFolderSize(int size){
+		this.folderSizeItem.setLabel("Folder size: " + size + " MB");
+	}
+	public void setDownrate(double downrate){
+		this.downRateItem.setLabel("Download: " + downrate + " kB/s");
+	}
+	public void setUprate(double uprate){
+		this.upRateItem.setLabel("Upload: " + uprate + " kB/s");
 	}
 }

@@ -67,7 +67,7 @@ public class P2Pdevice {
 			this.client = new DataTransfer.Client(protocol);
 			transport.open();
 		} catch (TTransportException e) {
-			Constants.log.addMsg("Thrift Error: " + e);
+			Globals.log.addMsg("Thrift Error: " + e);
 		}
 	}
 
@@ -85,9 +85,9 @@ public class P2Pdevice {
 
 			return block.array();
 		} catch (TException te) {
-			Constants.log
+			Globals.log
 					.addMsg("Error downloading chunk " + id + "! " + te, 1);
-			Constants.log.addMsg("Attempting to redownload.");
+			Globals.log.addMsg("Attempting to redownload.");
 			this.transport.close();
 			return null;
 		}
@@ -102,7 +102,7 @@ public class P2Pdevice {
 
 			return list;
 		} catch (TException te) {
-			Constants.log.addMsg("Thrift Error: " + te, 1);
+			Globals.log.addMsg("Thrift Error: " + te, 1);
 		}
 		return null;
 	}
@@ -116,24 +116,23 @@ public class P2Pdevice {
 	 * If not existent, the supplied P2Pdevice is returned.
 	 */
 	public static P2Pdevice getDevice(String newJID, String newIP, int newPort) {
-		for (P2Pdevice d : Constants.p2pDevices) {
+		for (P2Pdevice d : Globals.p2pDevices) {
 			if (d.equals(newJID, newIP, newPort))
 				return d;
 		}
 		P2Pdevice newPeer = new P2Pdevice(newJID, newIP, newPort);
-		Constants.p2pDevices.add(newPeer);
+		Globals.p2pDevices.add(newPeer);
 		newPeer.checkLocal();
 		return newPeer;
 	}
 	
 	private void checkLocal(){
-		//TODO: If peer has same external IP, get local IP for direct access
-		if(this.ip.equals(Constants.ipAddress)){
+		if(this.ip.equals(Globals.ipAddress)){
 			openTransport();
 			try {
-				String localIP[] = Constants.localIP.split("\\.");
-				String toBeHashed = Constants.conference_pass + localIP[0] + localIP[1];
-				MessageDigest hash = MessageDigest.getInstance(Constants.hashAlgo);
+				String localIP[] = Globals.localIP.split("\\.");
+				String toBeHashed = Globals.conference_pass + localIP[0] + localIP[1];
+				MessageDigest hash = MessageDigest.getInstance(Globals.hashAlgo);
 				hash.update(toBeHashed.getBytes("UTF-8"));
 			
 				String peerLocalIP = client.getLocalIP(hash.toString());
@@ -141,17 +140,17 @@ public class P2Pdevice {
 				this.closeTransport();
 				
 				if(peerLocalIP != null){
-					Constants.log.addMsg("Using local IP for " + this.jid + ": " + peerLocalIP,2);
+					Globals.log.addMsg("Using local IP for " + this.jid + ": " + peerLocalIP,2);
 					this.localIP = peerLocalIP;
 					this.transport = new TSocket(this.localIP, this.port);
 					this.usingLocalIP = true;
 				}
 			} catch (TException te) {
-				Constants.log.addMsg("Thrift error: " + te, 1);
+				Globals.log.addMsg("Thrift error: " + te, 1);
 			} catch (NoSuchAlgorithmException na) {
-				Constants.log.addMsg("Hash error: " + na, 1);
+				Globals.log.addMsg("Hash error: " + na, 1);
 			} catch (UnsupportedEncodingException uee) {
-				Constants.log.addMsg("Encoding error: " + uee, 1);
+				Globals.log.addMsg("Encoding error: " + uee, 1);
 			}
 		}
 	}

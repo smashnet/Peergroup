@@ -45,7 +45,7 @@ public class NetworkWorker extends Thread {
 		this.myNetwork.sendMUCleave();
 		this.myNetwork.leaveMUC();
 		this.myNetwork.xmppDisconnect();
-		Constants.log.addMsg("Networking thread stopped. Closing...", 4);
+		Globals.log.addMsg("Networking thread stopped. Closing...", 4);
 		this.stop();
 	}
 
@@ -55,7 +55,7 @@ public class NetworkWorker extends Thread {
 	@Override
 	public void run() {
 		this.setName("XMPP Thread");
-		Constants.log.addMsg("Networking thread started...");
+		Globals.log.addMsg("Networking thread started...");
 		this.myNetwork = Network.getInstance();
 		int listsReceived = 0;
 		int maxListVersion = -1;
@@ -70,7 +70,7 @@ public class NetworkWorker extends Thread {
 
 			// catch message stanzas announcing a new channel subject
 			if (newMessage.getSubject() != null) {
-				Constants.log.addMsg("Subject: " + newMessage.getSubject(), 2);
+				Globals.log.addMsg("Subject: " + newMessage.getSubject(), 2);
 				continue;
 			}
 
@@ -79,10 +79,10 @@ public class NetworkWorker extends Thread {
 			if (newMessage.getBody() != null) {
 				String from[] = newMessage.getFrom().split("/");
 				if (from.length > 1) {
-					Constants.log.addMsg(from[1] + ": " + newMessage.getBody(),
+					Globals.log.addMsg(from[1] + ": " + newMessage.getBody(),
 							2);
 				} else {
-					Constants.log.addMsg(newMessage.getFrom() + ": "
+					Globals.log.addMsg(newMessage.getFrom() + ": "
 							+ newMessage.getBody(), 2);
 				}
 
@@ -95,7 +95,7 @@ public class NetworkWorker extends Thread {
 			this.myNetwork.updateLamportTime(msgLamp);
 
 			// ignore messages sent by yourself
-			if (newMessage.getProperty("JID").equals(Constants.getJID())) {
+			if (newMessage.getProperty("JID").equals(Globals.getJID())) {
 				continue;
 			}
 
@@ -111,9 +111,9 @@ public class NetworkWorker extends Thread {
 				 */
 
 				filename = (String) newMessage.getProperty("name");
-				Constants.log.addMsg("New file via XMPP: " + filename);
-				Constants.requestQueue.offer(new XMPPRequest(
-						Constants.REMOTE_FILE_CREATE, newMessage));
+				Globals.log.addMsg("New file via XMPP: " + filename);
+				Globals.requestQueue.offer(new XMPPRequest(
+						Globals.REMOTE_FILE_CREATE, newMessage));
 				break;
 			case 10:
 				/*
@@ -122,9 +122,9 @@ public class NetworkWorker extends Thread {
 				 */
 
 				filename = (String) newMessage.getProperty("name");
-				Constants.log.addMsg("New directory via XMPP: " + filename);
-				Constants.requestQueue.offer(new XMPPRequest(
-						Constants.REMOTE_DIR_CREATE, newMessage));
+				Globals.log.addMsg("New directory via XMPP: " + filename);
+				Globals.requestQueue.offer(new XMPPRequest(
+						Globals.REMOTE_DIR_CREATE, newMessage));
 				break;
 			case 2:
 				/*
@@ -133,11 +133,11 @@ public class NetworkWorker extends Thread {
 				 */
 
 				filename = (String) newMessage.getProperty("name");
-				Constants.log.addMsg("Deletion discovered via XMPP: "
+				Globals.log.addMsg("Deletion discovered via XMPP: "
 						+ filename);
 				// Constants.remoteAffectedItems.add(filename);
-				Constants.requestQueue.offer(new XMPPRequest(
-						Constants.REMOTE_ITEM_DELETE, newMessage));
+				Globals.requestQueue.offer(new XMPPRequest(
+						Globals.REMOTE_ITEM_DELETE, newMessage));
 				break;
 			case 3:
 				/*
@@ -147,11 +147,11 @@ public class NetworkWorker extends Thread {
 				 */
 
 				filename = (String) newMessage.getProperty("name");
-				Constants.log.addMsg("File update discovered via XMPP: "
+				Globals.log.addMsg("File update discovered via XMPP: "
 						+ filename);
 				// Constants.remoteAffectedItems.add(filename);
-				Constants.requestQueue.offer(new XMPPRequest(
-						Constants.REMOTE_FILE_MODIFY, newMessage));
+				Globals.requestQueue.offer(new XMPPRequest(
+						Globals.REMOTE_FILE_MODIFY, newMessage));
 				break;
 			case 4:
 				/*
@@ -163,8 +163,8 @@ public class NetworkWorker extends Thread {
 				filename = (String) newMessage.getProperty("name");
 				// Constants.log.addMsg("Completed chunk download discovered via XMPP: "
 				// + filename + " Lamport: " + msgLamp);
-				Constants.requestQueue.offer(new XMPPRequest(
-						Constants.REMOTE_CHUNK_COMPLETE, newMessage));
+				Globals.requestQueue.offer(new XMPPRequest(
+						Globals.REMOTE_CHUNK_COMPLETE, newMessage));
 				break;
 			case 5:
 				/*
@@ -173,11 +173,11 @@ public class NetworkWorker extends Thread {
 				 */
 
 				filename = (String) newMessage.getProperty("name");
-				Constants.log
+				Globals.log
 						.addMsg("Completed file download discovered via XMPP: "
 								+ filename);
-				Constants.requestQueue.offer(new XMPPRequest(
-						Constants.REMOTE_FILE_COMPLETE, newMessage));
+				Globals.requestQueue.offer(new XMPPRequest(
+						Globals.REMOTE_FILE_COMPLETE, newMessage));
 				break;
 			case 6:
 				/*
@@ -185,7 +185,7 @@ public class NetworkWorker extends Thread {
 				 */
 
 				jid = (String) newMessage.getProperty("JID");
-				Constants.log.addMsg(jid + " joined the channel.");
+				Globals.log.addMsg(jid + " joined the channel.");
 				myNetwork.sendMUCFileListVersion();
 				break;
 			case 7:
@@ -199,7 +199,7 @@ public class NetworkWorker extends Thread {
 						.intValue();
 				ip = (String) newMessage.getProperty("IP");
 				port = ((Integer) newMessage.getProperty("Port")).intValue();
-				if (Constants.syncingFileList) {
+				if (Globals.syncingFileList) {
 					if (vers > maxListVersion) {
 						maxListVersion = vers;
 						maxListNode = P2Pdevice.getDevice(jid, ip, port);
@@ -207,17 +207,17 @@ public class NetworkWorker extends Thread {
 						break;
 					}
 					listsReceived++;
-					Constants.log.addMsg("Received file list version " + vers
+					Globals.log.addMsg("Received file list version " + vers
 							+ " from " + jid);
 					if (listsReceived == myNetwork.getUserCount() - 1) {
-						Constants.log.addMsg("Found newest file list: "
+						Globals.log.addMsg("Found newest file list: "
 								+ maxListVersion + " from "
 								+ maxListNode.getJID());
 						ThriftClientGetFileList getFileListThread = new ThriftClientGetFileList(
 								maxListVersion, maxListNode);
 						getFileListThread.start();
 						listsReceived = 0;
-						Constants.syncingFileList = false;
+						Globals.syncingFileList = false;
 					}
 				}
 				break;
@@ -225,7 +225,7 @@ public class NetworkWorker extends Thread {
 				// Someone left the channel (Available: "JID")
 				// Inefficient!!
 				jid = (String) newMessage.getProperty("JID");
-				Constants.log.addMsg(jid + " left the channel.");
+				Globals.log.addMsg(jid + " left the channel.");
 				for (FileHandle fh : Storage.getInstance().getFileList()) {
 					for (FileChunk fc : fh.getChunkList()) {
 						fc.deletePeer(jid);
@@ -240,7 +240,7 @@ public class NetworkWorker extends Thread {
 				filename = (String) newMessage.getProperty("name");
 				ip = (String) newMessage.getProperty("IP");
 				port = ((Integer) newMessage.getProperty("Port")).intValue();
-				Constants.log.addMsg(jid + " reannounced: " + filename);
+				Globals.log.addMsg(jid + " reannounced: " + filename);
 				FileHandle reannounced = Storage.getInstance().getFileHandle(
 						filename);
 				P2Pdevice reannouncer = P2Pdevice.getDevice(jid, ip, port);
@@ -257,6 +257,6 @@ public class NetworkWorker extends Thread {
 			}
 		}
 
-		Constants.log.addMsg("Networking thread interrupted. Closing...", 4);
+		Globals.log.addMsg("Networking thread interrupted. Closing...", 4);
 	}
 }

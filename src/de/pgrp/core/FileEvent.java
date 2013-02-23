@@ -40,7 +40,7 @@ public class FileEvent {
 	}
 
 	public FileEvent(String name) {
-		this.type = Constants.LOCAL_FILE_MODIFY;
+		this.type = Globals.LOCAL_FILE_MODIFY;
 		this.filename = name;
 		this.time = System.currentTimeMillis();
 	}

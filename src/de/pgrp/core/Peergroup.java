@@ -39,6 +39,7 @@ import org.w3c.dom.Element;
 
 import de.pgrp.gui.EnterUserDataFrame;
 import de.pgrp.gui.PGTrayIcon;
+import de.pgrp.gui.RefreshData;
 
 /**
  * This processes cmd-line args, initializes all needed settings and starts
@@ -57,15 +58,15 @@ public class Peergroup {
 		String os = System.getProperty("os.name");
 		String java_version = System.getProperty("java.version");
 		
-		Constants.log.addMsg(
-				"Starting " + Constants.PROGNAME + " " + Constants.VERSION
+		Globals.log.addMsg(
+				"Starting " + Globals.PROGNAME + " " + Globals.VERSION
 				+ " on " + os + " " + System.getProperty("os.version")
 				+ " with Java " + java_version, 2);
 
 		getCmdLineArgs(args);
 		if(!getConfig()){
 			//In this case the config file either does not exist, or it has wrong format/missing values
-			if(Constants.useGUI){
+			if(Globals.useGUI){
 				//If we use GUI, show EnterUserDataFrame
 				EventQueue.invokeLater(new Runnable() {
 					public void run() {
@@ -79,29 +80,35 @@ public class Peergroup {
 				
 				//Wait until data is entered
 				try {
-					Constants.inputBarrier.await();
+					Globals.inputBarrier.await();
 				} catch (InterruptedException ie) {
 
 				} catch (BrokenBarrierException bbe) {
-					Constants.log.addMsg(bbe.toString(), 4);
+					Globals.log.addMsg(bbe.toString(), 4);
 				}
 				
-				Constants.inputBarrier.reset();
+				Globals.inputBarrier.reset();
 				
 				//Create config file from entered values to avoid reentering the data each start
 				createConfig();
 				
 				PGTrayIcon icon = PGTrayIcon.getInstance();
 				icon.createTray();
+				
+				Thread guiRefresh = new Thread(new RefreshData());
+				guiRefresh.run();
 			}else{
 				//In headless mode we shutdown Peergroup
 				quit(10);
 			}
 		}else{
 			//Here we have a valid config file, and can thus continue either with or without GUI
-			if(Constants.useGUI){
+			if(Globals.useGUI){
 				PGTrayIcon icon = PGTrayIcon.getInstance();
 				icon.createTray();
+				
+				Thread guiRefresh = new Thread(new RefreshData());
+				guiRefresh.start();
 			}
 		}
 		getIPs();
@@ -111,49 +118,49 @@ public class Peergroup {
 		enqueueThreadStart();
 
 		// -- Create main thread
-		Constants.main = new MainWorker();
-		Constants.main.start();
+		Globals.main = new MainWorker();
+		Globals.main.start();
 		
 		// Register Shutdown hook to gracefully close threads on ctrl-c
 		Runtime.getRuntime().addShutdownHook(new Shutdown());
 
 		try {
-			Constants.bootupBarrier.await();
+			Globals.bootupBarrier.await();
 		} catch (InterruptedException ie) {
 
 		} catch (BrokenBarrierException bbe) {
-			Constants.log.addMsg(bbe.toString(), 4);
+			Globals.log.addMsg(bbe.toString(), 4);
 		}
 
 		// -- Wait for threads to terminate (only happens through SIGINT/SIGTERM
 		// see handler above)
 		try {
-			if (!Constants.serverMode)
-				Constants.storage.join();
+			if (!Globals.serverMode)
+				Globals.storage.join();
 
-			Constants.network.join();
-			Constants.thriftClient.join();
-			Constants.main.join();
-			if (Constants.enableModQueue) {
-				Constants.modQueue.join();
+			Globals.network.join();
+			Globals.thriftClient.join();
+			Globals.main.join();
+			if (Globals.enableModQueue) {
+				Globals.modQueue.join();
 			}
 
-			for (P2Pdevice d : Constants.p2pDevices) {
+			for (P2Pdevice d : Globals.p2pDevices) {
 				d.closeTransport();
 			}
 
 		} catch (InterruptedException ie) {
-			Constants.log.addMsg("Couldn't wait for all threads to cleanly shut down! Oh what a mess... Bye!", 1);
+			Globals.log.addMsg("Couldn't wait for all threads to cleanly shut down! Oh what a mess... Bye!", 1);
 		}
 		
 		cleanup(0);
 		
 		try {
-			Constants.shutdownBarrier.await();
+			Globals.shutdownBarrier.await();
 		} catch (InterruptedException ie) {
 
 		} catch (BrokenBarrierException bbe) {
-			Constants.log.addMsg(bbe.toString(), 4);
+			Globals.log.addMsg(bbe.toString(), 4);
 		}
 	}
 
@@ -166,15 +173,15 @@ public class Peergroup {
 				quit(9);
 			}
 			if (last.equals("-c")) {
-				Constants.config = current;
+				Globals.config = current;
 			}
 			if (current.equals("-s")) {
-				Constants.serverMode = true;
-				Constants.log.addMsg("Running in server mode", 2);
+				Globals.serverMode = true;
+				Globals.log.addMsg("Running in server mode", 2);
 			}
 			if (current.equals("-noGUI")) {
-				Constants.useGUI = false;
-				Constants.log.addMsg("Running in headless mode", 2);
+				Globals.useGUI = false;
+				Globals.log.addMsg("Running in headless mode", 2);
 			}
 			last = current;
 		}
@@ -187,7 +194,7 @@ public class Peergroup {
 	 */
 	private static boolean getConfig() {
 		try {
-			File xmlConfig = new File(Constants.config);
+			File xmlConfig = new File(Globals.config);
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 			Document doc = dBuilder.parse(xmlConfig);
@@ -206,34 +213,34 @@ public class Peergroup {
 
 					val = getTagValue("server", eElement);
 					if (val != null) {
-						Constants.server = val;
+						Globals.server = val;
 					} else {
-						Constants.log.addMsg("Required value missing in config: xmpp-account -> server", 1);
+						Globals.log.addMsg("Required value missing in config: xmpp-account -> server", 1);
 						return false;
 					}
 
 					val = getTagValue("user", eElement);
 					if (val != null) {
-						Constants.user = val;
+						Globals.user = val;
 					} else {
-						Constants.log.addMsg("Required value missing in config: xmpp-account -> user", 1);
+						Globals.log.addMsg("Required value missing in config: xmpp-account -> user", 1);
 						return false;
 					}
 
 					val = getTagValue("pass", eElement);
 					if (val != null) {
-						Constants.pass = val;
+						Globals.pass = val;
 					} else {
-						Constants.log.addMsg("Required value missing in config: xmpp-account -> pass", 1);
+						Globals.log.addMsg("Required value missing in config: xmpp-account -> pass", 1);
 						return false;
 					}
 
 					val = getTagValue("resource", eElement);
 					if (val != null) {
-						Constants.resource = val;
+						Globals.resource = val;
 					} else {
 						Random rand = new Random();
-						Constants.resource += rand.nextInt(99999);
+						Globals.resource += rand.nextInt(99999);
 					}
 
 					val = getTagValue("port", eElement);
@@ -241,9 +248,9 @@ public class Peergroup {
 						// Sanity check
 						if (Integer.parseInt(val) > 1024
 								&& Integer.parseInt(val) < 65536) {
-							Constants.port = Integer.parseInt(val);
+							Globals.port = Integer.parseInt(val);
 						} else {
-							Constants.log.addMsg("XMPP Port not in valid range: xmpp-account -> port (should be 1025-65535)", 1);
+							Globals.log.addMsg("XMPP Port not in valid range: xmpp-account -> port (should be 1025-65535)", 1);
 							return false;
 						}
 					}
@@ -264,23 +271,23 @@ public class Peergroup {
 
 					val = getTagValue("server", eElement);
 					if (val != null) {
-						Constants.conference_server = val;
+						Globals.conference_server = val;
 					} else {
-						Constants.log.addMsg("Required value missing in config: conference -> server", 1);
+						Globals.log.addMsg("Required value missing in config: conference -> server", 1);
 						return false;
 					}
 
 					val = getTagValue("channel", eElement);
 					if (val != null) {
-						Constants.conference_channel = val;
+						Globals.conference_channel = val;
 					} else {
-						Constants.log.addMsg("Required value missing in config: conference -> channel", 1);
+						Globals.log.addMsg("Required value missing in config: conference -> channel", 1);
 						return false;
 					}
 
 					val = getTagValue("pass", eElement);
 					if (val != null)
-						Constants.conference_pass = val;
+						Globals.conference_pass = val;
 
 				}
 			}
@@ -298,24 +305,24 @@ public class Peergroup {
 
 					val = getTagValue("share", eElement);
 					if (val != null)
-						Constants.rootDirectory = val;
+						Globals.rootDirectory = val;
 
 					val = getTagValue("extIP", eElement);
 					if (val != null) {
 						String parts[] = val.split(".");
 						if (parts.length != 4) {
-							Constants.log.addMsg("Not a valid IP address in config: " + val);
+							Globals.log.addMsg("Not a valid IP address in config: " + val);
 							return false;
 						}
 						int test;
 						for (String part : parts) {
 							test = Integer.parseInt(part);
 							if (test < 0 || test > 255) {
-								Constants.log.addMsg("Not a valid IP address in config: " + val);
+								Globals.log.addMsg("Not a valid IP address in config: " + val);
 								return false;
 							}
 						}
-						Constants.ipAddress = val;
+						Globals.ipAddress = val;
 					}
 
 					val = getTagValue("port", eElement);
@@ -323,32 +330,32 @@ public class Peergroup {
 						// Sanity check
 						if (Integer.parseInt(val) > 1024
 								&& Integer.parseInt(val) < 65536) {
-							Constants.p2pPort = Integer.parseInt(val);
+							Globals.p2pPort = Integer.parseInt(val);
 						} else {
-							Constants.log.addMsg("P2P Port not in valid range: xmpp-account -> port (should be 1025-65535)", 1);
+							Globals.log.addMsg("P2P Port not in valid range: xmpp-account -> port (should be 1025-65535)", 1);
 							return false;
 						}
 					}
 				}
 			}
-			Constants.log.addMsg("Using " + Constants.config
+			Globals.log.addMsg("Using " + Globals.config
 					+ "... Ignoring commandline arguments!", 3);
 		} catch (FileNotFoundException fnf) {
-			Constants.log.addMsg(
+			Globals.log.addMsg(
 					"Could not find config file! Creating sample file...", 1);
-			Constants.log.addMsg("Please edit config.smp to your needs and rename it to config.xml", 4);
+			Globals.log.addMsg("Please edit config.smp to your needs and rename it to config.xml", 4);
 			createSampleConfig();
 			return false;
 		} catch (NumberFormatException nfe) {
-			Constants.log.addMsg("Value is not a number: " + nfe.getMessage() + " - Correct your config file!", 1);
+			Globals.log.addMsg("Value is not a number: " + nfe.getMessage() + " - Correct your config file!", 1);
 			return false;
 		} catch (NullPointerException npe) {
-			Constants.log.addMsg("Value missing in config: " + npe, 1);
-			Constants.log.addMsg("Please edit config.smp to your needs and rename it to config.xml", 4);
+			Globals.log.addMsg("Value missing in config: " + npe, 1);
+			Globals.log.addMsg("Please edit config.smp to your needs and rename it to config.xml", 4);
 			createSampleConfig();
 			return false;
 		} catch (Exception ioe) {
-			Constants.log.addMsg("Error reading config: " + ioe, 1);
+			Globals.log.addMsg("Error reading config: " + ioe, 1);
 			return false;
 		}
 		return true;
@@ -373,21 +380,21 @@ public class Peergroup {
 			BufferedWriter bw = new BufferedWriter(fw);
 			String sample = "<?xml version=\"1.0\"?>\n" + "<peergroup>\n"
 					+ "\t<xmpp-account>\n"
-					+ "\t\t<server>" + Constants.server + "</server>\n"
-					+ "\t\t<user>" + Constants.user + "</user>\n"
-					+ "\t\t<pass>" + Constants.pass + "</pass>\n"
+					+ "\t\t<server>" + Globals.server + "</server>\n"
+					+ "\t\t<user>" + Globals.user + "</user>\n"
+					+ "\t\t<pass>" + Globals.pass + "</pass>\n"
 					+ "\t\t<resource></resource>\n" + "\t\t<port></port>\n"
 					+ "\t</xmpp-account>\n" + "\t<conference>\n"
-					+ "\t\t<server>" + Constants.conference_server + "</server>\n"
-					+ "\t\t<channel>" + Constants.conference_channel + "</channel>\n"
-					+ "\t\t<pass>" + Constants.conference_pass + "</pass>\n" + "\t</conference>\n"
+					+ "\t\t<server>" + Globals.conference_server + "</server>\n"
+					+ "\t\t<channel>" + Globals.conference_channel + "</channel>\n"
+					+ "\t\t<pass>" + Globals.conference_pass + "</pass>\n" + "\t</conference>\n"
 					+ "\t<pg-settings>\n" + "\t\t<share>./share/</share>\n"
-					+ "\t\t<extIP></extIP>\n" + "\t\t<port>" + Constants.p2pPort + "</port>\n"
+					+ "\t\t<extIP></extIP>\n" + "\t\t<port>" + Globals.p2pPort + "</port>\n"
 					+ "\t</pg-settings>\n" + "</peergroup>";
 			bw.write(sample, 0, sample.length());
 			bw.close();
 		} catch (Exception e) {
-			Constants.log.addMsg("Couldn't create config", 1);
+			Globals.log.addMsg("Couldn't create config", 1);
 			quit(12);
 		}
 
@@ -416,7 +423,7 @@ public class Peergroup {
 			bw.write(sample, 0, sample.length());
 			bw.close();
 		} catch (Exception e) {
-			Constants.log.addMsg("Couldn't create sample config", 1);
+			Globals.log.addMsg("Couldn't create sample config", 1);
 			quit(12);
 		}
 
@@ -463,30 +470,30 @@ public class Peergroup {
 				System.exit(0);
 			}
 
-			Constants.localIP = local.getHostAddress();
+			Globals.localIP = local.getHostAddress();
 		} catch (SocketException se) {
-			Constants.log.addMsg("Cannot get local IP: " + se, 4);
+			Globals.log.addMsg("Cannot get local IP: " + se, 4);
 		}
 
 		// Get external IP
-		if (!Constants.ipAddress.equals("")) {
-			Constants.log.addMsg("External IP was manually set, skipping the guessing.");
+		if (!Globals.ipAddress.equals("")) {
+			Globals.log.addMsg("External IP was manually set, skipping the guessing.");
 			return;
 		}
 		try {
 			URL whatismyip = new URL("http://files.smashnet.de/getIP.php");
 			BufferedReader in = new BufferedReader(new InputStreamReader(whatismyip.openStream()));
 
-			Constants.ipAddress = in.readLine();
-			Constants.log.addMsg("Found external IP: " + Constants.ipAddress);
+			Globals.ipAddress = in.readLine();
+			Globals.log.addMsg("Found external IP: " + Globals.ipAddress);
 		} catch (Exception e) {
-			Constants.log.addMsg("Couldn't get external IP! " + e + " Try setting it manually!", 1);
+			Globals.log.addMsg("Couldn't get external IP! " + e + " Try setting it manually!", 1);
 			quit(1);
 		}
 	}
 
 	private static void doUPnP() {
-		if (!Constants.doUPnP)
+		if (!Globals.doUPnP)
 			return;
 		int discoveryTimeout = 5000; // 5 secs to receive a response from
 		// devices
@@ -495,38 +502,38 @@ public class Peergroup {
 					.getDevices(discoveryTimeout);
 			if (IGDs != null) {
 				// let's the the first device found
-				Constants.igd = IGDs[0];
-				Constants.log.addMsg("Found device "
-						+ Constants.igd.getIGDRootDevice().getModelName());
+				Globals.igd = IGDs[0];
+				Globals.log.addMsg("Found device "
+						+ Globals.igd.getIGDRootDevice().getModelName());
 
 				// now let's open the port
 				// we assume that localHostIP is something else than 127.0.0.1
-				boolean mapped = Constants.igd.addPortMapping("Peergroup",
-						null, Constants.p2pPort, Constants.p2pPort,
-						Constants.localIP, 0, "TCP");
+				boolean mapped = Globals.igd.addPortMapping("Peergroup",
+						null, Globals.p2pPort, Globals.p2pPort,
+						Globals.localIP, 0, "TCP");
 				if (mapped) {
-					Constants.log.addMsg("Port " + Constants.p2pPort
-							+ " mapped to " + Constants.localIP);
+					Globals.log.addMsg("Port " + Globals.p2pPort
+							+ " mapped to " + Globals.localIP);
 				}
 			} else {
-				Constants.log.addMsg(
+				Globals.log.addMsg(
 						"No UPnP enabled router found! You probably have to forward port "
-								+ Constants.p2pPort
+								+ Globals.p2pPort
 								+ " in your router manually to your local IP "
-								+ Constants.localIP, 4);
+								+ Globals.localIP, 4);
 			}
 		} catch (IOException ex) {
-			Constants.log.addMsg("Failed to open port: " + ex, 4);
-			Constants.log.addMsg("Maybe the port is already open?", 4);
+			Globals.log.addMsg("Failed to open port: " + ex, 4);
+			Globals.log.addMsg("Maybe the port is already open?", 4);
 		} catch (UPNPResponseException respEx) {
-			Constants.log.addMsg("Failed to open port: " + respEx, 4);
-			Constants.log.addMsg("Maybe the port is already open?", 4);
+			Globals.log.addMsg("Failed to open port: " + respEx, 4);
+			Globals.log.addMsg("Maybe the port is already open?", 4);
 		}
 	}
 
 	private static void doInitialDirectoryScan() {
-		Constants.folders = new LinkedList<String>();
-		Constants.log.addMsg("Doing initial scan of share directory...");
+		Globals.folders = new LinkedList<String>();
+		Globals.log.addMsg("Doing initial scan of share directory...");
 		File root = Storage.getInstance().getDirHandle();
 		iterateFilesOnInitScan(root);
 	}
@@ -537,12 +544,12 @@ public class Peergroup {
 				continue;
 			}
 			if (newFile.isDirectory()) {
-				Constants.folders.add(newFile.getPath());
+				Globals.folders.add(newFile.getPath());
 				iterateFilesOnInitScan(newFile);
 			} else if (newFile.isFile()) {
-				Constants.log.addMsg("Found: " + newFile.getName(), 2);
+				Globals.log.addMsg("Found: " + newFile.getName(), 2);
 				handleLocalFileInitScan(new FSRequest(
-						Constants.LOCAL_FILE_INITSCAN, newFile.getPath()));
+						Globals.LOCAL_FILE_INITSCAN, newFile.getPath()));
 			}
 		}
 	}
@@ -550,7 +557,7 @@ public class Peergroup {
 	private static void handleLocalFileInitScan(FSRequest request) {
 		String newEntry = StorageWorker.getPurePath(request.getContent());
 		if (Storage.getInstance().fileExists(newEntry) != null) {
-			Constants.log.addMsg("InitScan: File already exists, ignoring!", 4);
+			Globals.log.addMsg("InitScan: File already exists, ignoring!", 4);
 			return;
 		}
 		Storage.getInstance().newFileFromLocal(newEntry);
@@ -563,59 +570,59 @@ public class Peergroup {
 			// so we need to shut down Peergroup
 			quit(5);
 		}
-		xmppNet.joinMUC(Constants.user, Constants.conference_pass, Constants.conference_channel + "@" + Constants.conference_server);
+		xmppNet.joinMUC(Globals.user, Globals.conference_pass, Globals.conference_channel + "@" + Globals.conference_server);
 		xmppNet.sendMUCmessage("Hi, I'm a peergroup client. I do awesome things :-)");
 	}
 
 	private static void enqueueThreadStart() {
-		Constants.requestQueue.offer(new Request(Constants.START_THREADS));
+		Globals.requestQueue.offer(new Request(Globals.START_THREADS));
 	}
 
 	public static void cleanup(int no) {
-		if (Constants.quitting)
+		if (Globals.quitting)
 			return;
 
-		Constants.quitting = true;
+		Globals.quitting = true;
 
-		if (Constants.igd != null) {
+		if (Globals.igd != null) {
 			try {
-				boolean unmapped = Constants.igd.deletePortMapping(null, Constants.p2pPort, "TCP");
-				if (unmapped) {Constants.log.addMsg("Released port mapping for Peergroup on port "
-							+ Constants.p2pPort);
+				boolean unmapped = Globals.igd.deletePortMapping(null, Globals.p2pPort, "TCP");
+				if (unmapped) {Globals.log.addMsg("Released port mapping for Peergroup on port "
+							+ Globals.p2pPort);
 				}
 			} catch (IOException ioe) {
-				Constants.log.addMsg("Error unmapping port: " + ioe, 4);
+				Globals.log.addMsg("Error unmapping port: " + ioe, 4);
 			} catch (UPNPResponseException respEx) {
-				Constants.log.addMsg("Error unmapping port: " + respEx, 4);
+				Globals.log.addMsg("Error unmapping port: " + respEx, 4);
 			}
 		}
 
-		Constants.log.closeLog();
+		Globals.log.closeLog();
 	}
 	
 	public static void quit(int no) {
-		if (Constants.quitting)
+		if (Globals.quitting)
 			return;
 
-		Constants.quitting = true;
+		Globals.quitting = true;
 
-		if (Constants.igd != null) {
+		if (Globals.igd != null) {
 			try {
-				boolean unmapped = Constants.igd.deletePortMapping(null,
-						Constants.p2pPort, "TCP");
+				boolean unmapped = Globals.igd.deletePortMapping(null,
+						Globals.p2pPort, "TCP");
 				if (unmapped) {
-					Constants.log
+					Globals.log
 					.addMsg("Released port mapping for Peergroup on port "
-							+ Constants.p2pPort);
+							+ Globals.p2pPort);
 				}
 			} catch (IOException ioe) {
-				Constants.log.addMsg("Error unmapping port: " + ioe, 4);
+				Globals.log.addMsg("Error unmapping port: " + ioe, 4);
 			} catch (UPNPResponseException respEx) {
-				Constants.log.addMsg("Error unmapping port: " + respEx, 4);
+				Globals.log.addMsg("Error unmapping port: " + respEx, 4);
 			}
 		}
 
-		Constants.log.closeLog();
+		Globals.log.closeLog();
 		System.exit(no);
 	}
 }

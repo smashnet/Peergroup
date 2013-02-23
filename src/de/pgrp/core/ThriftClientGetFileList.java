@@ -45,7 +45,7 @@ public class ThriftClientGetFileList extends Thread {
 	 */
 	@Override
 	public void run() {
-		Constants.log.addMsg("DOWNLOAD_CURRENT_FILE_LIST: Version " + vers
+		Globals.log.addMsg("DOWNLOAD_CURRENT_FILE_LIST: Version " + vers
 				+ " from " + node.getJID());
 		ThriftStorage newStorage = node.getFileList();
 		LinkedList<FileHandle> newFiles = new LinkedList<FileHandle>();
@@ -72,7 +72,7 @@ public class ThriftClientGetFileList extends Thread {
 						fh.getChunkSize(), chunks);
 				newFiles.add(newHandle);
 			} catch (Exception e) {
-				Constants.log.addMsg(
+				Globals.log.addMsg(
 						"Error creating FileHandle for " + fh.getFilename()
 						+ " while receiving FileList", 2);
 			}

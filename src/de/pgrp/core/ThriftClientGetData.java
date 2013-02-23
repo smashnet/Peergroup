@@ -24,6 +24,7 @@ package de.pgrp.core;
 import javax.crypto.*;
 import javax.crypto.spec.*;
 import java.security.spec.*;
+import java.util.Iterator;
 
 /**
  * This thread requests blocks or FileList information from other peers.
@@ -51,7 +52,7 @@ public class ThriftClientGetData implements Runnable {
 			if (device == null) {
 				return;
 			}
-			Constants.log.addMsg("DOWNLOAD_BLOCK: " + chunk.getName()
+			Globals.log.addMsg("DOWNLOAD_BLOCK: " + chunk.getName()
 					+ " - Block " + chunk.getID() + " from " + device.getIP()
 					+ ":" + device.getPort());
 
@@ -74,8 +75,8 @@ public class ThriftClientGetData implements Runnable {
 				byte[] salt = { 0x12, 0x78, 0x4F, 0x33, 0x13, 0x4B, 0x6B, 0x2F };
 				// If we use a password for our channel, use it to decrypt the
 				// data
-				if (!Constants.conference_pass.equals(""))
-					plainkey = Constants.conference_pass;
+				if (!Globals.conference_pass.equals(""))
+					plainkey = Globals.conference_pass;
 
 				try {
 					SecretKeyFactory fac = SecretKeyFactory
@@ -102,27 +103,24 @@ public class ThriftClientGetData implements Runnable {
 						return;
 					}
 
-					Constants.log.addMsg(chunk.getName() + " Block "
-							+ chunk.getID() + ": Hash OK!");
+					Globals.log.addMsg(chunk.getName() + " Block " + chunk.getID() + ": Hash OK!");
 
 					chunk.setDownloading(false);
 					chunk.setComplete(true);
 					chunk.setFailed(false);
-					Constants.storeQueue.offer(new StoreBlock(tmp, chunk
-							.getID(), chunk.getHexHash(), device, data));
+					
+					removeChunkFromDownloadsList(chunk);
+					
+					Globals.storeQueue.offer(new StoreBlock(tmp, chunk.getID(), chunk.getHexHash(), device, data));
 					if (!tmp.isDownloading() && !tmp.hasFailed()) {
 						tmp.setTimeBool(false);
-						long dlTime = System.currentTimeMillis()
-								- tmp.getDLTime();
+						long dlTime = System.currentTimeMillis() - tmp.getDLTime();
 						double res = ((double) dlTime) / 1000;
-						Network.getInstance()
-						.sendMUCmessage(
-								tmp.getPath() + "," + tmp.getSize()
-								+ "," + res);
+						Network.getInstance().sendMUCmessage(tmp.getPath() + "," + tmp.getSize() + "," + res);
 					}
 
 				} catch (Exception e) {
-					Constants.log.addMsg(e.toString());
+					Globals.log.addMsg(e.toString());
 					chunk.setComplete(false);
 					chunk.setDownloading(false);
 					chunk.setFailed(true);
@@ -133,6 +131,13 @@ public class ThriftClientGetData implements Runnable {
 				chunk.setDownloading(false);
 				chunk.setFailed(true);
 			}
+		}
+	}
+
+	private void removeChunkFromDownloadsList(FileChunk chunk2) {
+		synchronized(Globals.downloadsList){
+			DLULItem tmp = new DLULItem(chunk2.getName(),chunk2.getID());
+			Globals.downloadsList.remove(tmp);
 		}
 	}
 

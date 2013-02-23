@@ -50,20 +50,20 @@ public class ThriftServerWorker extends Thread {
 	public void run() {
 		this.setName("Thrift-Server Thread");
 		try {
-			this.serverTransport = new TServerSocket(Constants.p2pPort);
+			this.serverTransport = new TServerSocket(Globals.p2pPort);
 			this.processor = new DataTransfer.Processor(new ThriftDataHandler());
 			TThreadPoolServer.Args tpsa = new TThreadPoolServer.Args(
 					serverTransport).processor(processor);
 			this.server = new TThreadPoolServer(tpsa);
 
-			Constants.log.addMsg("Starting thrift handler on port "
-					+ Constants.p2pPort);
+			Globals.log.addMsg("Starting thrift handler on port "
+					+ Globals.p2pPort);
 			this.server.serve();
 		} catch (TTransportException e) {
-			Constants.log.addMsg("Thrift server error: " + e);
+			Globals.log.addMsg("Thrift server error: " + e);
 		}
 
-		Constants.log.addMsg("Thrift-Server-Thread interrupted. Closing...", 4);
+		Globals.log.addMsg("Thrift-Server-Thread interrupted. Closing...", 4);
 	}
 
 	/**

@@ -50,83 +50,83 @@ public class MainWorker extends Thread {
 	@Override
 	public void run() {
 		this.setName("Main Thread");
-		Constants.log.addMsg("Main thread started...");
+		Globals.log.addMsg("Main thread started...");
 
 		/*
 		 * Main loop, takes requests from the queue and processes them
 		 */
 		while (!isInterrupted()) {
 			try {
-				Request nextRequest = Constants.requestQueue.take();
+				Request nextRequest = Globals.requestQueue.take();
 				switch (nextRequest.getID()) {
-				case Constants.LOCAL_FILE_CREATE:
-					Constants.log
+				case Globals.LOCAL_FILE_CREATE:
+					Globals.log
 					.addMsg("MainWorker: Handling LOCAL_FILE_CREATE");
 					handleLocalFileCreate((FSRequest) nextRequest);
 					break;
-				case Constants.LOCAL_DIR_CREATE:
-					Constants.log
+				case Globals.LOCAL_DIR_CREATE:
+					Globals.log
 					.addMsg("MainWorker: Handling LOCAL_DIR_CREATE");
 					handleLocalDirCreate((FSRequest) nextRequest);
 					break;
-				case Constants.LOCAL_FILE_DELETE:
-					Constants.log
+				case Globals.LOCAL_FILE_DELETE:
+					Globals.log
 					.addMsg("MainWorker: Handling LOCAL_FILE_DELETE");
 					handleLocalFileDelete((FSRequest) nextRequest);
 					break;
-				case Constants.LOCAL_DIR_DELETE:
-					Constants.log
+				case Globals.LOCAL_DIR_DELETE:
+					Globals.log
 					.addMsg("MainWorker: Handling LOCAL_DIR_DELETE");
 					handleLocalDirDelete((FSRequest) nextRequest);
 					break;
-				case Constants.LOCAL_FILE_MODIFY:
-					Constants.log
+				case Globals.LOCAL_FILE_MODIFY:
+					Globals.log
 					.addMsg("MainWorker: Handling LOCAL_FILE_MODIFY");
 					handleLocalFileModify((FSRequest) nextRequest);
 					break;
-				case Constants.REMOTE_FILE_CREATE:
-					Constants.log
+				case Globals.REMOTE_FILE_CREATE:
+					Globals.log
 					.addMsg("MainWorker: Handling REMOTE_FILE_CREATE");
 					handleRemoteFileCreate((XMPPRequest) nextRequest);
 					break;
-				case Constants.REMOTE_DIR_CREATE:
-					Constants.log
+				case Globals.REMOTE_DIR_CREATE:
+					Globals.log
 					.addMsg("MainWorker: Handling REMOTE_DIR_CREATE");
 					handleRemoteDirCreate((XMPPRequest) nextRequest);
 					break;
-				case Constants.REMOTE_ITEM_DELETE:
-					Constants.log
+				case Globals.REMOTE_ITEM_DELETE:
+					Globals.log
 					.addMsg("MainWorker: Handling REMOTE_ITEM_DELETE");
 					handleRemoteItemDelete((XMPPRequest) nextRequest);
 					break;
-				case Constants.REMOTE_FILE_MODIFY:
-					Constants.log
+				case Globals.REMOTE_FILE_MODIFY:
+					Globals.log
 					.addMsg("MainWorker: Handling REMOTE_FILE_MODIFY");
 					handleRemoteFileModify((XMPPRequest) nextRequest);
 					break;
-				case Constants.REMOTE_CHUNK_COMPLETE:
+				case Globals.REMOTE_CHUNK_COMPLETE:
 					// Constants.log.addMsg("MainWorker: Handling REMOTE_CHUNK_COMPLETE");
 					handleRemoteChunkComplete((XMPPRequest) nextRequest);
 					break;
-				case Constants.REMOTE_FILE_COMPLETE:
-					Constants.log
+				case Globals.REMOTE_FILE_COMPLETE:
+					Globals.log
 					.addMsg("MainWorker: Handling REMOTE_FILE_COMPLETE");
 					handleRemoteFileComplete((XMPPRequest) nextRequest);
 					break;
-				case Constants.REMOTE_JOINED_CHANNEL:
-					Constants.log
+				case Globals.REMOTE_JOINED_CHANNEL:
+					Globals.log
 					.addMsg("MainWorker: Handling REMOTE_JOINED_CHANNEL");
 					handleRemoteJoinedChannel((XMPPRequest) nextRequest);
 					break;
-				case Constants.START_THREADS:
+				case Globals.START_THREADS:
 					handleStartThreads();
 					break;
-				case Constants.LOCAL_FILE_INITSCAN:
-					Constants.log
+				case Globals.LOCAL_FILE_INITSCAN:
+					Globals.log
 					.addMsg("MainWorker: Handling LOCAL_FILE_INITSCAN");
 					handleLocalFileInitScan((FSRequest) nextRequest);
 					break;
-				case Constants.STH_EVIL_HAPPENED:
+				case Globals.STH_EVIL_HAPPENED:
 					handleEvilEvents((FSRequest) nextRequest);
 				default:
 				}
@@ -134,7 +134,7 @@ public class MainWorker extends Thread {
 				interrupt();
 			}
 		}
-		Constants.log.addMsg("Main thread interrupted. Closing...", 4);
+		Globals.log.addMsg("Main thread interrupted. Closing...", 4);
 	}
 
 	/**
@@ -145,7 +145,7 @@ public class MainWorker extends Thread {
 	 */
 	private void handleLocalFileCreate(FSRequest request) {
 		if (myStorage.fileExists(request.getContent()) != null) {
-			Constants.log.addMsg("MainWorker: File already exists, ignoring!", 4);
+			Globals.log.addMsg("MainWorker: File already exists, ignoring!", 4);
 			return;
 		}
 		FileHandle newFile = this.myStorage.newFileFromLocal(request.getContent());
@@ -175,13 +175,13 @@ public class MainWorker extends Thread {
 		// Only handle existing files
 		FileHandle tmp;
 		if ((tmp = myStorage.fileExists(request.getContent())) == null) {
-			Constants.log
+			Globals.log
 			.addMsg("Cannot delete file: File does not exist in datastructure.");
 			return;
 		}
 		// Only handle files that are currently stable
 		if (tmp.isUpdating()) {
-			Constants.log
+			Globals.log
 			.addMsg("Cannot delete file: File is currently updating.");
 			return;
 		}
@@ -272,7 +272,7 @@ public class MainWorker extends Thread {
 		P2Pdevice remoteNode = P2Pdevice.getDevice(jid, ip, port);
 
 		myStorage.newFileFromXMPP(name, hash, size, blocks,
-				Constants.chunkSize, remoteNode);
+				Globals.chunkSize, remoteNode);
 		Network.getInstance().sendMUCmessage(
 				"Start downloading >> " + name + " (" + size + "Bytes) <<");
 	}
@@ -398,31 +398,31 @@ public class MainWorker extends Thread {
 	}
 
 	private void handleStartThreads() {
-		if (!Constants.serverMode)
-			Constants.storage = new StorageWorker();
+		if (!Globals.serverMode)
+			Globals.storage = new StorageWorker();
 
-		Constants.network = new NetworkWorker();
-		Constants.thrift = new ThriftServerWorker();
-		Constants.thriftClient = new ThriftClientWorker();
+		Globals.network = new NetworkWorker();
+		Globals.thrift = new ThriftServerWorker();
+		Globals.thriftClient = new ThriftClientWorker();
 
-		if (!Constants.serverMode)
-			Constants.storage.start();
+		if (!Globals.serverMode)
+			Globals.storage.start();
 
-		Constants.network.start();
-		Constants.thrift.start();
-		Constants.thriftClient.start();
+		Globals.network.start();
+		Globals.thrift.start();
+		Globals.thriftClient.start();
 
-		if (Constants.enableModQueue) {
-			Constants.modQueue = new DelayQueueWorker();
-			Constants.modQueue.start();
+		if (Globals.enableModQueue) {
+			Globals.modQueue = new DelayQueueWorker();
+			Globals.modQueue.start();
 		}
 
 		try {
-			Constants.bootupBarrier.await();
+			Globals.bootupBarrier.await();
 		} catch (InterruptedException ie) {
 
 		} catch (BrokenBarrierException bbe) {
-			Constants.log.addMsg(bbe.toString(), 4);
+			Globals.log.addMsg(bbe.toString(), 4);
 		}
 	}
 
@@ -435,7 +435,7 @@ public class MainWorker extends Thread {
 	private void handleLocalFileInitScan(FSRequest request) {
 		String newEntry = StorageWorker.getPurePath(request.getContent());
 		if (myStorage.fileExists(newEntry) != null) {
-			Constants.log.addMsg("MainWorker: File already exists, ignoring!",
+			Globals.log.addMsg("MainWorker: File already exists, ignoring!",
 					4);
 			return;
 		}
@@ -450,21 +450,21 @@ public class MainWorker extends Thread {
 	 *            The request containing error information
 	 */
 	private void handleEvilEvents(FSRequest request) {
-		Constants.log.addMsg(
+		Globals.log.addMsg(
 				"Something evil happened: " + request.getContent(), 1);
 
-		if (Constants.storage != null)
-			Constants.storage.stopStorageWorker();
-		if (Constants.network != null)
-			Constants.network.stopNetworkWorker();
-		if (Constants.thriftClient != null)
-			Constants.thriftClient.stopPoolExecutor();
-		if (Constants.enableModQueue) {
-			if (Constants.modQueue != null)
-				Constants.modQueue.interrupt();
+		if (Globals.storage != null)
+			Globals.storage.stopStorageWorker();
+		if (Globals.network != null)
+			Globals.network.stopNetworkWorker();
+		if (Globals.thriftClient != null)
+			Globals.thriftClient.stopPoolExecutor();
+		if (Globals.enableModQueue) {
+			if (Globals.modQueue != null)
+				Globals.modQueue.interrupt();
 		}
-		if (Constants.main != null)
-			Constants.main.interrupt();
+		if (Globals.main != null)
+			Globals.main.interrupt();
 
 		Peergroup.quit(666);
 	}

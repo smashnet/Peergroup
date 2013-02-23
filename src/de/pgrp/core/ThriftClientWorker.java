@@ -64,6 +64,11 @@ public class ThriftClientWorker extends Thread {
 				FileChunk tmp;
 				if ((tmp = Storage.getInstance().getRarestChunk()) != null) {
 					tmp.setDownloading(true);
+					
+					synchronized(Globals.downloadsList){
+						Globals.downloadsList.add(new DLULItem(tmp.getName(),tmp.getID()));
+					}
+					
 					this.runTask(new ThriftClientGetData(tmp));
 				} else {
 					Thread.sleep(100);
@@ -73,7 +78,7 @@ public class ThriftClientWorker extends Thread {
 			}
 		}
 		this.threadPool.shutdown();
-		Constants.log.addMsg(
+		Globals.log.addMsg(
 				"ThriftClientThreadPool interrupted/finished. Closing...", 4);
 	}
 
