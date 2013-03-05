@@ -1,0 +1,9 @@
+#TODO
+
+##Core
+
+* New joining peer does not download existing data
+
+##GUI
+
+* Improve
