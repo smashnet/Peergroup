@@ -7,3 +7,4 @@
 ##GUI
 
 * Improve
+* Console window should automatically scroll to bottom
