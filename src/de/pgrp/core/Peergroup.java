@@ -179,9 +179,9 @@ public class Peergroup {
 				Globals.serverMode = true;
 				Globals.log.addMsg("Running in server mode", 2);
 			}
-			if (current.equals("-noGUI")) {
-				Globals.useGUI = false;
-				Globals.log.addMsg("Running in headless mode", 2);
+			if (current.equals("-GUI")) {
+				Globals.useGUI = true;
+				Globals.log.addMsg("Running in GUI mode", 2);
 			}
 			last = current;
 		}
@@ -440,6 +440,7 @@ public class Peergroup {
 		out += "  -h                            Prints this help\n";
 		out += "  -c              [CONFIG]      Set the config xml file\n";
 		out += "  -s                            Server mode (no reaction on hd activity)\n";
+		out += "  -GUI                          Show a nice GUI on startup";
 		return out;
 	}
 

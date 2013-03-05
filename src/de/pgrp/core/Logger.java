@@ -138,7 +138,8 @@ public class Logger {
 			String log = this.getTimeString() + txt;
 			this.bw.write(log + '\n');
 			System.out.println(log);
-			LogWindow.getInstance().addText(log + System.getProperty( "line.separator" ));
+			if(Globals.useGUI)
+				LogWindow.getInstance().addText(log + System.getProperty( "line.separator" ));
 		}catch(IOException ioe){
 			System.out.println("Caught error: " + ioe);
 		}
@@ -184,7 +185,8 @@ public class Logger {
 			}else{
 				this.bw.write(time + txt + '\n');
 				System.out.print(time + txt + '\n');
-				LogWindow.getInstance().addText(time + txt + System.getProperty( "line.separator" ));
+				if(Globals.useGUI)
+					LogWindow.getInstance().addText(time + txt + System.getProperty( "line.separator" ));
 			}
 			this.bw.flush();
 		}catch(IOException ioe){

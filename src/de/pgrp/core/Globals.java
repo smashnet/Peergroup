@@ -148,7 +148,7 @@ public class Globals {
 	 * Stuff
 	 */
 	public static boolean serverMode = false;
-	public static boolean useGUI = true;
+	public static boolean useGUI = false;
 	public static boolean doUPnP = true;
 	public static boolean enableModQueue = true;
 	public static String ipAddress = "";
