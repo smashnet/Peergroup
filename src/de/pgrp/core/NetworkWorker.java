@@ -241,13 +241,11 @@ public class NetworkWorker extends Thread {
 				ip = (String) newMessage.getProperty("IP");
 				port = ((Integer) newMessage.getProperty("Port")).intValue();
 				Globals.log.addMsg(jid + " reannounced: " + filename);
-				FileHandle reannounced = Storage.getInstance().getFileHandle(
-						filename);
+				FileHandle reannounced = Storage.getInstance().getFileHandle(filename);
 				P2Pdevice reannouncer = P2Pdevice.getDevice(jid, ip, port);
 				reannounced.addP2PdeviceToAllBlocks(reannouncer);
 				if (!reannounced.isComplete()) {
-					LinkedList<FileChunk> incomplete = reannounced
-							.getIncomplete();
+					LinkedList<FileChunk> incomplete = reannounced.getIncomplete();
 					for (FileChunk fc : incomplete) {
 						fc.setDownloading(false);
 						fc.setComplete(false);

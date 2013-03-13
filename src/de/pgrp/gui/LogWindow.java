@@ -2,6 +2,7 @@ package de.pgrp.gui;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JTextArea;
@@ -56,5 +57,7 @@ public class LogWindow extends JFrame {
 	
 	public void addText(String text){
 		this.console.append(text);
+		JScrollBar sb = this.scrolly.getVerticalScrollBar();
+		sb.setValue(sb.getMaximum());
 	}
 }

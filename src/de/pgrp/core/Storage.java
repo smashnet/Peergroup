@@ -315,8 +315,7 @@ public class Storage {
 	 * @param node
 	 *            The P2Pdevice
 	 */
-	public void addP2PdeviceToBlocks(String fileName, LinkedList<Integer> list,
-			P2Pdevice node) {
+	public void addP2PdeviceToBlocks(String fileName, LinkedList<Integer> list, P2Pdevice node) {
 		for (FileHandle h : getFileList()) {
 			if (h.getPath().equals(fileName)) {
 				for (Integer no : list) {
@@ -445,8 +444,7 @@ public class Storage {
 		// Handle local-only files
 		for (FileHandle fh : localOnlyFiles) {
 			System.out.println("Local only: " + fh.getPath());
-			myNetwork.sendMUCNewFile(fh.getPath(), fh.getSize(),
-					fh.getByteHash(), fh.getBlockIDwithHash());
+			myNetwork.sendMUCNewFile(fh.getPath(), fh.getSize(), fh.getByteHash(), fh.getBlockIDwithHash());
 		}
 		// Handle remote-only files
 		for (FileHandle fh : remoteOnlyFiles) {
@@ -462,8 +460,7 @@ public class Storage {
 		}
 		// Handle files to be reannounced
 		for (FileHandle fh : reannounceFiles) {
-			myNetwork.sendMUCReannounceFile(fh.getPath(), fh.getSize(),
-					fh.getByteHash());
+			myNetwork.sendMUCReannounceFile(fh.getPath(), fh.getSize(),	fh.getByteHash());
 		}
 		// Handle incomplete files
 		for (FileHandle fh : incompleteFiles) {

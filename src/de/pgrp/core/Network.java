@@ -24,6 +24,7 @@ package de.pgrp.core;
 import java.util.LinkedList;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smackx.Form;
 import org.jivesoftware.smackx.muc.*;
 
 /**
@@ -55,9 +56,7 @@ public class Network {
 			} catch (InterruptedException ie) {
 
 			} finally {
-				Globals.requestQueue.offer(new FSRequest(
-						Globals.STH_EVIL_HAPPENED,
-						"Coudln't create Network object"));
+				Globals.requestQueue.offer(new FSRequest(Globals.STH_EVIL_HAPPENED, "Coudln't create Network object"));
 			}
 		}
 	}
@@ -76,11 +75,8 @@ public class Network {
 	 */
 	private void xmppLogin() {
 		try {
-			this.xmppCon.login(Globals.user, Globals.pass,
-					Globals.resource);
-			Globals.log.addMsg("Successfully logged into XMPP Server as: "
-					+ Globals.user + "@" + Globals.server + "/"
-					+ Globals.resource);
+			this.xmppCon.login(Globals.user, Globals.pass, Globals.resource);
+			Globals.log.addMsg("Successfully logged into XMPP Server as: " + Globals.user + "@" + Globals.server + "/" + Globals.resource);
 		} catch (XMPPException xe) {
 			Globals.log.addMsg("Unable to log into XMPP Server: " + xe, 4);
 		}
@@ -95,9 +91,7 @@ public class Network {
 	private boolean xmppConnect() {
 		try {
 			this.xmppCon.connect();
-			Globals.log
-			.addMsg("Successfully established connection to XMPP Server: "
-					+ Globals.server);
+			Globals.log.addMsg("Successfully established connection to XMPP Server: " + Globals.server);
 			if (this.xmppCon.isSecureConnection()) {
 				Globals.log.addMsg("XMPP connection is secure.", 2);
 			} else {
@@ -150,20 +144,49 @@ public class Network {
 	 *            foo@conference.bar.com)
 	 */
 	public void joinMUC(String user, String pass, String roomAndServer) {
+		//Check if room already exists
+		boolean exists = true;
+		try{
+			RoomInfo info = MultiUserChat.getRoomInfo(getConnection(), roomAndServer);
+			if(info.isPasswordProtected() && pass.equals("")){
+				Globals.log.addMsg("We need to use a password for this room!");
+				Globals.requestQueue.offer(new FSRequest(Globals.STH_EVIL_HAPPENED, 
+						"Unable to join conference channel: " + roomAndServer));
+				this.joinedAChannel = false;
+				return;
+			}
+		} catch (XMPPException xe){
+			//Room does NOT exist, we need to create it
+			exists = false;
+		}
+		if(!exists){
+			//Create room
+			this.muc = new MultiUserChat(getConnection(), roomAndServer);
+			try {
+				muc.create(user);
+				Form submitForm;
+				submitForm = this.muc.getConfigurationForm().createAnswerForm();
+				submitForm.setAnswer("muc#roomconfig_publicroom", false);
+				submitForm.setAnswer("muc#roomconfig_roomname", roomAndServer.split("@")[0]);
+				submitForm.setAnswer("muc#roomconfig_roomdesc", "Peergroup room");
+				submitForm.setAnswer("muc#roomconfig_passwordprotectedroom", true);
+				submitForm.setAnswer("muc#roomconfig_roomsecret", pass);
+				submitForm.setAnswer("muc#roomconfig_allowinvites", false);
+				this.muc.sendConfigurationForm(submitForm);
+			} catch (XMPPException e1) {
+				e1.printStackTrace();
+			}
+		}
 		this.muc = new MultiUserChat(getConnection(), roomAndServer);
 		DiscussionHistory history = new DiscussionHistory();
 		history.setMaxStanzas(0);
 		try {
-			this.muc.join(user, pass, history,
-					SmackConfiguration.getPacketReplyTimeout());
+			this.muc.join(user, pass, history, SmackConfiguration.getPacketReplyTimeout());
 			this.joinedAChannel = true;
-			Globals.log.addMsg("Successfully joined conference: "
-					+ roomAndServer);
+			Globals.log.addMsg("Successfully joined conference: " + roomAndServer);
 		} catch (XMPPException xe) {
-			Globals.requestQueue.offer(new FSRequest(
-					Globals.STH_EVIL_HAPPENED,
-					"Unable to join conference channel: " + roomAndServer + " "
-							+ xe));
+			Globals.requestQueue.offer(new FSRequest(Globals.STH_EVIL_HAPPENED, 
+					"Unable to join conference channel: " + roomAndServer + " "	+ xe));
 			this.joinedAChannel = false;
 		}
 	}
@@ -485,16 +508,9 @@ public class Network {
 	}
 
 	/**
-	 * This sends completed-file information to other participants
-	 * 
-	 * @param filename
-	 *            The filename of the completed file
-	 * @param vers
-	 *            The fileversion of the completed file
-	 * @param size
-	 *            The filesize of the completed file
-	 * @param hash
-	 *            The new SHA256 value of the file
+	 * We usually just send "completed chunk" messages, but if we freshly joined
+	 * the channel, we propagate locally available files with this function to 
+	 * the other participants.
 	 */
 	public void sendMUCCompletedFile(String filename, int vers) {
 		if (!this.joinedAChannel || !this.xmppCon.isConnected()) {

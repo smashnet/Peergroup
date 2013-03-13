@@ -24,7 +24,6 @@ package de.pgrp.core;
 import javax.crypto.*;
 import javax.crypto.spec.*;
 import java.security.spec.*;
-import java.util.Iterator;
 
 /**
  * This thread requests blocks or FileList information from other peers.
@@ -120,7 +119,7 @@ public class ThriftClientGetData implements Runnable {
 					}
 
 				} catch (Exception e) {
-					Globals.log.addMsg(e.toString());
+					Globals.log.addMsg("Wrong password: " + e.toString());
 					chunk.setComplete(false);
 					chunk.setDownloading(false);
 					chunk.setFailed(true);

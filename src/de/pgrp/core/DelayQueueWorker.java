@@ -66,8 +66,11 @@ public class DelayQueueWorker extends Thread {
 						Globals.log.addMsg("Completed download: " + blockInfo.getName() + " - Version " + blockInfo.getVersion(), 2);
 						tmp.trimFile();
 						tmp.setUpdating(false);
+						
+						P2Pdevice me = P2Pdevice.getDevice(Globals.getJID(), Globals.ipAddress, Globals.p2pPort);
+						Storage.getInstance().addP2PdeviceToFile(blockInfo.getName(), blockInfo.getVersion(), me);
 						//Debug:
-						Globals.log.addMsg(tmp.toString());
+						//Globals.log.addMsg(tmp.toString());
 					}
 
 					timeB = System.currentTimeMillis();

@@ -788,6 +788,10 @@ public class FileHandle {
 		}
 		return incomplete;
 	}
+	
+	public long getLastModified(){
+		return this.file.lastModified();
+	}
 
 	public LinkedList<FileChunk> getChunkList() {
 		return this.chunks;
