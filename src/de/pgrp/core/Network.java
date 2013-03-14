@@ -199,9 +199,7 @@ public class Network {
 	 */
 	public void sendMUCmessage(String text) {
 		if (!this.joinedAChannel || !this.xmppCon.isConnected()) {
-			Globals.log
-			.addMsg("Sorry, cannot send message, we are not connected to the server!",
-					1);
+			Globals.log.addMsg("Sorry, cannot send message, we are not connected to the server!", 1);
 			return;
 		}
 		Message newMessage = this.muc.createMessage();
@@ -212,9 +210,7 @@ public class Network {
 		try {
 			this.muc.sendMessage(newMessage);
 		} catch (XMPPException xe) {
-			Globals.log.addMsg(
-					"Couldn't send XMPP message: " + newMessage.toXML() + "\n"
-							+ xe, 4);
+			Globals.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe, 4);
 		}
 	}
 
@@ -239,8 +235,7 @@ public class Network {
 		if (!this.xmppCon.isConnected())
 			return;
 		this.muc.leave();
-		Globals.log.addMsg("Left conference room: "
-				+ Globals.conference_channel, 4);
+		Globals.log.addMsg("Left conference room: " + Globals.conference_channel, 4);
 	}
 
 	/**

@@ -207,8 +207,7 @@ public class NetworkWorker extends Thread {
 						break;
 					}
 					listsReceived++;
-					Globals.log.addMsg("Received file list version " + vers
-							+ " from " + jid);
+					Globals.log.addMsg("Received file list version " + vers + " from " + jid);
 					if (listsReceived == myNetwork.getUserCount() - 1) {
 						Globals.log.addMsg("Found newest file list: "
 								+ maxListVersion + " from "
