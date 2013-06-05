@@ -28,17 +28,17 @@ import java.util.Arrays;
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
 /**
- * Defines a chunk of a files including the position and size in the file and
+ * Defines a chunk of a file including the position and size in the file and
  * further attributes.
  * 
  * @author Nicolas Inden
  */
 public class FileChunk {
 
-	private String file;
-	private int id;
-	private int version;
-	private byte[] chunkHash;
+	private String file; /**< Relative path of the corresponding file*/
+	private int id; /**< Chunk ID*/
+	private int version; /**< Chunk version - should be the same as file version ;-) */
+	private byte[] chunkHash; /**< Hash of the chunk*/
 	private long offset;
 	private int size;
 	private boolean complete;

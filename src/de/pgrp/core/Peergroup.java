@@ -397,7 +397,6 @@ public class Peergroup {
 			Globals.log.addMsg("Couldn't create config", 1);
 			quit(12);
 		}
-
 	}
 
 	private static void createSampleConfig() {
@@ -426,7 +425,6 @@ public class Peergroup {
 			Globals.log.addMsg("Couldn't create sample config", 1);
 			quit(12);
 		}
-
 	}
 
 	/**

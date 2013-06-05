@@ -33,8 +33,7 @@ public class StoreBlock {
 	private P2Pdevice node;
 	private byte[] buffer;
 
-	public StoreBlock(FileHandle handle, int id, String hash, P2Pdevice device,
-			byte[] bytes) {
+	public StoreBlock(FileHandle handle, int id, String hash, P2Pdevice device, byte[] bytes) {
 		this.handle = handle;
 		this.blockID = id;
 		this.hash = hash;

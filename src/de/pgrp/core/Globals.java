@@ -42,6 +42,8 @@ public class Globals {
 	public final static Logger log = new Logger(false);
 
 	public static LinkedList<P2Pdevice> p2pDevices = new LinkedList<P2Pdevice>();
+	
+	//Contains blocks that are waiting to be written do storage (received from other peers)
 	public static LinkedBlockingQueue<StoreBlock> storeQueue = new LinkedBlockingQueue<StoreBlock>();
 
 	public static CyclicBarrier bootupBarrier = new CyclicBarrier(2);
