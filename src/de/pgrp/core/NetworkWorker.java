@@ -33,6 +33,7 @@ import org.jivesoftware.smack.packet.*;
 public class NetworkWorker extends Thread {
 
 	private Network myNetwork;
+	private boolean run;
 
 	/**
 	 * Creates a NetworkWorker.
@@ -40,13 +41,12 @@ public class NetworkWorker extends Thread {
 	public NetworkWorker() {
 	}
 
-	@SuppressWarnings("deprecation")
 	public void stopNetworkWorker() {
+		this.run = false;
 		this.myNetwork.sendMUCleave();
 		this.myNetwork.leaveMUC();
 		this.myNetwork.xmppDisconnect();
 		Globals.log.addMsg("Networking thread stopped. Closing...", 4);
-		this.stop();
 	}
 
 	/**
@@ -57,16 +57,19 @@ public class NetworkWorker extends Thread {
 		this.setName("XMPP Thread");
 		Globals.log.addMsg("Networking thread started...");
 		this.myNetwork = Network.getInstance();
+		this.run = true;
 		int listsReceived = 0;
 		int maxListVersion = -1;
-		String ip;
+		String filename, jid, remoteIP, localIP;
 		int vers, port;
 		P2Pdevice maxListNode = new P2Pdevice();
 		myNetwork.sendMUCjoin();
 
-		while (!isInterrupted()) {
-			// read next message from XMPP
+		while (this.run) {
+			
 			Message newMessage = this.myNetwork.getNextMessage();
+			if(newMessage == null)
+				continue;
 
 			// catch message stanzas announcing a new channel subject
 			if (newMessage.getSubject() != null) {
@@ -79,41 +82,44 @@ public class NetworkWorker extends Thread {
 			if (newMessage.getBody() != null) {
 				String from[] = newMessage.getFrom().split("/");
 				if (from.length > 1) {
-					Globals.log.addMsg(from[1] + ": " + newMessage.getBody(),
-							2);
+					Globals.log.addMsg(from[1] + ": " + newMessage.getBody(), 2);
 				} else {
-					Globals.log.addMsg(newMessage.getFrom() + ": "
-							+ newMessage.getBody(), 2);
+					Globals.log.addMsg(newMessage.getFrom() + ": " + newMessage.getBody(), 2);
 				}
 
 				continue;
 			}
 
 			// adjust lamport time
-			long msgLamp = ((Long) newMessage.getProperty("LamportTime"))
-					.longValue();
+			long msgLamp = ((Long) newMessage.getProperty("LamportTime")).longValue();
 			this.myNetwork.updateLamportTime(msgLamp);
 
 			// ignore messages sent by yourself
 			if (newMessage.getProperty("JID").equals(Globals.getJID())) {
 				continue;
 			}
+			
+			//Maintain list of P2Pdevices
+			jid = (String) newMessage.getProperty("JID");
+			remoteIP = (String) newMessage.getProperty("remoteIP");
+			localIP = (String) newMessage.getProperty("localIP");
+			port = ((Integer) newMessage.getProperty("Port")).intValue();
+			//This checks if this device is known, if not it is created
+			P2Pdevice.getDevice(jid, remoteIP, localIP, port);
 
 			// extract message type from message
 			int type = ((Integer) newMessage.getProperty("Type")).intValue();
-			String filename, jid;
 
 			switch (type) {
 			case 1:
 				/*
 				 * Someone announced a new file via XMPP Available information:
-				 * "JID","IP","Port","name","size","blocks","sha256"
+				 * "JID","remoteIP","Port","name","size","blocks","sha256"
 				 */
 
 				filename = (String) newMessage.getProperty("name");
 				Globals.log.addMsg("New file via XMPP: " + filename);
-				Globals.requestQueue.offer(new XMPPRequest(
-						Globals.REMOTE_FILE_CREATE, newMessage));
+				Globals.requestQueue.offer(new XMPPRequest(Globals.REMOTE_FILE_CREATE, newMessage));
 				break;
 			case 10:
 				/*
@@ -123,8 +129,7 @@ public class NetworkWorker extends Thread {
 
 				filename = (String) newMessage.getProperty("name");
 				Globals.log.addMsg("New directory via XMPP: " + filename);
-				Globals.requestQueue.offer(new XMPPRequest(
-						Globals.REMOTE_DIR_CREATE, newMessage));
+				Globals.requestQueue.offer(new XMPPRequest(Globals.REMOTE_DIR_CREATE, newMessage));
 				break;
 			case 2:
 				/*
@@ -136,73 +141,59 @@ public class NetworkWorker extends Thread {
 				Globals.log.addMsg("Deletion discovered via XMPP: "
 						+ filename);
 				// Constants.remoteAffectedItems.add(filename);
-				Globals.requestQueue.offer(new XMPPRequest(
-						Globals.REMOTE_ITEM_DELETE, newMessage));
+				Globals.requestQueue.offer(new XMPPRequest(Globals.REMOTE_ITEM_DELETE, newMessage));
 				break;
 			case 3:
 				/*
 				 * Someone announced a fileupdate via XMPP Available
 				 * information:
-				 * "JID","IP","Port","name","version","size","blocks","sha256"
+				 * "JID","remoteIP","Port","name","version","size","blocks","sha256"
 				 */
 
 				filename = (String) newMessage.getProperty("name");
-				Globals.log.addMsg("File update discovered via XMPP: "
-						+ filename);
+				Globals.log.addMsg("File update discovered via XMPP: " + filename);
 				// Constants.remoteAffectedItems.add(filename);
-				Globals.requestQueue.offer(new XMPPRequest(
-						Globals.REMOTE_FILE_MODIFY, newMessage));
+				Globals.requestQueue.offer(new XMPPRequest(Globals.REMOTE_FILE_MODIFY, newMessage));
 				break;
 			case 4:
 				/*
 				 * Someone announced that he completed the download of a chunk
 				 * Available information:
-				 * "JID","IP","Port","name","chunkID","chunkVers"
+				 * "JID","remoteIP","Port","name","chunkID","chunkVers"
 				 */
 
 				filename = (String) newMessage.getProperty("name");
-				// Constants.log.addMsg("Completed chunk download discovered via XMPP: "
-				// + filename + " Lamport: " + msgLamp);
-				Globals.requestQueue.offer(new XMPPRequest(
-						Globals.REMOTE_CHUNK_COMPLETE, newMessage));
+				Globals.requestQueue.offer(new XMPPRequest(Globals.REMOTE_CHUNK_COMPLETE, newMessage));
 				break;
 			case 5:
 				/*
 				 * Someone announced that a file download is completed Available
-				 * information: "JID","IP","Port","name","version"
+				 * information: "JID","remoteIP","Port","name","version"
 				 */
 
 				filename = (String) newMessage.getProperty("name");
-				Globals.log
-						.addMsg("Completed file download discovered via XMPP: "
-								+ filename);
-				Globals.requestQueue.offer(new XMPPRequest(
-						Globals.REMOTE_FILE_COMPLETE, newMessage));
+				Globals.log.addMsg("Completed file download discovered via XMPP: " + filename);
+				Globals.requestQueue.offer(new XMPPRequest(Globals.REMOTE_FILE_COMPLETE, newMessage));
 				break;
 			case 6:
 				/*
 				 * Someone joined the channel Available information: "JID"
 				 */
 
-				jid = (String) newMessage.getProperty("JID");
 				Globals.log.addMsg(jid + " joined the channel.");
 				myNetwork.sendMUCFileListVersion();
 				break;
 			case 7:
 				/*
 				 * Someone posted his fileListVersion Available information:
-				 * "JID","IP","Port","FileListVersion"
+				 * "JID","remoteIP","Port","FileListVersion"
 				 */
 
-				jid = (String) newMessage.getProperty("JID");
-				vers = ((Integer) newMessage.getProperty("FileListVersion"))
-						.intValue();
-				ip = (String) newMessage.getProperty("IP");
-				port = ((Integer) newMessage.getProperty("Port")).intValue();
+				vers = ((Integer) newMessage.getProperty("FileListVersion")).intValue();
 				if (Globals.syncingFileList) {
 					if (vers > maxListVersion) {
 						maxListVersion = vers;
-						maxListNode = P2Pdevice.getDevice(jid, ip, port);
+						maxListNode = P2Pdevice.getDevice(jid, remoteIP, localIP, port);
 					} else if (vers == -1) {
 						break;
 					}
@@ -223,7 +214,6 @@ public class NetworkWorker extends Thread {
 			case 8:
 				// Someone left the channel (Available: "JID")
 				// Inefficient!!
-				jid = (String) newMessage.getProperty("JID");
 				Globals.log.addMsg(jid + " left the channel.");
 				for (FileHandle fh : Storage.getInstance().getFileList()) {
 					for (FileChunk fc : fh.getChunkList()) {
@@ -234,14 +224,11 @@ public class NetworkWorker extends Thread {
 			case 9:
 				// Someone reannounced a file (came back online after incomplete
 				// upload)
-				// Available: "JID","IP","Port","name","size","sha256"
-				jid = (String) newMessage.getProperty("JID");
+				// Available: "JID","remoteIP","Port","name","size","sha256"
 				filename = (String) newMessage.getProperty("name");
-				ip = (String) newMessage.getProperty("IP");
-				port = ((Integer) newMessage.getProperty("Port")).intValue();
 				Globals.log.addMsg(jid + " reannounced: " + filename);
 				FileHandle reannounced = Storage.getInstance().getFileHandle(filename);
-				P2Pdevice reannouncer = P2Pdevice.getDevice(jid, ip, port);
+				P2Pdevice reannouncer = P2Pdevice.getDevice(jid, remoteIP, localIP, port);
 				reannounced.addP2PdeviceToAllBlocks(reannouncer);
 				if (!reannounced.isComplete()) {
 					LinkedList<FileChunk> incomplete = reannounced.getIncomplete();

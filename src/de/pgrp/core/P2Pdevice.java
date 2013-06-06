@@ -24,9 +24,6 @@ package de.pgrp.core;
 import de.pgrp.thrift.*;
 
 import java.nio.ByteBuffer;
-import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.*;
 import org.apache.thrift.transport.*;
@@ -38,7 +35,7 @@ import org.apache.thrift.transport.*;
  */
 public class P2Pdevice {
 
-	private String ip;
+	private String remoteIP;
 	private String localIP;
 	private int port;
 	private String jid;
@@ -50,14 +47,12 @@ public class P2Pdevice {
 
 	}
 
-	/**
-	 * Use this constructor to add a P2Pdevice.getDevice
-	 */
-	public P2Pdevice(String newJID, String newIP, int newPort) {
+	public P2Pdevice(String newJID, String newRemoteIP, String newLocalIP, int newPort) {
 		this.jid = newJID;
-		this.ip = newIP;
+		this.remoteIP = newRemoteIP;
+		this.localIP = newLocalIP;
 		this.port = newPort;
-		this.transport = new TSocket(newIP, newPort);
+		this.transport = new TSocket(newRemoteIP, newPort);
 		this.usingLocalIP = false;
 	}
 
@@ -111,23 +106,32 @@ public class P2Pdevice {
 		return this.transport.isOpen();
 	}
 
-	/**
-	 * Looks for an equal existing P2Pdevice in the global list and returns it.
-	 * If not existent, the supplied P2Pdevice is returned.
-	 */
-	public static P2Pdevice getDevice(String newJID, String newIP, int newPort) {
-		for (P2Pdevice d : Globals.p2pDevices) {
-			if (d.equals(newJID, newIP, newPort))
-				return d;
-		}
-		P2Pdevice newPeer = new P2Pdevice(newJID, newIP, newPort);
-		Globals.p2pDevices.add(newPeer);
-		newPeer.checkLocal();
-		return newPeer;
-	}
 	
+	
+	/**
+	 * If the external IP address of this P2Pdevice equals mine, then check if we are in the same
+	 * local net by comparing hash(conference_pass + first local IP block + second local IP block).
+	 */
 	private void checkLocal(){
-		if(this.ip.equals(Globals.ipAddress)){
+		if(this.remoteIP.equals(Globals.remoteIP)){
+			String myLocalIP[] = Globals.localIP.split("\\.");
+			String devicesLocalIP[] = this.localIP.split("\\.");
+			int matches = 0;
+			
+			for(int i = 0; i < myLocalIP.length; i++){
+				if(myLocalIP[i].equals(devicesLocalIP[i])){
+					matches++;
+				}else{
+					break;
+				}
+			}
+			//If at least A and B of local addresses are equal, we assume we are on the same LAN
+			if(matches >= 2){
+				this.usingLocalIP = true;
+				this.transport = new TSocket(this.localIP, this.port);
+				Globals.log.addMsg("Using local IP for " + this.jid + ": " + this.localIP,2);
+			}
+			/* Verify with thrift (only works of remotely accessible)
 			openTransport();
 			try {
 				String localIP[] = Globals.localIP.split("\\.");
@@ -151,28 +155,18 @@ public class P2Pdevice {
 				Globals.log.addMsg("Hash error: " + na, 1);
 			} catch (UnsupportedEncodingException uee) {
 				Globals.log.addMsg("Encoding error: " + uee, 1);
-			}
+			}*/
 		}
 	}
 
-	public boolean equals(P2Pdevice node) {
-		if (this.port != node.getPort()) {
-			return false;
-		}
-		if (!this.ip.equals(node.getIP())) {
-			return false;
-		}
-		if (!this.jid.equals(node.getJID())) {
-			return false;
-		}
-		return true;
-	}
-
-	public boolean equals(String newJID, String newIP, int newPort) {
+	public boolean equals(String newJID, String newRemoteIP, String newLocalIP, int newPort) {
 		if (this.port != newPort) {
 			return false;
 		}
-		if (!this.ip.equals(newIP)) {
+		if (!this.remoteIP.equals(newRemoteIP)) {
+			return false;
+		}
+		if (!this.localIP.equals(newLocalIP)) {
 			return false;
 		}
 		if (!this.jid.equals(newJID)) {
@@ -180,19 +174,46 @@ public class P2Pdevice {
 		}
 		return true;
 	}
+	
+	public String getJID() {
+		return this.jid;
+	}
 
-	public String getIP() {
-		if(this.usingLocalIP)
-			return this.localIP;
-		
-		return this.ip;
+	public String getRemoteIP() {
+		return this.remoteIP;
+	}
+	
+	public String getLocalIP() {
+		return this.localIP;
 	}
 
 	public int getPort() {
 		return this.port;
 	}
 
-	public String getJID() {
-		return this.jid;
+	public boolean isLocal() {
+		return this.usingLocalIP;
+	}
+	
+	public String getUsedIP() {
+		if(this.isLocal())
+			return this.localIP;
+		
+		return this.remoteIP;
+	}
+	
+	/**
+	 * Looks for an equal existing P2Pdevice in the global list and returns it.
+	 * If not existent, the supplied P2Pdevice is returned.
+	 */
+	public static P2Pdevice getDevice(String newJID, String newRemoteIP, String newLocalIP, int newPort) {
+		for (P2Pdevice d : Globals.p2pDevices) {
+			if (d.equals(newJID, newRemoteIP, newLocalIP, newPort))
+				return d;
+		}
+		P2Pdevice newPeer = new P2Pdevice(newJID, newRemoteIP, newLocalIP, newPort);
+		Globals.p2pDevices.add(newPeer);
+		newPeer.checkLocal();
+		return newPeer;
 	}
 }

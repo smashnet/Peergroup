@@ -52,12 +52,10 @@ public class ThriftServerWorker extends Thread {
 		try {
 			this.serverTransport = new TServerSocket(Globals.p2pPort);
 			this.processor = new DataTransfer.Processor(new ThriftDataHandler());
-			TThreadPoolServer.Args tpsa = new TThreadPoolServer.Args(
-					serverTransport).processor(processor);
+			TThreadPoolServer.Args tpsa = new TThreadPoolServer.Args(serverTransport).processor(processor);
 			this.server = new TThreadPoolServer(tpsa);
 
-			Globals.log.addMsg("Starting thrift handler on port "
-					+ Globals.p2pPort);
+			Globals.log.addMsg("Starting thrift handler on port " + Globals.p2pPort);
 			this.server.serve();
 		} catch (TTransportException e) {
 			Globals.log.addMsg("Thrift server error: " + e);

@@ -52,7 +52,7 @@ public class ThriftClientGetData implements Runnable {
 				return;
 			}
 			Globals.log.addMsg("DOWNLOAD_BLOCK: " + chunk.getName()
-					+ " - Block " + chunk.getID() + " from " + device.getIP()
+					+ " - Block " + chunk.getID() + " from " + device.getUsedIP()
 					+ ":" + device.getPort());
 
 			if (!tmp.getTimeBool()) {
@@ -60,8 +60,8 @@ public class ThriftClientGetData implements Runnable {
 				tmp.setTimeBool(true);
 			}
 
-			byte[] swap = getBlock(chunk.getName(), chunk.getID(),
-					chunk.getHexHash(), device);
+			//Get chunk from peer
+			byte[] swap = getBlock(chunk.getName(), chunk.getID(), chunk.getHexHash(), device);
 			if (swap != null) {
 
 				// Seperate encrypted data and IV
@@ -69,26 +69,25 @@ public class ThriftClientGetData implements Runnable {
 				byte[] iv = new byte[16];
 				System.arraycopy(swap, 0, iv, 0, 16);
 				System.arraycopy(swap, 16, data, 0, swap.length - 16);
+				
+				swap = null;
 
+				// Initial settings for encryption/decryption
 				String plainkey = "P33rgr0up";
 				byte[] salt = { 0x12, 0x78, 0x4F, 0x33, 0x13, 0x4B, 0x6B, 0x2F };
-				// If we use a password for our channel, use it to decrypt the
-				// data
+				
+				// If we use a password for our channel, use it to decrypt the data
 				if (!Globals.conference_pass.equals(""))
 					plainkey = Globals.conference_pass;
 
 				try {
-					SecretKeyFactory fac = SecretKeyFactory
-							.getInstance("PBKDF2WithHmacSHA1");
-					KeySpec spec = new PBEKeySpec(plainkey.toCharArray(), salt,
-							65536, 128);
+					SecretKeyFactory fac = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+					KeySpec spec = new PBEKeySpec(plainkey.toCharArray(), salt,	65536, 128);
 					SecretKey tmp1 = fac.generateSecret(spec);
-					SecretKey secret = new SecretKeySpec(tmp1.getEncoded(),
-							"AES");
+					SecretKey secret = new SecretKeySpec(tmp1.getEncoded(),	"AES");
 					// Init AES cipher
 					Cipher ciph = Cipher.getInstance("AES/CBC/PKCS5Padding");
-					ciph.init(Cipher.DECRYPT_MODE, secret, new IvParameterSpec(
-							iv));
+					ciph.init(Cipher.DECRYPT_MODE, secret, new IvParameterSpec(iv));
 					// Decrypt data block
 					data = ciph.doFinal(data);
 

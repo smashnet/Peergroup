@@ -164,13 +164,22 @@ public class Network {
 			this.muc = new MultiUserChat(getConnection(), roomAndServer);
 			try {
 				muc.create(user);
-				Form submitForm;
-				submitForm = this.muc.getConfigurationForm().createAnswerForm();
+				Form form, submitForm;
+				form = this.muc.getConfigurationForm();
+				submitForm = form.createAnswerForm();
+				/* Show room options
+				for(Iterator<FormField> fields = form.getFields(); fields.hasNext();) {
+					FormField field = fields.next();
+					System.out.println(field.getLabel() + " - " + field.getVariable());
+				}
+				*/
 				submitForm.setAnswer("muc#roomconfig_publicroom", false);
 				submitForm.setAnswer("muc#roomconfig_roomname", roomAndServer.split("@")[0]);
 				submitForm.setAnswer("muc#roomconfig_roomdesc", "Peergroup room");
-				submitForm.setAnswer("muc#roomconfig_passwordprotectedroom", true);
-				submitForm.setAnswer("muc#roomconfig_roomsecret", pass);
+				if(!pass.equals("")) {
+					submitForm.setAnswer("muc#roomconfig_passwordprotectedroom", true);
+					submitForm.setAnswer("muc#roomconfig_roomsecret", pass);
+				}
 				submitForm.setAnswer("muc#roomconfig_allowinvites", false);
 				this.muc.sendConfigurationForm(submitForm);
 			} catch (XMPPException e1) {
@@ -224,7 +233,7 @@ public class Network {
 	 * @return the Message object
 	 */
 	public Message getNextMessage() {
-		return this.muc.nextMessage();
+		return this.muc.nextMessage(1000);
 	}
 
 	/**
@@ -259,6 +268,9 @@ public class Network {
 		Message newMessage = this.muc.createMessage();
 		newMessage.setType(Message.Type.groupchat);
 		newMessage.setProperty("LamportTime", this.lamportTime);
+		newMessage.setProperty("remoteIP", Globals.remoteIP);
+		newMessage.setProperty("localIP", Globals.localIP);
+		newMessage.setProperty("Port", Globals.p2pPort);
 
 		return newMessage;
 	}
@@ -339,8 +351,6 @@ public class Network {
 		 */
 		newMessage.setProperty("Type", 1);
 		newMessage.setProperty("JID", Globals.getJID());
-		newMessage.setProperty("IP", Globals.ipAddress);
-		newMessage.setProperty("Port", Globals.p2pPort);
 		newMessage.setProperty("name", filename);
 		newMessage.setProperty("size", size);
 		newMessage.setProperty("sha256", hash);
@@ -448,8 +458,6 @@ public class Network {
 		 */
 		newMessage.setProperty("Type", 3);
 		newMessage.setProperty("JID", Globals.getJID());
-		newMessage.setProperty("IP", Globals.ipAddress);
-		newMessage.setProperty("Port", Globals.p2pPort);
 		newMessage.setProperty("name", filename);
 		newMessage.setProperty("version", vers);
 		newMessage.setProperty("size", size);
@@ -484,8 +492,6 @@ public class Network {
 		 */
 		newMessage.setProperty("Type", 4);
 		newMessage.setProperty("JID", Globals.getJID());
-		newMessage.setProperty("IP", Globals.ipAddress);
-		newMessage.setProperty("Port", Globals.p2pPort);
 		newMessage.setProperty("name", filename);
 		newMessage.setProperty("chunkID", chunkID);
 		newMessage.setProperty("chunkVers", chunkVers);
@@ -521,8 +527,6 @@ public class Network {
 		 */
 		newMessage.setProperty("Type", 5);
 		newMessage.setProperty("JID", Globals.getJID());
-		newMessage.setProperty("IP", Globals.ipAddress);
-		newMessage.setProperty("Port", Globals.p2pPort);
 		newMessage.setProperty("name", filename);
 		newMessage.setProperty("version", vers);
 
@@ -542,9 +546,7 @@ public class Network {
 	 */
 	public void sendMUCjoin() {
 		if (!this.joinedAChannel || !this.xmppCon.isConnected()) {
-			Globals.log
-			.addMsg("Sorry, cannot send message, we are not connected to a room!",
-					4);
+			Globals.log.addMsg("Sorry, cannot send message, we are not connected to a room!",4);
 			return;
 		}
 		Message newMessage = this.createMessageObject();
@@ -562,13 +564,9 @@ public class Network {
 			if (this.getUserCount() > 1)
 				Globals.syncingFileList = true;
 		} catch (XMPPException xe) {
-			Globals.log.addMsg(
-					"Couldn't send XMPP message: " + newMessage.toXML() + "\n"
-							+ xe, 4);
+			Globals.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe, 4);
 		} catch (InterruptedException ie) {
-			Globals.log
-			.addMsg("Wait for presence messages interrupted: User count may be inaccurate!",
-					4);
+			Globals.log.addMsg("Wait for presence messages interrupted: User count may be inaccurate!",	4);
 		}
 	}
 
@@ -577,9 +575,7 @@ public class Network {
 	 */
 	public void sendMUCFileListVersion() {
 		if (!this.joinedAChannel || !this.xmppCon.isConnected()) {
-			Globals.log
-			.addMsg("Sorry, cannot send message, we are not connected to a room!",
-					4);
+			Globals.log.addMsg("Sorry, cannot send message, we are not connected to a room!", 4);
 			return;
 		}
 		Message newMessage = this.createMessageObject();
@@ -589,18 +585,13 @@ public class Network {
 		 */
 		newMessage.setProperty("Type", 7);
 		newMessage.setProperty("JID", Globals.getJID());
-		newMessage.setProperty("IP", Globals.ipAddress);
-		newMessage.setProperty("Port", Globals.p2pPort);
-		newMessage.setProperty("FileListVersion", Storage.getInstance()
-				.getVersion());
+		newMessage.setProperty("FileListVersion", Storage.getInstance().getVersion());
 
 		try {
 			this.muc.sendMessage(newMessage);
 			Globals.log.addMsg("Sending XMPP: -SENDFILELIST- ", 2);
 		} catch (XMPPException xe) {
-			Globals.log.addMsg(
-					"Couldn't send XMPP message: " + newMessage.toXML() + "\n"
-							+ xe, 4);
+			Globals.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe, 4);
 		}
 	}
 
@@ -627,9 +618,7 @@ public class Network {
 			Globals.log.addMsg("Sending XMPP: -LEAVE- ", 2);
 			Globals.syncingFileList = true;
 		} catch (XMPPException xe) {
-			Globals.log.addMsg(
-					"Couldn't send XMPP message: " + newMessage.toXML() + "\n"
-							+ xe, 4);
+			Globals.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe, 4);
 		}
 	}
 
@@ -647,21 +636,15 @@ public class Network {
 		 */
 		newMessage.setProperty("Type", 9);
 		newMessage.setProperty("JID", Globals.getJID());
-		newMessage.setProperty("IP", Globals.ipAddress);
-		newMessage.setProperty("Port", Globals.p2pPort);
 		newMessage.setProperty("name", filename);
 		newMessage.setProperty("size", size);
 		newMessage.setProperty("sha256", hash);
 
 		try {
 			this.muc.sendMessage(newMessage);
-			Globals.log
-			.addMsg("Sending XMPP: -REANNOUNCE- " + filename + " - "
-					+ size + "Bytes - " + FileHandle.toHexHash(hash), 2);
+			Globals.log.addMsg("Sending XMPP: -REANNOUNCE- " + filename + " - "	+ size + "Bytes - " + FileHandle.toHexHash(hash), 2);
 		} catch (XMPPException xe) {
-			Globals.log.addMsg(
-					"Couldn't send XMPP message: " + newMessage.toXML() + "\n"
-							+ xe, 4);
+			Globals.log.addMsg("Couldn't send XMPP message: " + newMessage.toXML() + "\n" + xe, 4);
 		}
 	}
 

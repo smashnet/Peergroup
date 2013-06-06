@@ -41,8 +41,7 @@ public class ThriftClientWorker extends Thread {
 		this.maxPoolSize = 10;
 		this.keepAliveTime = 10;
 		this.workQueue = new ArrayBlockingQueue<Runnable>(5000);
-		this.threadPool = new ThreadPoolExecutor(corePoolSize, maxPoolSize,
-				keepAliveTime, TimeUnit.SECONDS, workQueue);
+		this.threadPool = new ThreadPoolExecutor(corePoolSize, maxPoolSize,	keepAliveTime, TimeUnit.SECONDS, workQueue);
 	}
 
 	public void stopThriftClientWorker() {

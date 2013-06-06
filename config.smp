@@ -16,5 +16,6 @@
 		<share>./share/</share>
 		<extIP></extIP>
 		<port>53333</port>
+		<upnp>yes</upnp>
 	</pg-settings>
 </peergroup>

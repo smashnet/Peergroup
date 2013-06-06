@@ -25,9 +25,10 @@ namespace php de.pgrp.thrift
 namespace perl de.pgrp.thrift
 
 struct ThriftP2PDevice {
-	1: string ip,
-	2: i32 port,
-	3: string jid
+	1: string jid,
+	2: string remoteIP,
+	3: string localIP,
+	4: i32 port
 }
 
 struct ThriftFileChunk {
