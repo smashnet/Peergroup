@@ -79,7 +79,7 @@ Copyright (c) 2013 Nicolas Inden
 		classname="com.oracle.appbundler.AppBundlerTask"   
 	  classpath="lib/appbundler-1.0.jar" />
 
-	<target name="bundle-peergroup" depends="jar, clean">
+	<target name="bundle" depends="jar, clean">
 		<mkdir dir="${dist}" />
 	    <bundleapp outputdirectory="dist"
 			name="Peergroup"
