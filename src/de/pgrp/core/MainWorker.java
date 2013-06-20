@@ -262,7 +262,7 @@ public class MainWorker extends Thread {
 
 		myStorage.newFileFromXMPP(name, hash, size, blocks,
 				Globals.chunkSize, remoteNode);
-		Network.getInstance().sendMUCmessage(
+		myNetwork.sendMUCmessage(
 				"Start downloading >> " + name + " (" + size + "Bytes) <<");
 	}
 
@@ -300,7 +300,7 @@ public class MainWorker extends Thread {
 		 */
 
 		Message in = request.getContent();
-		Network.getInstance().sendMUCmessage(
+		myNetwork.sendMUCmessage(
 				"Deleting >> " + (String) in.getProperty("name") + " <<");
 		myStorage.remoteRemoveItem((String) in.getProperty("name"));
 	}
@@ -335,7 +335,7 @@ public class MainWorker extends Thread {
 		P2Pdevice remoteNode = P2Pdevice.getDevice(jid, remoteIP, localIP, port);
 
 		myStorage.modifiedFileFromXMPP(name, vers, size, blocks, hash, noOfChunks, remoteNode);
-		Network.getInstance().sendMUCmessage(
+		myNetwork.sendMUCmessage(
 				"Updating >> " + name + " (" + size + "Bytes) <<");
 	}
 
@@ -386,7 +386,7 @@ public class MainWorker extends Thread {
 
 		//String jid = (String) in.getProperty("JID");
 
-		Network.getInstance().sendMUCFileListVersion();
+		myNetwork.sendMUCFileListVersion();
 	}
 
 	private void handleStartThreads() {

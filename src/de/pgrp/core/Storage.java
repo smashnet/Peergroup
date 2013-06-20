@@ -34,7 +34,7 @@ import java.io.*;
  */
 public class Storage {
 
-	private static Storage instance = new Storage();
+	private static volatile Storage instance = new Storage();
 	private File sharedDir;
 	private int fileListVersion;
 	private volatile LinkedList<FileHandle> files;
@@ -64,18 +64,15 @@ public class Storage {
 	 */
 	public FileHandle newFileFromLocal(String filename) {
 		try {
-			FileHandle newFile = new FileHandle(Globals.rootDirectory
-					+ filename);
+			FileHandle newFile = new FileHandle(Globals.rootDirectory + filename);
 			if (newFile.isValid()) {
 				getFileList().add(newFile);
-				// Constants.log.addMsg("Adding " + newFile.toString(),4);
 				this.fileListVersion++;
 
 				return newFile;
 			}
 		} catch (Exception ioe) {
-			Globals.log
-					.addMsg("Local file does not exist anymore: " + ioe, 4);
+			Globals.log.addMsg("Local file does not exist anymore: " + ioe, 4);
 		}
 		return null;
 	}
@@ -175,9 +172,7 @@ public class Storage {
 			if(tmp.getPath().equals(file)) {
 				try {
 					if (tmp.isUpdating()) {
-						Globals.log
-								.addMsg("Ignoring FS update event. File gets remote updates!",
-										4);
+						Globals.log.addMsg("Ignoring FS update event. File gets remote updates!", 4);
 						return null;
 					}
 					if (tmp.localUpdate()) {
@@ -221,7 +216,6 @@ public class Storage {
 			for (String s : blocks) {
 				String[] tmp = s.split(":");
 				int id = (Integer.valueOf(tmp[0])).intValue();
-				// int vers = (Integer.valueOf(tmp[1])).intValue();
 				String hash = tmp[2];
 				int chunkSize = Integer.parseInt(tmp[3]);
 

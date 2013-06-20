@@ -64,12 +64,17 @@ public class NetworkWorker extends Thread {
 		int vers, port;
 		P2Pdevice maxListNode = new P2Pdevice();
 		myNetwork.sendMUCjoin();
+		
+		//int recvdmsgs = 0;
 
 		while (this.run) {
+			//Globals.log.addMsg("Before...");
 			
 			Message newMessage = this.myNetwork.getNextMessage();
 			if(newMessage == null)
 				continue;
+			
+			//Globals.log.addMsg("Recvd something: " + recvdmsgs++);
 
 			// catch message stanzas announcing a new channel subject
 			if (newMessage.getSubject() != null) {

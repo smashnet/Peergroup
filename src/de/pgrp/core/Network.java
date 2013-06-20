@@ -34,7 +34,7 @@ import org.jivesoftware.smackx.muc.*;
  */
 public class Network {
 
-	private static Network instance = new Network();
+	private static volatile Network instance = new Network();
 	private Connection xmppCon;
 	private MultiUserChat muc;
 	private boolean joinedAChannel = false;
@@ -110,7 +110,7 @@ public class Network {
 	 * @return The Connection object managing the connection to the XMPP Server
 	 */
 	public Connection getConnection() {
-		return Network.getInstance().xmppCon;
+		return this.xmppCon;
 	}
 
 	/**
@@ -477,12 +477,9 @@ public class Network {
 		}
 	}
 
-	public void sendMUCCompletedChunk(String filename, int chunkID,
-			int chunkVers) {
+	public void sendMUCCompletedChunk(String filename, int chunkID, int chunkVers) {
 		if (!this.joinedAChannel || !this.xmppCon.isConnected()) {
-			Globals.log
-			.addMsg("Sorry, cannot send message, we are not connected to a room!",
-					4);
+			Globals.log.addMsg("Sorry, cannot send message, we are not connected to a room!", 4);
 			return;
 		}
 		Message newMessage = this.createMessageObject();
@@ -498,9 +495,6 @@ public class Network {
 
 		try {
 			this.muc.sendMessage(newMessage);
-			// Constants.log.addMsg("Sending XMPP: -CHUNK_COMPLETED- " +
-			// filename + ": Chunk " + chunkID + " - Version "
-			// + chunkVers,2);
 		} catch (XMPPException xe) {
 			Globals.log.addMsg(
 					"Couldn't send XMPP message: " + newMessage.toXML() + "\n"

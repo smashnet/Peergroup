@@ -76,12 +76,6 @@ public class Globals {
 	 */
 	public static ConcurrentLinkedQueue<FileEvent> delayQueue = new ConcurrentLinkedQueue<FileEvent>();
 
-	/*
-	 * A list of files currently causing filesystem activity due to network
-	 * updates
-	 */
-	public static volatile LinkedList<String> remoteAffectedItems = new LinkedList<String>();
-
 	/**
 	 * Global ID counters
 	 */

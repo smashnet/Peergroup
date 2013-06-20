@@ -5,8 +5,7 @@
 config.xml
 copyToTest
 Peergroup.zip
-copyto
-deploy
+deploy_test
 nodes
 pg-nico
 doc/
