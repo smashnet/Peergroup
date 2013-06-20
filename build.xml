@@ -87,7 +87,7 @@ Copyright (c) 2013 Nicolas Inden
 			icon="art/Pgrp.icns"
 	      	identifier="de.pgrp.core.Peergroup"
 	      	mainclassname="de.pgrp.core.Peergroup">
-	      	<classpath file="dist/Peergroup.jar" />
+	      	<classpath file="dist/peergroup.jar" />
 			<option value="-Dapple.laf.useScreenMenuBar=true -Xms512M -Xmx2G" />
 			<argument value="-GUI" />
 	    </bundleapp>
@@ -130,7 +130,7 @@ Copyright (c) 2013 Nicolas Inden
 	<!-- export compiled code as a jar file -->
 	<target name="jar" depends="compile">
 			<mkdir dir="${dist}" />
-			<jar jarfile="${dist}/Peergroup.jar">
+			<jar jarfile="${dist}/peergroup.jar">
 				<fileset dir="${tmpclasses}">
 					<include name="${clientpkg}/**/*.class" />
 				</fileset>

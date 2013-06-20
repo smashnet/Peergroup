@@ -268,8 +268,8 @@ public class Network {
 		Message newMessage = this.muc.createMessage();
 		newMessage.setType(Message.Type.groupchat);
 		newMessage.setProperty("LamportTime", this.lamportTime);
-		newMessage.setProperty("remoteIP", Globals.remoteIP);
-		newMessage.setProperty("localIP", Globals.localIP);
+		newMessage.setProperty("remoteIP", Globals.remoteIP4);
+		newMessage.setProperty("localIP", Globals.localIP4);
 		newMessage.setProperty("Port", Globals.p2pPort);
 
 		return newMessage;

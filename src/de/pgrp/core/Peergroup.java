@@ -322,7 +322,7 @@ public class Peergroup {
 								return false;
 							}
 						}
-						Globals.remoteIP = val;
+						Globals.remoteIP4 = val;
 					}
 
 					val = getTagValue("port", eElement);
@@ -482,25 +482,49 @@ public class Peergroup {
 				System.exit(0);
 			}
 
-			Globals.localIP = local.getHostAddress();
+			Globals.localIP4 = local.getHostAddress();
 		} catch (SocketException se) {
 			Globals.log.addMsg("Cannot get local IP: " + se, 4);
 		}
 
-		// Get external IP
-		if (!Globals.remoteIP.equals("")) {
-			Globals.log.addMsg("External IP was manually set, skipping the guessing.");
+		// Get external IPv4
+		if (!Globals.remoteIP4.equals("")) {
+			Globals.log.addMsg("External IPv4 was manually set, skipping the guessing.");
 			return;
 		}
 		try {
-			URL whatismyip = new URL("http://files.smashnet.de/getIP.php");
-			BufferedReader in = new BufferedReader(new InputStreamReader(whatismyip.openStream()));
+			//URL whatismyip = new URL("http://files.smashnet.de/getIP.php");
+			Socket whatismyip = new Socket("185.11.136.10",8000);
+			BufferedReader in = new BufferedReader(new InputStreamReader(whatismyip.getInputStream()));
 
-			Globals.remoteIP = in.readLine();
-			Globals.log.addMsg("Found external IP: " + Globals.remoteIP);
+			Globals.remoteIP4 = in.readLine();
+			whatismyip.close();
+			Globals.log.addMsg("Found external IPv4 address: " + Globals.remoteIP4);
 		} catch (Exception e) {
-			Globals.log.addMsg("Couldn't get external IP! " + e + " Try setting it manually!", 1);
+			Globals.log.addMsg("Couldn't get external IPv4 address! " + e + " Try setting it manually!", 1);
 			quit(1);
+		}
+		
+		// Get external IPv6
+		if (!Globals.remoteIP6.equals("")) {
+			Globals.log.addMsg("External IPv6 was manually set, skipping the guessing.");
+			return;
+		}
+		try {
+			//URL whatismyip = new URL("http://files.smashnet.de/getIP.php");
+			Socket whatismyip = new Socket("2a03:2900:2:1::13a",8001);
+			BufferedReader in = new BufferedReader(new InputStreamReader(whatismyip.getInputStream()));
+
+			Globals.remoteIP6 = in.readLine();
+			whatismyip.close();
+			Globals.log.addMsg("Found external IPv6 address: " + Globals.remoteIP6);
+		} catch (Exception e) {
+			if(!Globals.remoteIP4.equals("")){
+				Globals.log.addMsg("Couldn't get external IPv6 address! Using IPv4 only...", 1);
+			}else{
+				Globals.log.addMsg("Couldn't get any external address! Try setting them manually!", 1);
+				quit(1);
+			}
 		}
 	}
 
@@ -522,17 +546,17 @@ public class Peergroup {
 				// we assume that localHostIP is something else than 127.0.0.1
 				boolean mapped = Globals.igd.addPortMapping("Peergroup",
 						null, Globals.p2pPort, Globals.p2pPort,
-						Globals.localIP, 0, "TCP");
+						Globals.localIP4, 0, "TCP");
 				if (mapped) {
 					Globals.log.addMsg("Port " + Globals.p2pPort
-							+ " mapped to " + Globals.localIP);
+							+ " mapped to " + Globals.localIP4);
 				}
 			} else {
 				Globals.log.addMsg(
 						"No UPnP enabled router found! You probably have to forward port "
 								+ Globals.p2pPort
 								+ " in your router manually to your local IP "
-								+ Globals.localIP, 4);
+								+ Globals.localIP4, 4);
 			}
 		} catch (IOException ex) {
 			Globals.log.addMsg("Failed to open port via UPnP: Maybe the port is already open, or your router does not support UPnP?", 4);

@@ -113,8 +113,8 @@ public class P2Pdevice {
 	 * local net by comparing hash(conference_pass + first local IP block + second local IP block).
 	 */
 	private void checkLocal(){
-		if(this.remoteIP.equals(Globals.remoteIP)){
-			String myLocalIP[] = Globals.localIP.split("\\.");
+		if(this.remoteIP.equals(Globals.remoteIP4)){
+			String myLocalIP[] = Globals.localIP4.split("\\.");
 			String devicesLocalIP[] = this.localIP.split("\\.");
 			int matches = 0;
 			
