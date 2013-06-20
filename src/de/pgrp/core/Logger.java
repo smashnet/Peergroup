@@ -52,9 +52,9 @@ public class Logger {
 		        + getHourOfDay() 
 		        + getMinute();
 			this.color = false;
-			File directory = new File("log");
+			File directory = new File(Globals.hiddenDir + "log");
 			directory.mkdir();
-			this.output = new File("log/" + date + "_peergroup.log");
+			this.output = new File(Globals.hiddenDir + "log/" + date + "_peergroup.log");
 			this.fw = new FileWriter(this.output);
 			this.bw = new BufferedWriter(this.fw);
 		}catch(IOException ioe){
@@ -76,9 +76,9 @@ public class Logger {
 		        + getHourOfDay() 
 		        + getMinute();
 			this.color = colored;
-			File directory = new File("log");
+			File directory = new File(Globals.hiddenDir + "log");
 			directory.mkdir();
-			this.output = new File("log/" + date + "_peergroup.log");
+			this.output = new File(Globals.hiddenDir + "log/" + date + "_peergroup.log");
 			this.fw = new FileWriter(this.output);
 			this.bw = new BufferedWriter(this.fw);
 		}catch(IOException ioe){
