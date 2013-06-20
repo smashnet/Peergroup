@@ -60,70 +60,58 @@ public class MainWorker extends Thread {
 				Request nextRequest = Globals.requestQueue.take();
 				switch (nextRequest.getID()) {
 				case Globals.LOCAL_FILE_CREATE:
-					Globals.log
-					.addMsg("MainWorker: Handling LOCAL_FILE_CREATE");
+					Globals.log.addMsg("MainWorker: Handling LOCAL_FILE_CREATE");
 					handleLocalFileCreate((FSRequest) nextRequest);
 					break;
 				case Globals.LOCAL_DIR_CREATE:
-					Globals.log
-					.addMsg("MainWorker: Handling LOCAL_DIR_CREATE");
+					Globals.log.addMsg("MainWorker: Handling LOCAL_DIR_CREATE");
 					handleLocalDirCreate((FSRequest) nextRequest);
 					break;
 				case Globals.LOCAL_FILE_DELETE:
-					Globals.log
-					.addMsg("MainWorker: Handling LOCAL_FILE_DELETE");
+					Globals.log.addMsg("MainWorker: Handling LOCAL_FILE_DELETE");
 					handleLocalFileDelete((FSRequest) nextRequest);
 					break;
 				case Globals.LOCAL_DIR_DELETE:
-					Globals.log
-					.addMsg("MainWorker: Handling LOCAL_DIR_DELETE");
+					Globals.log.addMsg("MainWorker: Handling LOCAL_DIR_DELETE");
 					handleLocalDirDelete((FSRequest) nextRequest);
 					break;
 				case Globals.LOCAL_FILE_MODIFY:
-					Globals.log
-					.addMsg("MainWorker: Handling LOCAL_FILE_MODIFY");
+					Globals.log.addMsg("MainWorker: Handling LOCAL_FILE_MODIFY");
 					handleLocalFileModify((FSRequest) nextRequest);
 					break;
 				case Globals.REMOTE_FILE_CREATE:
-					Globals.log
-					.addMsg("MainWorker: Handling REMOTE_FILE_CREATE");
+					Globals.log.addMsg("MainWorker: Handling REMOTE_FILE_CREATE");
 					handleRemoteFileCreate((XMPPRequest) nextRequest);
 					break;
 				case Globals.REMOTE_DIR_CREATE:
-					Globals.log
-					.addMsg("MainWorker: Handling REMOTE_DIR_CREATE");
+					Globals.log.addMsg("MainWorker: Handling REMOTE_DIR_CREATE");
 					handleRemoteDirCreate((XMPPRequest) nextRequest);
 					break;
 				case Globals.REMOTE_ITEM_DELETE:
-					Globals.log
-					.addMsg("MainWorker: Handling REMOTE_ITEM_DELETE");
+					Globals.log.addMsg("MainWorker: Handling REMOTE_ITEM_DELETE");
 					handleRemoteItemDelete((XMPPRequest) nextRequest);
 					break;
 				case Globals.REMOTE_FILE_MODIFY:
-					Globals.log
-					.addMsg("MainWorker: Handling REMOTE_FILE_MODIFY");
+					Globals.log.addMsg("MainWorker: Handling REMOTE_FILE_MODIFY");
 					handleRemoteFileModify((XMPPRequest) nextRequest);
 					break;
 				case Globals.REMOTE_CHUNK_COMPLETE:
-					// Constants.log.addMsg("MainWorker: Handling REMOTE_CHUNK_COMPLETE");
+					// Globals.log.addMsg("MainWorker: Handling REMOTE_CHUNK_COMPLETE");
 					handleRemoteChunkComplete((XMPPRequest) nextRequest);
 					break;
 				case Globals.REMOTE_FILE_COMPLETE:
-					Globals.log
-					.addMsg("MainWorker: Handling REMOTE_FILE_COMPLETE");
+					Globals.log.addMsg("MainWorker: Handling REMOTE_FILE_COMPLETE");
 					handleRemoteFileComplete((XMPPRequest) nextRequest);
 					break;
 				case Globals.REMOTE_JOINED_CHANNEL:
-					Globals.log
-					.addMsg("MainWorker: Handling REMOTE_JOINED_CHANNEL");
+					Globals.log.addMsg("MainWorker: Handling REMOTE_JOINED_CHANNEL");
 					handleRemoteJoinedChannel((XMPPRequest) nextRequest);
 					break;
 				case Globals.START_THREADS:
 					handleStartThreads();
 					break;
 				case Globals.LOCAL_FILE_INITSCAN:
-					Globals.log
-					.addMsg("MainWorker: Handling LOCAL_FILE_INITSCAN");
+					Globals.log.addMsg("MainWorker: Handling LOCAL_FILE_INITSCAN");
 					handleLocalFileInitScan((FSRequest) nextRequest);
 					break;
 				case Globals.STH_EVIL_HAPPENED:
@@ -256,20 +244,21 @@ public class MainWorker extends Thread {
 	private void handleRemoteFileCreate(XMPPRequest request) {
 		/*
 		 * Someone announced a new file via XMPP Available information:
-		 * "JID","IP","name","size","blocks","sha256"
+		 * "JID","remoteIP","name","size","blocks","sha256"
 		 */
 
 		Message in = request.getContent();
 
 		String jid = (String) in.getProperty("JID");
-		String ip = (String) in.getProperty("IP");
+		String remoteIP = (String) in.getProperty("remoteIP");
+		String localIP = (String) in.getProperty("localIP");
 		int port = ((Integer) in.getProperty("Port")).intValue();
 		String name = (String) in.getProperty("name");
 		long size = ((Long) in.getProperty("size")).longValue();
 		LinkedList<String> blocks = (LinkedList<String>) in.getProperty("blocks");
 		byte[] hash = (byte[]) in.getProperty("sha256");
 
-		P2Pdevice remoteNode = P2Pdevice.getDevice(jid, ip, port);
+		P2Pdevice remoteNode = P2Pdevice.getDevice(jid, remoteIP, localIP, port);
 
 		myStorage.newFileFromXMPP(name, hash, size, blocks,
 				Globals.chunkSize, remoteNode);
@@ -327,13 +316,14 @@ public class MainWorker extends Thread {
 	private void handleRemoteFileModify(XMPPRequest request) {
 		/*
 		 * Someone announced a fileupdate via XMPP Available information:
-		 * "JID","IP","name","version","size","blocks","sha256"
+		 * "JID","remoteIP","name","version","size","blocks","sha256"
 		 */
 
 		Message in = request.getContent();
 
 		String jid = (String) in.getProperty("JID");
-		String ip = (String) in.getProperty("IP");
+		String remoteIP = (String) in.getProperty("remoteIP");
+		String localIP = (String) in.getProperty("localIP");
 		int port = ((Integer) in.getProperty("Port")).intValue();
 		String name = (String) in.getProperty("name");
 		int vers = ((Integer) in.getProperty("version")).intValue();
@@ -342,7 +332,7 @@ public class MainWorker extends Thread {
 		byte[] hash = (byte[]) in.getProperty("sha256");
 		int noOfChunks = ((Integer) in.getProperty("noOfChunks")).intValue();
 
-		P2Pdevice remoteNode = P2Pdevice.getDevice(jid, ip, port);
+		P2Pdevice remoteNode = P2Pdevice.getDevice(jid, remoteIP, localIP, port);
 
 		myStorage.modifiedFileFromXMPP(name, vers, size, blocks, hash, noOfChunks, remoteNode);
 		Network.getInstance().sendMUCmessage(
@@ -350,17 +340,18 @@ public class MainWorker extends Thread {
 	}
 
 	private void handleRemoteChunkComplete(XMPPRequest request) {
-		// Available: "JID","IP","Port","name","chunkID","chunkVers"
+		// Available: "JID","remoteIP","Port","name","chunkID","chunkVers"
 		Message in = request.getContent();
 
 		String jid = (String) in.getProperty("JID");
-		String ip = (String) in.getProperty("IP");
+		String remoteIP = (String) in.getProperty("remoteIP");
+		String localIP = (String) in.getProperty("localIP");
 		int port = ((Integer) in.getProperty("Port")).intValue();
 		String name = (String) in.getProperty("name");
 		int chunkID = ((Integer) in.getProperty("chunkID")).intValue();
 		//int chunkVers = ((Integer) in.getProperty("chunkVers")).intValue();
 
-		P2Pdevice remoteNode = P2Pdevice.getDevice(jid, ip, port);
+		P2Pdevice remoteNode = P2Pdevice.getDevice(jid, remoteIP, localIP, port);
 
 		myStorage.addP2PdeviceToBlock(name, chunkID, remoteNode);
 	}
@@ -374,16 +365,17 @@ public class MainWorker extends Thread {
 	 *            properties
 	 */
 	private void handleRemoteFileComplete(XMPPRequest request) {
-		// Available: "JID","IP","Port","name","version"
+		// Available: "JID","remoteIP","Port","name","version"
 		Message in = request.getContent();
 
 		String jid = (String) in.getProperty("JID");
-		String ip = (String) in.getProperty("IP");
+		String remoteIP = (String) in.getProperty("remoteIP");
+		String localIP = (String) in.getProperty("localIP");
 		int port = ((Integer) in.getProperty("Port")).intValue();
 		String name = (String) in.getProperty("name");
 		int vers = ((Integer) in.getProperty("version")).intValue();
 
-		P2Pdevice remoteNode = P2Pdevice.getDevice(jid, ip, port);
+		P2Pdevice remoteNode = P2Pdevice.getDevice(jid, remoteIP, localIP, port);
 
 		myStorage.addP2PdeviceToFile(name, vers, remoteNode);
 	}

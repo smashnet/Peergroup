@@ -168,8 +168,7 @@ public class ThriftDataHandler implements DataTransfer.Iface {
 	}
 
 	private static ThriftP2PDevice toThriftP2PDevice(P2Pdevice localDevice) {
-		return new ThriftP2PDevice(localDevice.getIP(), localDevice.getPort(),
-				localDevice.getJID());
+		return new ThriftP2PDevice(localDevice.getJID(), localDevice.getRemoteIP(), localDevice.getLocalIP(), localDevice.getPort());
 	}
 
 	private static byte[] appendByteArray(byte[] a, byte[] b) {

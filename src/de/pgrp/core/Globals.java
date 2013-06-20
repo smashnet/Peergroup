@@ -153,7 +153,7 @@ public class Globals {
 	public static boolean useGUI = false;
 	public static boolean doUPnP = true;
 	public static boolean enableModQueue = true;
-	public static String ipAddress = "";
+	public static String remoteIP = "";
 	public static String localIP = "";
 	public static int p2pPort = 50000 + new Random(System.currentTimeMillis()).nextInt(10000);
 	public static int chunkSize = 512000; // In bytes
@@ -161,7 +161,7 @@ public class Globals {
 	public static LinkedList<String> folders;
 	public static boolean quitting = false;
 	public static String hashAlgo = "MD5";
-	public static int guiRefreshRate = 1000;
+	public static int guiRefreshRate = 1000; //In milliseconds
 
 	public static String getJID() {
 		return user + "@" + server + "/" + resource;

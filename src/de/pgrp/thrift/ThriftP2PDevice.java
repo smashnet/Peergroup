@@ -33,9 +33,10 @@ import org.slf4j.LoggerFactory;
 public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice, ThriftP2PDevice._Fields>, java.io.Serializable, Cloneable {
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("ThriftP2PDevice");
 
-  private static final org.apache.thrift.protocol.TField IP_FIELD_DESC = new org.apache.thrift.protocol.TField("ip", org.apache.thrift.protocol.TType.STRING, (short)1);
-  private static final org.apache.thrift.protocol.TField PORT_FIELD_DESC = new org.apache.thrift.protocol.TField("port", org.apache.thrift.protocol.TType.I32, (short)2);
-  private static final org.apache.thrift.protocol.TField JID_FIELD_DESC = new org.apache.thrift.protocol.TField("jid", org.apache.thrift.protocol.TType.STRING, (short)3);
+  private static final org.apache.thrift.protocol.TField JID_FIELD_DESC = new org.apache.thrift.protocol.TField("jid", org.apache.thrift.protocol.TType.STRING, (short)1);
+  private static final org.apache.thrift.protocol.TField REMOTE_IP_FIELD_DESC = new org.apache.thrift.protocol.TField("remoteIP", org.apache.thrift.protocol.TType.STRING, (short)2);
+  private static final org.apache.thrift.protocol.TField LOCAL_IP_FIELD_DESC = new org.apache.thrift.protocol.TField("localIP", org.apache.thrift.protocol.TType.STRING, (short)3);
+  private static final org.apache.thrift.protocol.TField PORT_FIELD_DESC = new org.apache.thrift.protocol.TField("port", org.apache.thrift.protocol.TType.I32, (short)4);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -43,15 +44,17 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
     schemes.put(TupleScheme.class, new ThriftP2PDeviceTupleSchemeFactory());
   }
 
-  public String ip; // required
-  public int port; // required
   public String jid; // required
+  public String remoteIP; // required
+  public String localIP; // required
+  public int port; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-    IP((short)1, "ip"),
-    PORT((short)2, "port"),
-    JID((short)3, "jid");
+    JID((short)1, "jid"),
+    REMOTE_IP((short)2, "remoteIP"),
+    LOCAL_IP((short)3, "localIP"),
+    PORT((short)4, "port");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -66,12 +69,14 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
      */
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
-        case 1: // IP
-          return IP;
-        case 2: // PORT
-          return PORT;
-        case 3: // JID
+        case 1: // JID
           return JID;
+        case 2: // REMOTE_IP
+          return REMOTE_IP;
+        case 3: // LOCAL_IP
+          return LOCAL_IP;
+        case 4: // PORT
+          return PORT;
         default:
           return null;
       }
@@ -117,12 +122,14 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-    tmpMap.put(_Fields.IP, new org.apache.thrift.meta_data.FieldMetaData("ip", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.JID, new org.apache.thrift.meta_data.FieldMetaData("jid", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+    tmpMap.put(_Fields.REMOTE_IP, new org.apache.thrift.meta_data.FieldMetaData("remoteIP", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+    tmpMap.put(_Fields.LOCAL_IP, new org.apache.thrift.meta_data.FieldMetaData("localIP", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.PORT, new org.apache.thrift.meta_data.FieldMetaData("port", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-    tmpMap.put(_Fields.JID, new org.apache.thrift.meta_data.FieldMetaData("jid", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(ThriftP2PDevice.class, metaDataMap);
   }
@@ -131,15 +138,17 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
   }
 
   public ThriftP2PDevice(
-    String ip,
-    int port,
-    String jid)
+    String jid,
+    String remoteIP,
+    String localIP,
+    int port)
   {
     this();
-    this.ip = ip;
+    this.jid = jid;
+    this.remoteIP = remoteIP;
+    this.localIP = localIP;
     this.port = port;
     setPortIsSet(true);
-    this.jid = jid;
   }
 
   /**
@@ -147,13 +156,16 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
    */
   public ThriftP2PDevice(ThriftP2PDevice other) {
     __isset_bitfield = other.__isset_bitfield;
-    if (other.isSetIp()) {
-      this.ip = other.ip;
-    }
-    this.port = other.port;
     if (other.isSetJid()) {
       this.jid = other.jid;
     }
+    if (other.isSetRemoteIP()) {
+      this.remoteIP = other.remoteIP;
+    }
+    if (other.isSetLocalIP()) {
+      this.localIP = other.localIP;
+    }
+    this.port = other.port;
   }
 
   public ThriftP2PDevice deepCopy() {
@@ -162,57 +174,11 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
 
   @Override
   public void clear() {
-    this.ip = null;
+    this.jid = null;
+    this.remoteIP = null;
+    this.localIP = null;
     setPortIsSet(false);
     this.port = 0;
-    this.jid = null;
-  }
-
-  public String getIp() {
-    return this.ip;
-  }
-
-  public ThriftP2PDevice setIp(String ip) {
-    this.ip = ip;
-    return this;
-  }
-
-  public void unsetIp() {
-    this.ip = null;
-  }
-
-  /** Returns true if field ip is set (has been assigned a value) and false otherwise */
-  public boolean isSetIp() {
-    return this.ip != null;
-  }
-
-  public void setIpIsSet(boolean value) {
-    if (!value) {
-      this.ip = null;
-    }
-  }
-
-  public int getPort() {
-    return this.port;
-  }
-
-  public ThriftP2PDevice setPort(int port) {
-    this.port = port;
-    setPortIsSet(true);
-    return this;
-  }
-
-  public void unsetPort() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __PORT_ISSET_ID);
-  }
-
-  /** Returns true if field port is set (has been assigned a value) and false otherwise */
-  public boolean isSetPort() {
-    return EncodingUtils.testBit(__isset_bitfield, __PORT_ISSET_ID);
-  }
-
-  public void setPortIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __PORT_ISSET_ID, value);
   }
 
   public String getJid() {
@@ -239,13 +205,100 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
     }
   }
 
+  public String getRemoteIP() {
+    return this.remoteIP;
+  }
+
+  public ThriftP2PDevice setRemoteIP(String remoteIP) {
+    this.remoteIP = remoteIP;
+    return this;
+  }
+
+  public void unsetRemoteIP() {
+    this.remoteIP = null;
+  }
+
+  /** Returns true if field remoteIP is set (has been assigned a value) and false otherwise */
+  public boolean isSetRemoteIP() {
+    return this.remoteIP != null;
+  }
+
+  public void setRemoteIPIsSet(boolean value) {
+    if (!value) {
+      this.remoteIP = null;
+    }
+  }
+
+  public String getLocalIP() {
+    return this.localIP;
+  }
+
+  public ThriftP2PDevice setLocalIP(String localIP) {
+    this.localIP = localIP;
+    return this;
+  }
+
+  public void unsetLocalIP() {
+    this.localIP = null;
+  }
+
+  /** Returns true if field localIP is set (has been assigned a value) and false otherwise */
+  public boolean isSetLocalIP() {
+    return this.localIP != null;
+  }
+
+  public void setLocalIPIsSet(boolean value) {
+    if (!value) {
+      this.localIP = null;
+    }
+  }
+
+  public int getPort() {
+    return this.port;
+  }
+
+  public ThriftP2PDevice setPort(int port) {
+    this.port = port;
+    setPortIsSet(true);
+    return this;
+  }
+
+  public void unsetPort() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __PORT_ISSET_ID);
+  }
+
+  /** Returns true if field port is set (has been assigned a value) and false otherwise */
+  public boolean isSetPort() {
+    return EncodingUtils.testBit(__isset_bitfield, __PORT_ISSET_ID);
+  }
+
+  public void setPortIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __PORT_ISSET_ID, value);
+  }
+
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
-    case IP:
+    case JID:
       if (value == null) {
-        unsetIp();
+        unsetJid();
       } else {
-        setIp((String)value);
+        setJid((String)value);
+      }
+      break;
+
+    case REMOTE_IP:
+      if (value == null) {
+        unsetRemoteIP();
+      } else {
+        setRemoteIP((String)value);
+      }
+      break;
+
+    case LOCAL_IP:
+      if (value == null) {
+        unsetLocalIP();
+      } else {
+        setLocalIP((String)value);
       }
       break;
 
@@ -257,27 +310,22 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
       }
       break;
 
-    case JID:
-      if (value == null) {
-        unsetJid();
-      } else {
-        setJid((String)value);
-      }
-      break;
-
     }
   }
 
   public Object getFieldValue(_Fields field) {
     switch (field) {
-    case IP:
-      return getIp();
+    case JID:
+      return getJid();
+
+    case REMOTE_IP:
+      return getRemoteIP();
+
+    case LOCAL_IP:
+      return getLocalIP();
 
     case PORT:
       return Integer.valueOf(getPort());
-
-    case JID:
-      return getJid();
 
     }
     throw new IllegalStateException();
@@ -290,12 +338,14 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
     }
 
     switch (field) {
-    case IP:
-      return isSetIp();
-    case PORT:
-      return isSetPort();
     case JID:
       return isSetJid();
+    case REMOTE_IP:
+      return isSetRemoteIP();
+    case LOCAL_IP:
+      return isSetLocalIP();
+    case PORT:
+      return isSetPort();
     }
     throw new IllegalStateException();
   }
@@ -313,12 +363,30 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
     if (that == null)
       return false;
 
-    boolean this_present_ip = true && this.isSetIp();
-    boolean that_present_ip = true && that.isSetIp();
-    if (this_present_ip || that_present_ip) {
-      if (!(this_present_ip && that_present_ip))
+    boolean this_present_jid = true && this.isSetJid();
+    boolean that_present_jid = true && that.isSetJid();
+    if (this_present_jid || that_present_jid) {
+      if (!(this_present_jid && that_present_jid))
         return false;
-      if (!this.ip.equals(that.ip))
+      if (!this.jid.equals(that.jid))
+        return false;
+    }
+
+    boolean this_present_remoteIP = true && this.isSetRemoteIP();
+    boolean that_present_remoteIP = true && that.isSetRemoteIP();
+    if (this_present_remoteIP || that_present_remoteIP) {
+      if (!(this_present_remoteIP && that_present_remoteIP))
+        return false;
+      if (!this.remoteIP.equals(that.remoteIP))
+        return false;
+    }
+
+    boolean this_present_localIP = true && this.isSetLocalIP();
+    boolean that_present_localIP = true && that.isSetLocalIP();
+    if (this_present_localIP || that_present_localIP) {
+      if (!(this_present_localIP && that_present_localIP))
+        return false;
+      if (!this.localIP.equals(that.localIP))
         return false;
     }
 
@@ -328,15 +396,6 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
       if (!(this_present_port && that_present_port))
         return false;
       if (this.port != that.port)
-        return false;
-    }
-
-    boolean this_present_jid = true && this.isSetJid();
-    boolean that_present_jid = true && that.isSetJid();
-    if (this_present_jid || that_present_jid) {
-      if (!(this_present_jid && that_present_jid))
-        return false;
-      if (!this.jid.equals(that.jid))
         return false;
     }
 
@@ -356,12 +415,32 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
     int lastComparison = 0;
     ThriftP2PDevice typedOther = (ThriftP2PDevice)other;
 
-    lastComparison = Boolean.valueOf(isSetIp()).compareTo(typedOther.isSetIp());
+    lastComparison = Boolean.valueOf(isSetJid()).compareTo(typedOther.isSetJid());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetIp()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.ip, typedOther.ip);
+    if (isSetJid()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.jid, typedOther.jid);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetRemoteIP()).compareTo(typedOther.isSetRemoteIP());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetRemoteIP()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.remoteIP, typedOther.remoteIP);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetLocalIP()).compareTo(typedOther.isSetLocalIP());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetLocalIP()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.localIP, typedOther.localIP);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -372,16 +451,6 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
     }
     if (isSetPort()) {
       lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.port, typedOther.port);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetJid()).compareTo(typedOther.isSetJid());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetJid()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.jid, typedOther.jid);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -406,24 +475,32 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
     StringBuilder sb = new StringBuilder("ThriftP2PDevice(");
     boolean first = true;
 
-    sb.append("ip:");
-    if (this.ip == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.ip);
-    }
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("port:");
-    sb.append(this.port);
-    first = false;
-    if (!first) sb.append(", ");
     sb.append("jid:");
     if (this.jid == null) {
       sb.append("null");
     } else {
       sb.append(this.jid);
     }
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("remoteIP:");
+    if (this.remoteIP == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.remoteIP);
+    }
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("localIP:");
+    if (this.localIP == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.localIP);
+    }
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("port:");
+    sb.append(this.port);
     first = false;
     sb.append(")");
     return sb.toString();
@@ -470,26 +547,34 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
           break;
         }
         switch (schemeField.id) {
-          case 1: // IP
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.ip = iprot.readString();
-              struct.setIpIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 2: // PORT
-            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.port = iprot.readI32();
-              struct.setPortIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 3: // JID
+          case 1: // JID
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
               struct.jid = iprot.readString();
               struct.setJidIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 2: // REMOTE_IP
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+              struct.remoteIP = iprot.readString();
+              struct.setRemoteIPIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 3: // LOCAL_IP
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+              struct.localIP = iprot.readString();
+              struct.setLocalIPIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 4: // PORT
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.port = iprot.readI32();
+              struct.setPortIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -509,19 +594,24 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
-      if (struct.ip != null) {
-        oprot.writeFieldBegin(IP_FIELD_DESC);
-        oprot.writeString(struct.ip);
-        oprot.writeFieldEnd();
-      }
-      oprot.writeFieldBegin(PORT_FIELD_DESC);
-      oprot.writeI32(struct.port);
-      oprot.writeFieldEnd();
       if (struct.jid != null) {
         oprot.writeFieldBegin(JID_FIELD_DESC);
         oprot.writeString(struct.jid);
         oprot.writeFieldEnd();
       }
+      if (struct.remoteIP != null) {
+        oprot.writeFieldBegin(REMOTE_IP_FIELD_DESC);
+        oprot.writeString(struct.remoteIP);
+        oprot.writeFieldEnd();
+      }
+      if (struct.localIP != null) {
+        oprot.writeFieldBegin(LOCAL_IP_FIELD_DESC);
+        oprot.writeString(struct.localIP);
+        oprot.writeFieldEnd();
+      }
+      oprot.writeFieldBegin(PORT_FIELD_DESC);
+      oprot.writeI32(struct.port);
+      oprot.writeFieldEnd();
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
@@ -540,42 +630,52 @@ public class ThriftP2PDevice implements org.apache.thrift.TBase<ThriftP2PDevice,
     public void write(org.apache.thrift.protocol.TProtocol prot, ThriftP2PDevice struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
-      if (struct.isSetIp()) {
+      if (struct.isSetJid()) {
         optionals.set(0);
       }
-      if (struct.isSetPort()) {
+      if (struct.isSetRemoteIP()) {
         optionals.set(1);
       }
-      if (struct.isSetJid()) {
+      if (struct.isSetLocalIP()) {
         optionals.set(2);
       }
-      oprot.writeBitSet(optionals, 3);
-      if (struct.isSetIp()) {
-        oprot.writeString(struct.ip);
+      if (struct.isSetPort()) {
+        optionals.set(3);
+      }
+      oprot.writeBitSet(optionals, 4);
+      if (struct.isSetJid()) {
+        oprot.writeString(struct.jid);
+      }
+      if (struct.isSetRemoteIP()) {
+        oprot.writeString(struct.remoteIP);
+      }
+      if (struct.isSetLocalIP()) {
+        oprot.writeString(struct.localIP);
       }
       if (struct.isSetPort()) {
         oprot.writeI32(struct.port);
-      }
-      if (struct.isSetJid()) {
-        oprot.writeString(struct.jid);
       }
     }
 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, ThriftP2PDevice struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(3);
+      BitSet incoming = iprot.readBitSet(4);
       if (incoming.get(0)) {
-        struct.ip = iprot.readString();
-        struct.setIpIsSet(true);
-      }
-      if (incoming.get(1)) {
-        struct.port = iprot.readI32();
-        struct.setPortIsSet(true);
-      }
-      if (incoming.get(2)) {
         struct.jid = iprot.readString();
         struct.setJidIsSet(true);
+      }
+      if (incoming.get(1)) {
+        struct.remoteIP = iprot.readString();
+        struct.setRemoteIPIsSet(true);
+      }
+      if (incoming.get(2)) {
+        struct.localIP = iprot.readString();
+        struct.setLocalIPIsSet(true);
+      }
+      if (incoming.get(3)) {
+        struct.port = iprot.readI32();
+        struct.setPortIsSet(true);
       }
     }
   }

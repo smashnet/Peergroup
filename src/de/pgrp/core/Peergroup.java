@@ -322,7 +322,7 @@ public class Peergroup {
 								return false;
 							}
 						}
-						Globals.ipAddress = val;
+						Globals.remoteIP = val;
 					}
 
 					val = getTagValue("port", eElement);
@@ -333,6 +333,19 @@ public class Peergroup {
 							Globals.p2pPort = Integer.parseInt(val);
 						} else {
 							Globals.log.addMsg("P2P Port not in valid range: xmpp-account -> port (should be 1025-65535)", 1);
+							return false;
+						}
+					}
+					
+					val = getTagValue("upnp", eElement);
+					if (val != null) {
+						// Sanity check
+						if (val.equals("yes")) {
+							Globals.doUPnP = true;
+						} else if (val.equals("no")){
+							Globals.doUPnP = false;
+						} else {
+							Globals.log.addMsg("<upnp> tag should be \"yes\" or \"no\"", 1);
 							return false;
 						}
 					}
@@ -390,7 +403,7 @@ public class Peergroup {
 					+ "\t\t<pass>" + Globals.conference_pass + "</pass>\n" + "\t</conference>\n"
 					+ "\t<pg-settings>\n" + "\t\t<share>./share/</share>\n"
 					+ "\t\t<extIP></extIP>\n" + "\t\t<port>" + Globals.p2pPort + "</port>\n"
-					+ "\t</pg-settings>\n" + "</peergroup>";
+					+ "\t\t<upnp>yes</upnp>\n\t</pg-settings>\n" + "</peergroup>";
 			bw.write(sample, 0, sample.length());
 			bw.close();
 		} catch (Exception e) {
@@ -418,7 +431,7 @@ public class Peergroup {
 					+ "\t\t<pass></pass>\n" + "\t</conference>\n"
 					+ "\t<pg-settings>\n" + "\t\t<share>./share/</share>\n"
 					+ "\t\t<extIP></extIP>\n" + "\t\t<port>53333</port>\n"
-					+ "\t</pg-settings>\n" + "</peergroup>";
+					+ "\t\t<upnp>yes</upnp>\n\t</pg-settings>\n" + "</peergroup>";
 			bw.write(sample, 0, sample.length());
 			bw.close();
 		} catch (Exception e) {
@@ -475,7 +488,7 @@ public class Peergroup {
 		}
 
 		// Get external IP
-		if (!Globals.ipAddress.equals("")) {
+		if (!Globals.remoteIP.equals("")) {
 			Globals.log.addMsg("External IP was manually set, skipping the guessing.");
 			return;
 		}
@@ -483,8 +496,8 @@ public class Peergroup {
 			URL whatismyip = new URL("http://files.smashnet.de/getIP.php");
 			BufferedReader in = new BufferedReader(new InputStreamReader(whatismyip.openStream()));
 
-			Globals.ipAddress = in.readLine();
-			Globals.log.addMsg("Found external IP: " + Globals.ipAddress);
+			Globals.remoteIP = in.readLine();
+			Globals.log.addMsg("Found external IP: " + Globals.remoteIP);
 		} catch (Exception e) {
 			Globals.log.addMsg("Couldn't get external IP! " + e + " Try setting it manually!", 1);
 			quit(1);
