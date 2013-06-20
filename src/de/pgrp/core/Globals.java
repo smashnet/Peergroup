@@ -36,7 +36,8 @@ import net.sbbi.upnp.impls.InternetGatewayDevice;
 public class Globals {
 
 	public final static String PROGNAME = "Peergroup";
-	public final static String VERSION = "0.06dev";
+	public final static String VERSION = "0.10dev";
+	public static String hiddenDir = "./.pgrp/";
 	public static String config = "config.xml";
 
 	public final static Logger log = new Logger(false);
@@ -99,8 +100,7 @@ public class Globals {
 	/*
 	 * Storage constants
 	 */
-	public static String rootDirectory = "./share/";
-	public static String tmpDirectory = "./tmp/";
+	public static String rootDirectory = "./Peergroup/";
 	public static InternetGatewayDevice igd;
 
 	/*

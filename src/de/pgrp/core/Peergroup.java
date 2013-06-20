@@ -194,7 +194,7 @@ public class Peergroup {
 	 */
 	private static boolean getConfig() {
 		try {
-			File xmlConfig = new File(Globals.config);
+			File xmlConfig = new File(Globals.hiddenDir + Globals.config);
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 			Document doc = dBuilder.parse(xmlConfig);
@@ -338,12 +338,12 @@ public class Peergroup {
 					}
 				}
 			}
-			Globals.log.addMsg("Using " + Globals.config
+			Globals.log.addMsg("Using " + Globals.hiddenDir + Globals.config
 					+ "... Ignoring commandline arguments!", 3);
 		} catch (FileNotFoundException fnf) {
 			Globals.log.addMsg(
 					"Could not find config file! Creating sample file...", 1);
-			Globals.log.addMsg("Please edit config.smp to your needs and rename it to config.xml", 4);
+			Globals.log.addMsg("Please edit config.smp to your needs and copy to ./.pgrp/config.xml", 4);
 			createSampleConfig();
 			return false;
 		} catch (NumberFormatException nfe) {
@@ -351,7 +351,7 @@ public class Peergroup {
 			return false;
 		} catch (NullPointerException npe) {
 			Globals.log.addMsg("Value missing in config: " + npe, 1);
-			Globals.log.addMsg("Please edit config.smp to your needs and rename it to config.xml", 4);
+			Globals.log.addMsg("Please edit config.smp to your needs and copy to ./.pgrp/config.xml", 4);
 			createSampleConfig();
 			return false;
 		} catch (Exception ioe) {
@@ -373,7 +373,7 @@ public class Peergroup {
 	
 	private static void createConfig() {
 		try {
-			File conf = new File("config.xml");
+			File conf = new File(Globals.hiddenDir + "config.xml");
 			conf.delete();
 			conf.createNewFile();
 			FileWriter fw = new FileWriter(conf);
@@ -522,11 +522,9 @@ public class Peergroup {
 								+ Globals.localIP, 4);
 			}
 		} catch (IOException ex) {
-			Globals.log.addMsg("Failed to open port: " + ex, 4);
-			Globals.log.addMsg("Maybe the port is already open?", 4);
+			Globals.log.addMsg("Failed to open port via UPnP: Maybe the port is already open, or your router does not support UPnP?", 4);
 		} catch (UPNPResponseException respEx) {
-			Globals.log.addMsg("Failed to open port: " + respEx, 4);
-			Globals.log.addMsg("Maybe the port is already open?", 4);
+			Globals.log.addMsg("Failed to open port via UPnP: Maybe the port is already open, or your router does not support UPnP?", 4);
 		}
 	}
 
@@ -586,13 +584,12 @@ public class Peergroup {
 		if (Globals.igd != null) {
 			try {
 				boolean unmapped = Globals.igd.deletePortMapping(null, Globals.p2pPort, "TCP");
-				if (unmapped) {Globals.log.addMsg("Released port mapping for Peergroup on port "
-							+ Globals.p2pPort);
+				if (unmapped) {Globals.log.addMsg("Released port mapping for Peergroup on port " + Globals.p2pPort);
 				}
 			} catch (IOException ioe) {
-				Globals.log.addMsg("Error unmapping port: " + ioe, 4);
+				Globals.log.addMsg("Error unmapping port: UPnP unsupported or deactivated!", 4);
 			} catch (UPNPResponseException respEx) {
-				Globals.log.addMsg("Error unmapping port: " + respEx, 4);
+				Globals.log.addMsg("Error unmapping port: UPnP unsupported or deactivated!", 4);
 			}
 		}
 
@@ -607,12 +604,9 @@ public class Peergroup {
 
 		if (Globals.igd != null) {
 			try {
-				boolean unmapped = Globals.igd.deletePortMapping(null,
-						Globals.p2pPort, "TCP");
+				boolean unmapped = Globals.igd.deletePortMapping(null,Globals.p2pPort, "TCP");
 				if (unmapped) {
-					Globals.log
-					.addMsg("Released port mapping for Peergroup on port "
-							+ Globals.p2pPort);
+					Globals.log.addMsg("Released port mapping for Peergroup on port " + Globals.p2pPort);
 				}
 			} catch (IOException ioe) {
 				Globals.log.addMsg("Error unmapping port: " + ioe, 4);
