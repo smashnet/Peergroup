@@ -95,6 +95,8 @@ Copyright (c) 2013 Nicolas Inden
 	
 	<!-- wipeout target, will delete all unnecessary data as tmp dirs reports and javadoc so we only commit pure source-code into GIT -->
 	<target name="wipeout">
+    <delete dir="./share" />
+    <delete dir="./log" />
 		<delete dir="${tmp}" />
 		<delete dir="${dist}" />
 		<delete dir="${docdir}" />
