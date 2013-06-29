@@ -1,0 +1,17 @@
+<component name="libraryTable">
+  <library name="lib">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/commons-jxpath-1.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/smackx.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/smack.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/slf4j-api-1.6.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/slf4j-simple-1.6.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/libthrift.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/UmlGraph.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/sbbi-upnplib-1.0.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/commons-logging.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
