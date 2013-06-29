@@ -16,18 +16,19 @@
 * Author : Nicolas Inden
 * Contact: nicolas.inden@rwth-aachen.de
 *
-* Copyright (c) 2012 Nicolas Inden
+* Copyright (c) 2013 Nicolas Inden
 */
 
-namespace cpp peergroup
-namespace java peergroup
-namespace php peergroup
-namespace perl peergroup
+namespace cpp de.pgrp.thrift
+namespace java de.pgrp.thrift
+namespace php de.pgrp.thrift
+namespace perl de.pgrp.thrift
 
 struct ThriftP2PDevice {
-	1: string ip,
-	2: i32 port,
-	3: string jid
+	1: string jid,
+	2: string remoteIP,
+	3: string localIP,
+	4: i32 port
 }
 
 struct ThriftFileChunk {
@@ -53,6 +54,7 @@ struct ThriftStorage {
 }
 
 service DataTransfer {
+	string getLocalIP(1:string hash),
 	ThriftStorage getStorage(),
 	binary getDataBlock(1:string filename, 2:i32 blockID, 3:string hash)
 }

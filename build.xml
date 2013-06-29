@@ -1,14 +1,22 @@
 <!--
- Peergroup - build.xml
+Peergroup - build.xml
  
- Peergroup is a file synching tool using XMPP for data- and 
- participantmanagement and Apache Thrift for direct data-
- exchange between users.
+This file is part of Peergroup.
 
- Author : Nicolas Inden
- Contact: nicolas.inden@rwth-aachen.de
+Peergroup is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
- License: Not for public distribution!
+Peergroup is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+Author : Nicolas Inden
+Contact: nicolas.inden@rwth-aachen.de
+
+Copyright (c) 2013 Nicolas Inden
 -->
 
 <project name="Peergroup" default="all" basedir=".">
@@ -18,13 +26,13 @@
 	<property name="tmp" location="./temp" />
 	<property name="junit" location="./junit" />
 	<property name="tests" location="./tests" />
+	<property name="dist" location="./dist" />
 	<property name="test.output" location="./test-output" />
 	<property name="test.classes" location="${tmp}/testclasses" />
 	<property name="tmpclasses" location="${tmp}/classes" />
-	<property name="exportdir" location="./export" />
 	<property name="deploydir" location="./Peergroup" />
 	<property name="docdir" location="./doc" />
-	<property name="clientpkg" value="peergroup" />
+	<property name="clientpkg" value="de" />
 	<property name="test.class.name" value="peergroup.FileHandleTest" />
 	
 	<!-- set pathes-->
@@ -47,7 +55,7 @@
 	<!-- default target, will export the client and the java doc -->
 	<target name="all" depends="jar, clean"/>
 	
-	<!-- JUnit-Test  target -->
+	<!-- JUnit-Test  target 
 	<target name="test" depends="compile-tests">
 	  <junit fork="yes" haltonfailure="yes" printsummary="true">
 	    <classpath refid="test.classpath" />
@@ -56,7 +64,6 @@
 				<formatter type="plain" usefile="false"/>
         </batchtest>
 	  </junit>
-	  <!--<delete dir="${tmp}" />-->
 	</target>
 	
 	<target name="compile-tests" depends="compile">
@@ -66,12 +73,32 @@
 			includeantruntime="false">
 			<classpath refid="test.classpath"/>
 		</javac>
+	</target> -->
+	
+	<taskdef name="bundleapp"
+		classname="com.oracle.appbundler.AppBundlerTask"   
+	  classpath="lib/appbundler-1.0.jar" />
+
+	<target name="bundle" depends="jar, clean">
+		<mkdir dir="${dist}" />
+	    <bundleapp outputdirectory="dist"
+			name="Peergroup"
+	      	displayname="Peergroup"
+			icon="art/Pgrp.icns"
+	      	identifier="de.pgrp.core.Peergroup"
+	      	mainclassname="de.pgrp.core.Peergroup">
+	      	<classpath file="dist/peergroup.jar" />
+			<option value="-Dapple.laf.useScreenMenuBar=true -Xms512M -Xmx2G" />
+			<argument value="-GUI" />
+	    </bundleapp>
 	</target>
 	
 	<!-- wipeout target, will delete all unnecessary data as tmp dirs reports and javadoc so we only commit pure source-code into GIT -->
 	<target name="wipeout">
+    <delete dir="./share" />
+    <delete dir="./log" />
 		<delete dir="${tmp}" />
-		<delete dir="${exportdir}" />
+		<delete dir="${dist}" />
 		<delete dir="${docdir}" />
 		<delete dir="${test.classes}" />
 		<delete dir="${test.output}" />
@@ -104,15 +131,17 @@
 	
 	<!-- export compiled code as a jar file -->
 	<target name="jar" depends="compile">
-			<mkdir dir="${exportdir}" />
-			<jar jarfile="${exportdir}/peergroup.jar">
+			<mkdir dir="${dist}" />
+			<jar jarfile="${dist}/peergroup.jar">
 				<fileset dir="${tmpclasses}">
 					<include name="${clientpkg}/**/*.class" />
 				</fileset>
+				<fileset dir="./art">
+					<include name="*.png"/>
+				</fileset>
 				<zipgroupfileset dir="${lib}" includes="*.jar" excludes=""/>
 				<manifest>
-					<attribute name="Main-Class" value="peergroup/Peergroup"/>
-					<attribute name="Class-Path" value="name/Pachler"/>
+					<attribute name="Main-Class" value="de/pgrp/core/Peergroup"/>
 				</manifest>
 			</jar>
 	</target>
@@ -134,12 +163,13 @@
 	
 	<target name="deploy-pkg" depends="jar, clean">
 		<delete file="Peergroup.zip" />
-		<mkdir dir="${deploydir}" />
-		<copy file="${exportdir}/peergroup.jar" todir="${deploydir}/" />
-		<copy file="config.smp" todir="${deploydir}/" />
-		<copy file="README.mdown" todir="${deploydir}/" />
-		<copy file="pg-start" todir="${deploydir}/" />
-		<copy file="pg-start.bat" todir="${deploydir}/" />
+		<mkdir dir="${deploydir}/Peergroup/" />
+		<copy file="${dist}/peergroup.jar" todir="${deploydir}/Peergroup/" />
+		<copy file="config.smp" todir="${deploydir}/Peergroup/" />
+		<copy file="README.mdown" todir="${deploydir}/Peergroup/" />
+		<copy file="license.txt" todir="${deploydir}/Peergroup/" />
+		<copy file="pg-start" todir="${deploydir}/Peergroup/" />
+		<copy file="pg-start.bat" todir="${deploydir}/Peergroup/" />
 		<zip basedir="${deploydir}" destfile="Peergroup.zip" />
 		<delete dir="${deploydir}" />
 	</target>
