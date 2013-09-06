@@ -355,7 +355,7 @@ public class Peergroup {
 		} catch (FileNotFoundException fnf) {
 			Globals.log.addMsg(
 					"Could not find config file! Creating sample file...", 1);
-			Globals.log.addMsg("Please edit config.smp to your needs and copy to ./.pgrp/config.xml", 4);
+			Globals.log.addMsg("Please edit config.smp to your needs and copy to config.xml", 4);
 			createSampleConfig();
 			return false;
 		} catch (NumberFormatException nfe) {
@@ -363,7 +363,7 @@ public class Peergroup {
 			return false;
 		} catch (NullPointerException npe) {
 			Globals.log.addMsg("Value missing in config: " + npe, 1);
-			Globals.log.addMsg("Please edit config.smp to your needs and copy to ./.pgrp/config.xml", 4);
+			Globals.log.addMsg("Please edit config.smp to your needs and copy to config.xml", 4);
 			createSampleConfig();
 			return false;
 		} catch (Exception ioe) {
