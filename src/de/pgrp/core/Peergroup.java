@@ -194,7 +194,7 @@ public class Peergroup {
 	 */
 	private static boolean getConfig() {
 		try {
-			File xmlConfig = new File(Globals.hiddenDir + Globals.config);
+			File xmlConfig = new File(Globals.config);
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 			Document doc = dBuilder.parse(xmlConfig);
@@ -351,8 +351,7 @@ public class Peergroup {
 					}
 				}
 			}
-			Globals.log.addMsg("Using " + Globals.hiddenDir + Globals.config
-					+ "... Ignoring commandline arguments!", 3);
+			Globals.log.addMsg("Using " + Globals.config + "... Ignoring commandline arguments!", 3);
 		} catch (FileNotFoundException fnf) {
 			Globals.log.addMsg(
 					"Could not find config file! Creating sample file...", 1);
@@ -386,7 +385,7 @@ public class Peergroup {
 	
 	private static void createConfig() {
 		try {
-			File conf = new File(Globals.hiddenDir + "config.xml");
+			File conf = new File("config.xml");
 			conf.delete();
 			conf.createNewFile();
 			FileWriter fw = new FileWriter(conf);

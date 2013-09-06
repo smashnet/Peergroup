@@ -37,7 +37,6 @@ public class Globals {
 
 	public final static String PROGNAME = "Peergroup";
 	public final static String VERSION = "0.10dev";
-	public static String hiddenDir = "./.pgrp/";
 	public static String config = "config.xml";
 
 	public final static Logger log = new Logger(false);

@@ -30,7 +30,7 @@ Copyright (c) 2013 Nicolas Inden
 	<property name="test.output" location="./test-output" />
 	<property name="test.classes" location="${tmp}/testclasses" />
 	<property name="tmpclasses" location="${tmp}/classes" />
-	<property name="deploydir" location="./Peergroup" />
+	<property name="deploydir" location="./deploy" />
 	<property name="docdir" location="./doc" />
 	<property name="clientpkg" value="de" />
 	<property name="test.class.name" value="peergroup.FileHandleTest" />
