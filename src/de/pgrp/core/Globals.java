@@ -142,6 +142,7 @@ public class Globals {
 	/*
 	 * Stuff
 	 */
+	public static boolean encryptDataTransfers = false;	
 	public static boolean serverMode = false;
 	public static boolean useGUI = false;
 	public static boolean doUPnP = true;

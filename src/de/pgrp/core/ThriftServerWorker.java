@@ -59,7 +59,7 @@ public class ThriftServerWorker extends Thread {
 			//Multithreaded:
 			TThreadPoolServer.Args tpsa = new TThreadPoolServer.Args(serverTransport).processor(processor);
 			tpsa.minWorkerThreads(1);
-			tpsa.maxWorkerThreads(10);
+			tpsa.maxWorkerThreads(20);
 			this.server = new TThreadPoolServer(tpsa);
 
 			Globals.log.addMsg("Starting thrift handler on port " + Globals.p2pPort);

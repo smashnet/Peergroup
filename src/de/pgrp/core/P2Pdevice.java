@@ -78,6 +78,7 @@ public class P2Pdevice {
 		try {
 			ByteBuffer block = client.getDataBlock(name, id, hash);
 
+			this.transport.close();
 			return block.array();
 		} catch (TException te) {
 			Globals.log
@@ -95,6 +96,7 @@ public class P2Pdevice {
 		try {
 			ThriftStorage list = client.getStorage();
 
+			this.transport.close();
 			return list;
 		} catch (TException te) {
 			Globals.log.addMsg("Thrift Error: " + te, 1);

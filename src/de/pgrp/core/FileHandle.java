@@ -189,7 +189,7 @@ public class FileHandle {
 	 * @param size
 	 *            the size of a chunk (last one might be smaller)
 	 */
-	private synchronized int createChunks(int size, int vers) {
+	private  int createChunks(int size, int vers) {
 		if (!(this.chunks == null)) {
 			Globals.log.addMsg("(" + this.file.getName()
 					+ ") Chunklist not empty!", 4);
@@ -291,7 +291,7 @@ public class FileHandle {
 	 * 
 	 * @return true if file has changed, else false
 	 */
-	public synchronized boolean localUpdate() throws Exception {
+	public  boolean localUpdate() throws Exception {
 		Globals.log.addMsg("FileHandle: Local update triggered for " + this.file.getName() + ". Scanning for changes!");
 		boolean changed = false;
 		FileInputStream stream = new FileInputStream(this.file);
@@ -386,7 +386,7 @@ public class FileHandle {
 	 * @param node
 	 *            The P2Pdevice
 	 */
-	public synchronized void addP2PdeviceToBlock(int id, P2Pdevice node) {
+	public  void addP2PdeviceToBlock(int id, P2Pdevice node) {
 		if (id >= this.chunks.size()) {
 			Globals.log.addMsg("Cannot add node to not existing chunk! (ID: " + id + " Size: " + this.chunks.size() + ")", 4);
 			return;
@@ -401,7 +401,7 @@ public class FileHandle {
 	 * @param node
 	 *            The P2Pdevice
 	 */
-	public synchronized void addP2PdeviceToAllBlocks(P2Pdevice node) {
+	public  void addP2PdeviceToAllBlocks(P2Pdevice node) {
 		for (FileChunk f : this.chunks) {
 			f.addPeer(node);
 		}
@@ -410,7 +410,7 @@ public class FileHandle {
 	/**
 	 * Clears the list of P2Pdevices for all chunks of this file
 	 */
-	public synchronized void clearP2Pdevices() {
+	public  void clearP2Pdevices() {
 		for (FileChunk f : this.chunks) {
 			f.clearPeers();
 		}
@@ -489,7 +489,7 @@ public class FileHandle {
 	 * @param data
 	 *            The data as byte array
 	 */
-	public synchronized void setChunkData(int id, String hash, P2Pdevice node,
+	public  void setChunkData(int id, String hash, P2Pdevice node,
 			byte[] data) {
 		if (this.chunks == null) {
 			Globals.log.addMsg(
@@ -579,7 +579,7 @@ public class FileHandle {
 	 * @param id
 	 *            The chunk id
 	 */
-	public synchronized void updateChunkVersion(int id) {
+	public  void updateChunkVersion(int id) {
 		for (FileChunk f : this.chunks) {
 			if (id == f.getID()) {
 				f.setVersion(this.fileVersion);
@@ -653,7 +653,7 @@ public class FileHandle {
 	 * @param node
 	 *            P2Pdevice that is in possession of the updated chunks
 	 */
-	public synchronized void updateBlocks(LinkedList<String> blocks, int vers, int noOfChunks, P2Pdevice node) {
+	public  void updateBlocks(LinkedList<String> blocks, int vers, int noOfChunks, P2Pdevice node) {
 		
 		// Before invoking updateBlocks, we already set the new size of the file, so we can trim
 		// unneccessary FileChunks, and the file on the storage device

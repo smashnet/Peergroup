@@ -351,7 +351,7 @@ public class Storage {
 	 * @return The first found FileChunk with the rarest distribution, or null
 	 *         if no files exist
 	 */
-	public synchronized FileChunk getRarestChunk() {
+	public  FileChunk getRarestChunk() {
 		Random gen = new Random(System.currentTimeMillis());
 		LinkedList<FileChunk> rareChunkList = new LinkedList<FileChunk>();
 		LinkedList<FileChunk> chunkList = new LinkedList<FileChunk>();
@@ -462,7 +462,7 @@ public class Storage {
 		}
 	}
 
-	public synchronized FileHandle getFileHandle(String name) {
+	public  FileHandle getFileHandle(String name) {
 		for (FileHandle f : getFileList()) {
 			if (f.getPath().equals(name)) {
 				return f;
@@ -471,7 +471,7 @@ public class Storage {
 		return null;
 	}
 
-	public synchronized void setFileList(LinkedList<FileHandle> newList) {
+	public  void setFileList(LinkedList<FileHandle> newList) {
 		this.files = newList;
 	}
 
@@ -500,7 +500,7 @@ public class Storage {
 		this.fileListVersion = v;
 	}
 
-	public synchronized LinkedList<FileHandle> getFileList() {
+	public  LinkedList<FileHandle> getFileList() {
 		return this.files;
 	}
 

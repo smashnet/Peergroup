@@ -87,6 +87,10 @@ public class ThriftDataHandler implements DataTransfer.Iface {
 			if (plain == null) {
 				return null;
 			}
+			
+			if(!Globals.encryptDataTransfers){
+				return ByteBuffer.wrap(plain);
+			}
 
 			String plainkey = "P33rgr0up";
 			byte[] salt = { 0x12, 0x78, 0x4F, 0x33, 0x13, 0x4B, 0x6B, 0x2F };
@@ -95,10 +99,8 @@ public class ThriftDataHandler implements DataTransfer.Iface {
 				plainkey = Globals.conference_pass;
 
 			try {
-				SecretKeyFactory fac = SecretKeyFactory
-						.getInstance("PBKDF2WithHmacSHA1");
-				KeySpec spec = new PBEKeySpec(plainkey.toCharArray(), salt,
-						65536, 128);
+				SecretKeyFactory fac = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+				KeySpec spec = new PBEKeySpec(plainkey.toCharArray(), salt, 65536, 128);
 				SecretKey tmp1 = fac.generateSecret(spec);
 				SecretKey secret = new SecretKeySpec(tmp1.getEncoded(), "AES");
 				// Init AES cipher
@@ -109,9 +111,7 @@ public class ThriftDataHandler implements DataTransfer.Iface {
 
 				AlgorithmParameters params = ciph.getParameters();
 				// IV is 16bytes in length
-				byte[] iv = params.getParameterSpec(IvParameterSpec.class)
-						.getIV();
-
+				byte[] iv = params.getParameterSpec(IvParameterSpec.class).getIV();
 				byte[] sendbuffer = appendByteArray(iv, encrypted);
 
 				ByteBuffer buffer = ByteBuffer.wrap(sendbuffer);

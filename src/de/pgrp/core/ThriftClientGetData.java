@@ -64,36 +64,70 @@ public class ThriftClientGetData implements Runnable {
 			byte[] swap = getBlock(chunk.getName(), chunk.getID(), chunk.getHexHash(), device);
 			if (swap != null) {
 
-				// Seperate encrypted data and IV
-				byte[] data = new byte[swap.length - 16];
-				byte[] iv = new byte[16];
-				System.arraycopy(swap, 0, iv, 0, 16);
-				System.arraycopy(swap, 16, data, 0, swap.length - 16);
+				if(Globals.encryptDataTransfers){
+					// Seperate encrypted data and IV
+					byte[] data = new byte[swap.length - 16];
+					byte[] iv = new byte[16];
+					System.arraycopy(swap, 0, iv, 0, 16);
+					System.arraycopy(swap, 16, data, 0, swap.length - 16);
 				
-				swap = null;
+					swap = null;
 
-				// Initial settings for encryption/decryption
-				String plainkey = "P33rgr0up";
-				byte[] salt = { 0x12, 0x78, 0x4F, 0x33, 0x13, 0x4B, 0x6B, 0x2F };
+					// Initial settings for encryption/decryption
+					String plainkey = "P33rgr0up";
+					byte[] salt = { 0x12, 0x78, 0x4F, 0x33, 0x13, 0x4B, 0x6B, 0x2F };
 				
-				// If we use a password for our channel, use it to decrypt the data
-				if (!Globals.conference_pass.equals(""))
-					plainkey = Globals.conference_pass;
+					// If we use a password for our channel, use it to decrypt the data
+					if (!Globals.conference_pass.equals(""))
+						plainkey = Globals.conference_pass;
 
-				try {
-					SecretKeyFactory fac = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-					KeySpec spec = new PBEKeySpec(plainkey.toCharArray(), salt,	65536, 128);
-					SecretKey tmp1 = fac.generateSecret(spec);
-					SecretKey secret = new SecretKeySpec(tmp1.getEncoded(),	"AES");
-					// Init AES cipher
-					Cipher ciph = Cipher.getInstance("AES/CBC/PKCS5Padding");
-					ciph.init(Cipher.DECRYPT_MODE, secret, new IvParameterSpec(iv));
-					// Decrypt data block
-					data = ciph.doFinal(data);
+					try {
+						SecretKeyFactory fac = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+						KeySpec spec = new PBEKeySpec(plainkey.toCharArray(), salt,	65536, 128);
+						SecretKey tmp1 = fac.generateSecret(spec);
+						SecretKey secret = new SecretKeySpec(tmp1.getEncoded(),	"AES");
+						// Init AES cipher
+						Cipher ciph = Cipher.getInstance("AES/CBC/PKCS5Padding");
+						ciph.init(Cipher.DECRYPT_MODE, secret, new IvParameterSpec(iv));
+						// Decrypt data block
+						data = ciph.doFinal(data);
 
+						// If hash does not match after transmission and decryption,
+						// set as failed, and try again
+						if (!chunk.checkHash(data)) {
+							chunk.setComplete(false);
+							chunk.setDownloading(false);
+							chunk.setFailed(true);
+
+							return;
+						}
+
+						Globals.log.addMsg(chunk.getName() + " Block " + chunk.getID() + ": Hash OK!");
+
+						chunk.setDownloading(false);
+						chunk.setComplete(true);
+						chunk.setFailed(false);
+					
+						removeChunkFromDownloadsList(chunk);
+					
+						Globals.storeQueue.offer(new StoreBlock(tmp, chunk.getID(), chunk.getHexHash(), device, data));
+						if (!tmp.isDownloading() && !tmp.hasFailed()) {
+							tmp.setTimeBool(false);
+							long dlTime = System.currentTimeMillis() - tmp.getDLTime();
+							double res = ((double) dlTime) / 1000;
+							Network.getInstance().sendMUCmessage(tmp.getPath() + "," + tmp.getSize() + "," + res);
+						}
+
+					} catch (Exception e) {
+						Globals.log.addMsg("Wrong password: " + e.toString());
+						chunk.setComplete(false);
+						chunk.setDownloading(false);
+						chunk.setFailed(true);
+					}
+				} else {
 					// If hash does not match after transmission and decryption,
 					// set as failed, and try again
-					if (!chunk.checkHash(data)) {
+					if (!chunk.checkHash(swap)) {
 						chunk.setComplete(false);
 						chunk.setDownloading(false);
 						chunk.setFailed(true);
@@ -106,24 +140,17 @@ public class ThriftClientGetData implements Runnable {
 					chunk.setDownloading(false);
 					chunk.setComplete(true);
 					chunk.setFailed(false);
-					
+				
 					removeChunkFromDownloadsList(chunk);
-					
-					Globals.storeQueue.offer(new StoreBlock(tmp, chunk.getID(), chunk.getHexHash(), device, data));
+				
+					Globals.storeQueue.offer(new StoreBlock(tmp, chunk.getID(), chunk.getHexHash(), device, swap));
 					if (!tmp.isDownloading() && !tmp.hasFailed()) {
 						tmp.setTimeBool(false);
 						long dlTime = System.currentTimeMillis() - tmp.getDLTime();
 						double res = ((double) dlTime) / 1000;
 						Network.getInstance().sendMUCmessage(tmp.getPath() + "," + tmp.getSize() + "," + res);
 					}
-
-				} catch (Exception e) {
-					Globals.log.addMsg("Wrong password: " + e.toString());
-					chunk.setComplete(false);
-					chunk.setDownloading(false);
-					chunk.setFailed(true);
 				}
-
 			} else {
 				chunk.setComplete(false);
 				chunk.setDownloading(false);

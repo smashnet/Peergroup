@@ -22,10 +22,12 @@
 package de.pgrp.core;
 
 import java.util.LinkedList;
+import java.util.Iterator;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smackx.Form;
 import org.jivesoftware.smackx.muc.*;
+import org.jivesoftware.smackx.FormField;
 
 /**
  * This class is a singelton managing the XMPP connection
@@ -38,6 +40,7 @@ public class Network {
 	private Connection xmppCon;
 	private MultiUserChat muc;
 	private boolean joinedAChannel = false;
+	private boolean owner = false;
 	private long lamportTime;
 
 	/**
@@ -150,8 +153,7 @@ public class Network {
 			RoomInfo info = MultiUserChat.getRoomInfo(getConnection(), roomAndServer);
 			if(info.isPasswordProtected() && pass.equals("")){
 				Globals.log.addMsg("We need to use a password for this room!");
-				Globals.requestQueue.offer(new FSRequest(Globals.STH_EVIL_HAPPENED, 
-						"Unable to join conference channel: " + roomAndServer));
+				Globals.requestQueue.offer(new FSRequest(Globals.STH_EVIL_HAPPENED, "Unable to join conference channel: " + roomAndServer));
 				this.joinedAChannel = false;
 				return;
 			}
@@ -159,20 +161,34 @@ public class Network {
 			//Room does NOT exist, we need to create it
 			exists = false;
 		}
-		if(!exists){
+		
+		
+		/*if(!exists){
 			//Create room
-			this.muc = new MultiUserChat(getConnection(), roomAndServer);
 			try {
-				muc.create(user);
+				this.muc = new MultiUserChat(getConnection(), roomAndServer);
 				Form form, submitForm;
+				muc.create(user);
+				this.owner = true;
 				form = this.muc.getConfigurationForm();
-				submitForm = form.createAnswerForm();
-				/* Show room options
+				if(form == null)
+					System.out.println("ConfForm null");
+				submitForm = form.createAnswerForm();*/
+				/*Show room options
 				for(Iterator<FormField> fields = form.getFields(); fields.hasNext();) {
 					FormField field = fields.next();
 					System.out.println(field.getLabel() + " - " + field.getVariable());
+				}*/
+					
+				// Add default answers to the form to submit
+				/*for (Iterator fields = form.getFields(); fields.hasNext();) {
+					FormField field = (FormField) fields.next();
+					if (!FormField.TYPE_HIDDEN.equals(field.getType()) && field.getVariable() != null) {
+						// Sets the default value as the answer
+					    submitForm.setDefaultAnswer(field.getVariable());
+				    }
 				}
-				*/
+				
 				submitForm.setAnswer("muc#roomconfig_publicroom", false);
 				submitForm.setAnswer("muc#roomconfig_roomname", roomAndServer.split("@")[0]);
 				submitForm.setAnswer("muc#roomconfig_roomdesc", "Peergroup room");
@@ -180,12 +196,42 @@ public class Network {
 					submitForm.setAnswer("muc#roomconfig_passwordprotectedroom", true);
 					submitForm.setAnswer("muc#roomconfig_roomsecret", pass);
 				}
-				submitForm.setAnswer("muc#roomconfig_allowinvites", false);
+				submitForm.setAnswer("muc#roomconfig_allowinvites", false);*/
+				
+				/*Show room options
+				for(Iterator<FormField> fields = submitForm.getFields(); fields.hasNext();) {
+					FormField field = fields.next();
+					System.out.println(field.getLabel() + " - " + field.getVariable());
+					for(Iterator<String> strings = field.getValues(); strings.hasNext();){
+						String s = strings.next();
+						System.out.println("\t" + s);
+					}
+				}*/
+					/*
 				this.muc.sendConfigurationForm(submitForm);
+			} catch (XMPPException e1) {
+				Globals.log.addMsg("!!--> Unable to create room: " + e1 + " <--!!");
+			}
+		}*/
+		/*else{
+			try{
+				this.muc = new MultiUserChat(getConnection(), roomAndServer);
+				Form form, submitForm;
+				form = this.muc.getRegistrationForm();
+				if(form == null)
+					System.out.println("RegForm null");
+				submitForm = form.createAnswerForm();
+				
+				for(Iterator<FormField> fields = form.getFields(); fields.hasNext();) {
+					FormField field = fields.next();
+					System.out.println(field.getLabel() + " - " + field.getVariable());
+				}
+				
+				this.muc.sendRegistrationForm(submitForm);
 			} catch (XMPPException e1) {
 				e1.printStackTrace();
 			}
-		}
+		}*/
 		this.muc = new MultiUserChat(getConnection(), roomAndServer);
 		DiscussionHistory history = new DiscussionHistory();
 		history.setMaxStanzas(0);

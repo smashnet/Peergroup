@@ -133,7 +133,7 @@ public class Logger {
 	*
 	* @param txt the logged string
 	*/
-	public synchronized void addMsg(String txt){
+	public  void addMsg(String txt){
 		try{
 			String log = this.getTimeString() + txt;
 			this.bw.write(log + '\n');
@@ -152,7 +152,7 @@ public class Logger {
 	* @param txt the logged string
 	* @param color 1(red),2(green),3(blue),4(yellow)
 	*/
-	public synchronized void addMsg(String txt, int color){
+	public  void addMsg(String txt, int color){
 		try{
 			String time = this.getTimeString();
 			if(this.color){
@@ -197,7 +197,7 @@ public class Logger {
 	/**
 	* Adds a line seperator to the log
 	*/
-	public synchronized void addSeperator(){
+	public  void addSeperator(){
 		try{
 			this.bw.write("-------------------------\n");
 			System.out.print("-------------------------\n");

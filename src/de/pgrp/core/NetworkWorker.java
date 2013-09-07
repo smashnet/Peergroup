@@ -203,13 +203,11 @@ public class NetworkWorker extends Thread {
 						break;
 					}
 					listsReceived++;
-					Globals.log.addMsg("Received file list version " + vers + " from " + jid);
 					if (listsReceived == myNetwork.getUserCount() - 1) {
 						Globals.log.addMsg("Found newest file list: "
 								+ maxListVersion + " from "
 								+ maxListNode.getJID());
-						ThriftClientGetFileList getFileListThread = new ThriftClientGetFileList(
-								maxListVersion, maxListNode);
+						ThriftClientGetFileList getFileListThread = new ThriftClientGetFileList(maxListVersion, maxListNode);
 						getFileListThread.start();
 						listsReceived = 0;
 						Globals.syncingFileList = false;
