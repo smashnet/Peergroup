@@ -309,20 +309,38 @@ public class Peergroup {
 
 					val = getTagValue("extIP", eElement);
 					if (val != null) {
-						String parts[] = val.split(".");
+						String parts[] = val.split("\\.");
 						if (parts.length != 4) {
-							Globals.log.addMsg("Not a valid IP address in config: " + val);
+							Globals.log.addMsg("Not a valid extIP address in config: " + val);
 							return false;
 						}
 						int test;
 						for (String part : parts) {
 							test = Integer.parseInt(part);
 							if (test < 0 || test > 255) {
-								Globals.log.addMsg("Not a valid IP address in config: " + val);
+								Globals.log.addMsg("Not a valid extIP address in config: " + val);
 								return false;
 							}
 						}
 						Globals.remoteIP4 = val;
+					}
+					
+					val = getTagValue("intIP4", eElement);
+					if (val != null) {
+						String parts[] = val.split("\\.");
+						if (parts.length != 4) {
+							Globals.log.addMsg("Not a valid intIP4 address in config: " + val);
+							return false;
+						}
+						int test;
+						for (String part : parts) {
+							test = Integer.parseInt(part);
+							if (test < 0 || test > 255) {
+								Globals.log.addMsg("Not a valid intIP4 address in config: " + val);
+								return false;
+							}
+						}
+						Globals.localIP4 = val;
 					}
 
 					val = getTagValue("port", eElement);
@@ -401,7 +419,7 @@ public class Peergroup {
 					+ "\t\t<channel>" + Globals.conference_channel + "</channel>\n"
 					+ "\t\t<pass>" + Globals.conference_pass + "</pass>\n" + "\t</conference>\n"
 					+ "\t<pg-settings>\n" + "\t\t<share>./share/</share>\n"
-					+ "\t\t<extIP></extIP>\n" + "\t\t<port>" + Globals.p2pPort + "</port>\n"
+					+ "\t\t<extIP></extIP>\n" + "\t\t<intIP4></intIP4>\n" + "\t\t<port>" + Globals.p2pPort + "</port>\n"
 					+ "\t\t<upnp>yes</upnp>\n\t</pg-settings>\n" + "</peergroup>";
 			bw.write(sample, 0, sample.length());
 			bw.close();
@@ -429,7 +447,7 @@ public class Peergroup {
 					+ "\t\t<channel>channelname</channel>\n"
 					+ "\t\t<pass></pass>\n" + "\t</conference>\n"
 					+ "\t<pg-settings>\n" + "\t\t<share>./share/</share>\n"
-					+ "\t\t<extIP></extIP>\n" + "\t\t<port>53333</port>\n"
+					+ "\t\t<extIP></extIP>\n" + "\t\t<intIP4></intIP4>\n" + "\t\t<port>53333</port>\n"
 					+ "\t\t<upnp>yes</upnp>\n\t</pg-settings>\n" + "</peergroup>";
 			bw.write(sample, 0, sample.length());
 			bw.close();
@@ -456,32 +474,48 @@ public class Peergroup {
 
 	/**
 	 * If the external IP was not set by the cmd-line argument, this function
-	 * queries the external IP from http://files.smashnet.de/getIP.php If
-	 * neither an IP was set nor one was detected, Peergroup exits.
+	 * queries the external IP from 185.11.136.10
+	 * If neither an IP was set nor one was detected, Peergroup exits.
 	 */
 	private static void getIPs() {
 		// Get local IP
 		try {
 			InetAddress local = null;
+			boolean foundIP = false;
 			Enumeration<NetworkInterface> ifaces = NetworkInterface.getNetworkInterfaces();
-			while (ifaces.hasMoreElements() && local == null) {
+			while (ifaces.hasMoreElements()) {
 				NetworkInterface iface = ifaces.nextElement();
 				Enumeration<InetAddress> addresses = iface.getInetAddresses();
 
-				while (addresses.hasMoreElements() && local == null) {
+				while (addresses.hasMoreElements()) {
 					InetAddress addr = addresses.nextElement();
 					if (addr instanceof Inet4Address && !addr.isLoopbackAddress()) {
-						local = addr;
+						if(Globals.localIP4.equals("")){
+							//If local IPv4 address is not explicitly set, use the first one you find
+							local = addr;
+							foundIP = true;
+						}else{
+							//If specific local IPv4 address is chosen, check if it exists
+							if(Globals.localIP4.equals(addr.getHostAddress())){
+								local = addr;
+								foundIP = true;
+							}
+						}
 					}
+					if(foundIP)
+						break;
 				}
+				if(foundIP)
+					break;
 			}
 
 			if (local == null) {
-				System.out.println("Could not determine local address!");
+				Globals.log.addMsg("Could not determine local IP address!");
 				System.exit(0);
 			}
 
 			Globals.localIP4 = local.getHostAddress();
+			Globals.log.addMsg("Detected local IPv4 as: " + Globals.localIP4);
 		} catch (SocketException se) {
 			Globals.log.addMsg("Cannot get local IP: " + se, 4);
 		}
