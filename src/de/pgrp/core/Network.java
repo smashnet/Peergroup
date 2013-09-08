@@ -163,7 +163,7 @@ public class Network {
 		}
 		
 		
-		/*if(!exists){
+		if(!exists){
 			//Create room
 			try {
 				this.muc = new MultiUserChat(getConnection(), roomAndServer);
@@ -173,7 +173,7 @@ public class Network {
 				form = this.muc.getConfigurationForm();
 				if(form == null)
 					System.out.println("ConfForm null");
-				submitForm = form.createAnswerForm();*/
+				submitForm = form.createAnswerForm();
 				/*Show room options
 				for(Iterator<FormField> fields = form.getFields(); fields.hasNext();) {
 					FormField field = fields.next();
@@ -181,7 +181,7 @@ public class Network {
 				}*/
 					
 				// Add default answers to the form to submit
-				/*for (Iterator fields = form.getFields(); fields.hasNext();) {
+				for (Iterator fields = form.getFields(); fields.hasNext();) {
 					FormField field = (FormField) fields.next();
 					if (!FormField.TYPE_HIDDEN.equals(field.getType()) && field.getVariable() != null) {
 						// Sets the default value as the answer
@@ -196,7 +196,7 @@ public class Network {
 					submitForm.setAnswer("muc#roomconfig_passwordprotectedroom", true);
 					submitForm.setAnswer("muc#roomconfig_roomsecret", pass);
 				}
-				submitForm.setAnswer("muc#roomconfig_allowinvites", false);*/
+				submitForm.setAnswer("muc#roomconfig_allowinvites", false);
 				
 				/*Show room options
 				for(Iterator<FormField> fields = submitForm.getFields(); fields.hasNext();) {
@@ -207,43 +207,27 @@ public class Network {
 						System.out.println("\t" + s);
 					}
 				}*/
-					/*
+					
 				this.muc.sendConfigurationForm(submitForm);
+				this.joinedAChannel = true;
+				Globals.log.addMsg("Successfully created conference: " + roomAndServer);
 			} catch (XMPPException e1) {
 				Globals.log.addMsg("!!--> Unable to create room: " + e1 + " <--!!");
 			}
-		}*/
-		/*else{
+		}
+		else{
 			try{
 				this.muc = new MultiUserChat(getConnection(), roomAndServer);
-				Form form, submitForm;
-				form = this.muc.getRegistrationForm();
-				if(form == null)
-					System.out.println("RegForm null");
-				submitForm = form.createAnswerForm();
-				
-				for(Iterator<FormField> fields = form.getFields(); fields.hasNext();) {
-					FormField field = fields.next();
-					System.out.println(field.getLabel() + " - " + field.getVariable());
-				}
-				
-				this.muc.sendRegistrationForm(submitForm);
+				DiscussionHistory history = new DiscussionHistory();
+				history.setMaxStanzas(0);
+				this.muc.join(user, pass, history, SmackConfiguration.getPacketReplyTimeout());
+				this.joinedAChannel = true;
+				Globals.log.addMsg("Successfully joined conference: " + roomAndServer);
 			} catch (XMPPException e1) {
 				e1.printStackTrace();
 			}
-		}*/
-		this.muc = new MultiUserChat(getConnection(), roomAndServer);
-		DiscussionHistory history = new DiscussionHistory();
-		history.setMaxStanzas(0);
-		try {
-			this.muc.join(user, pass, history, SmackConfiguration.getPacketReplyTimeout());
-			this.joinedAChannel = true;
-			Globals.log.addMsg("Successfully joined conference: " + roomAndServer);
-		} catch (XMPPException xe) {
-			Globals.requestQueue.offer(new FSRequest(Globals.STH_EVIL_HAPPENED, 
-					"Unable to join conference channel: " + roomAndServer + " "	+ xe));
-			this.joinedAChannel = false;
 		}
+		
 	}
 
 	/**
