@@ -306,6 +306,21 @@ public class Peergroup {
 					val = getTagValue("share", eElement);
 					if (val != null)
 						Globals.rootDirectory = val;
+					
+					val = getTagValue("encrypt", eElement);
+					if (val != null){
+						if(val.equals("no")){
+							Globals.encryptDataTransfers = false;
+						}else if(val.equals("yes")){
+							Globals.encryptDataTransfers = true;
+						}else{
+							Globals.log.addMsg("<encrypt> must be either \"yes\" or \"no\"");
+							return false;
+						}
+					} else {
+						Globals.log.addMsg("Required value missing in config: pg-settings -> encrypt", 1);
+						return false;
+					}
 
 					val = getTagValue("extIP", eElement);
 					if (val != null) {
@@ -353,6 +368,9 @@ public class Peergroup {
 							Globals.log.addMsg("P2P Port not in valid range: xmpp-account -> port (should be 1025-65535)", 1);
 							return false;
 						}
+					} else {
+						Random rand = new Random();
+						Globals.p2pPort = 49152 + rand.nextInt(16383);
 					}
 					
 					val = getTagValue("upnp", eElement);
@@ -371,8 +389,7 @@ public class Peergroup {
 			}
 			Globals.log.addMsg("Using " + Globals.config + "... Ignoring commandline arguments!", 3);
 		} catch (FileNotFoundException fnf) {
-			Globals.log.addMsg(
-					"Could not find config file! Creating sample file...", 1);
+			Globals.log.addMsg("Could not find config file! Creating sample file...", 1);
 			Globals.log.addMsg("Please edit config.smp to your needs and copy to config.xml", 4);
 			createSampleConfig();
 			return false;
@@ -408,7 +425,8 @@ public class Peergroup {
 			conf.createNewFile();
 			FileWriter fw = new FileWriter(conf);
 			BufferedWriter bw = new BufferedWriter(fw);
-			String sample = "<?xml version=\"1.0\"?>\n" + "<peergroup>\n"
+			String sample = 
+					  "<?xml version=\"1.0\"?>\n" + "<peergroup>\n"
 					+ "\t<xmpp-account>\n"
 					+ "\t\t<server>" + Globals.server + "</server>\n"
 					+ "\t\t<user>" + Globals.user + "</user>\n"
@@ -436,19 +454,58 @@ public class Peergroup {
 			conf.createNewFile();
 			FileWriter fw = new FileWriter(conf);
 			BufferedWriter bw = new BufferedWriter(fw);
-			String sample = "<?xml version=\"1.0\"?>\n" + "<peergroup>\n"
-					+ "\t<xmpp-account>\n"
-					+ "\t\t<server>jabber-server</server>\n"
-					+ "\t\t<user>username</user>\n"
-					+ "\t\t<pass>password</pass>\n"
-					+ "\t\t<resource></resource>\n" + "\t\t<port></port>\n"
-					+ "\t</xmpp-account>\n" + "\t<conference>\n"
-					+ "\t\t<server>conference-server</server>\n"
-					+ "\t\t<channel>channelname</channel>\n"
-					+ "\t\t<pass></pass>\n" + "\t</conference>\n"
-					+ "\t<pg-settings>\n" + "\t\t<share>./share/</share>\n"
-					+ "\t\t<extIP></extIP>\n" + "\t\t<intIP4></intIP4>\n" + "\t\t<port>53333</port>\n"
-					+ "\t\t<upnp>yes</upnp>\n\t</pg-settings>\n" + "</peergroup>";
+			String sample = 
+					  "<?xml version=\"1.0\"?>\n" + "<!-- Peergroup Configuration File -->\n" + "<peergroup>\n\n"
+					+ "\t<!-- Insert here the XMPP (Jabber) account that your peergroup client should use. -->\n"
+						  
+					+ "\t<xmpp-account>\n\n"
+							+ "\t\t<!-- Jabber server where your account is located, eg \"jabber.ccc.de\" (required) -->\n"
+					+ "\t\t<server></server>\n\n"
+			 				+ "\t\t<!-- Jabber username (required) -->\n"
+					+ "\t\t<user></user>\n\n"
+							+ "\t\t<!-- The password (required) -->\n"
+					+ "\t\t<pass></pass>\n\n"
+							+ "\t\t<!-- Set where this peergroup client runs, eg \"homeserver\" (optional) -->\n"
+					+ "\t\t<resource></resource>\n\n" 
+							+ "\t\t<!-- Port of the Jabber server. Defaults to 5222 if empty. (optional) -->\n"
+					+ "\t\t<port></port>\n\n"
+					+ "\t</xmpp-account>\n\n"
+						  
+							+ "\t<!-- Insert here the conference channel where peergroup clients exchange\n"
+							+ "\t\tmeta information about existing files.\n\n"
+							+ "\t\tRemember: Clients that should sync each other must be connected to the\n"
+							+ "\t\t\t\t\t\t\tsame conference channel! -->\n"
+					+ "\t<conference>\n\n"
+							+ "\t\t<!-- The jabber server where the conference is hosted, eg \"conference.jabber.ccc.de\" (required) -->\n"
+					+ "\t\t<server></server>\n\n"
+							+ "\t\t<!-- The name of the conference channel (required) -->\n"
+					+ "\t\t<channel></channel>\n\n"
+							+ "\t\t<!-- Password, if used (optional) -->\n"
+					+ "\t\t<pass></pass>\n\n"
+					+ "\t</conference>\n\n"
+						  
+							+ "\t<!-- Peergroup client related settings -->\n"
+					+ "\t<pg-settings>\n\n"
+							+ "\t\t<!-- The folder which files should be synced/where synced files get stored at. (required) -->\n"
+					+ "\t\t<share>./share/</share>\n\n"
+							+ "\t\t<!-- \"yes\" to encrypt data transfer between peers (AES), or \"no\" for unencrypted transfers (faster)\n"
+							+ "\t\t\tRemember that all clients in the same channel must use the same setting here! (required) -->\n"
+					+ "\t\t<encrypt>yes</encrypt>\n\n"
+							+ "\t\t<!-- Manually set IP address where the client can be reached from internet (optional)-->\n"
+					+ "\t\t<extIP></extIP>\n\n"
+							+ "\t\t<!-- If the device has multiple network interfaces, set the IP that you want to use. (optional)\n"
+							+ "\t\t\tImportant if the detection of local peers should work properly using multiple interfaces. -->\n"
+					+ "\t\t<intIP4></intIP4>\n\n"
+							+ "\t\t<!-- The port where the peergroup client can be reached from the internet.\n"
+							+ "\t\t\tDon't forget to open this port in your router/firewall!\n"
+							+ "\t\t\tUses random port in range 49152-65535 if not set. (optional) -->\n"
+					+ "\t\t<port></port>\n\n"
+							+ "\t\t<!-- Convenience function to automatically open the port in your router (if it supports UPnP) (required) -->\n"
+					+ "\t\t<upnp>yes</upnp>\n\n"
+					+ "\t</pg-settings>\n"
+						  
+					+ "</peergroup>\n"
+					+ "<!-- Incredible, you're done ;-) -->\n";
 			bw.write(sample, 0, sample.length());
 			bw.close();
 		} catch (Exception e) {
