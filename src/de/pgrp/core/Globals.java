@@ -25,6 +25,7 @@ import java.io.File;
 import java.util.concurrent.*;
 import java.util.LinkedList;
 import java.util.Random;
+import javax.crypto.SecretKey;
 
 import net.sbbi.upnp.impls.InternetGatewayDevice;
 
@@ -143,6 +144,7 @@ public class Globals {
 	 * Stuff
 	 */
 	public static boolean encryptDataTransfers = false;	
+	public static SecretKey secKey;
 	public static boolean serverMode = false;
 	public static boolean useGUI = false;
 	public static boolean doUPnP = true;

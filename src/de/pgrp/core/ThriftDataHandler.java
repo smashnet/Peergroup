@@ -92,20 +92,10 @@ public class ThriftDataHandler implements DataTransfer.Iface {
 				return ByteBuffer.wrap(plain);
 			}
 
-			String plainkey = "P33rgr0up";
-			byte[] salt = { 0x12, 0x78, 0x4F, 0x33, 0x13, 0x4B, 0x6B, 0x2F };
-			// If we use a password for our channel, use it to encrypt the data
-			if (!Globals.conference_pass.equals(""))
-				plainkey = Globals.conference_pass;
-
 			try {
-				SecretKeyFactory fac = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-				KeySpec spec = new PBEKeySpec(plainkey.toCharArray(), salt, 65536, 128);
-				SecretKey tmp1 = fac.generateSecret(spec);
-				SecretKey secret = new SecretKeySpec(tmp1.getEncoded(), "AES");
 				// Init AES cipher
 				Cipher ciph = Cipher.getInstance("AES/CBC/PKCS5Padding");
-				ciph.init(Cipher.ENCRYPT_MODE, secret);
+				ciph.init(Cipher.ENCRYPT_MODE, Globals.secKey);
 				// Encrypt data block
 				byte[] encrypted = ciph.doFinal(plain);
 

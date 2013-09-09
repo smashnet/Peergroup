@@ -32,6 +32,9 @@ import net.sbbi.upnp.impls.InternetGatewayDevice;
 import net.sbbi.upnp.messages.UPNPResponseException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
+import javax.crypto.*;
+import javax.crypto.spec.*;
+import java.security.spec.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
@@ -115,6 +118,7 @@ public class Peergroup {
 		doUPnP();
 		doInitialDirectoryScan();
 		joinXMPP();
+		initEncryptionKeys();
 		enqueueThreadStart();
 
 		// -- Create main thread
@@ -184,6 +188,26 @@ public class Peergroup {
 				Globals.log.addMsg("Running in GUI mode", 2);
 			}
 			last = current;
+		}
+	}
+	
+	private static void initEncryptionKeys(){
+		// Initial settings for encryption/decryption
+		String plainkey = "P33rgr0up";
+		byte[] salt = { 0x12, 0x78, 0x4F, 0x33, 0x13, 0x4B, 0x6B, 0x2F };
+	
+		// If we use a password for our channel, use it to decrypt the data
+		if (!Globals.conference_pass.equals(""))
+			plainkey = Globals.conference_pass;
+		
+		try{
+			SecretKeyFactory fac = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+			KeySpec spec = new PBEKeySpec(plainkey.toCharArray(), salt,	65536, 128);
+			SecretKey tmp1 = fac.generateSecret(spec);
+			Globals.secKey = new SecretKeySpec(tmp1.getEncoded(),	"AES");
+		}catch(Exception e){
+			Globals.log.addMsg("Error while deriving secret key from password: " + e);
+			quit(11);
 		}
 	}
 
