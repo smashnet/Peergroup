@@ -51,9 +51,8 @@ public class DelayQueueWorker extends Thread {
 				long timeA, timeB;
 				timeA = System.currentTimeMillis();
 				do {
-					StoreBlock blockInfo = Globals.storeQueue.poll(100, TimeUnit.MILLISECONDS);
+					StoreBlock blockInfo = Globals.storeQueue.poll(20, TimeUnit.MILLISECONDS);
 					if (blockInfo == null) {
-						Thread.sleep(20);
 						timeB = System.currentTimeMillis();
 						continue;
 					}
