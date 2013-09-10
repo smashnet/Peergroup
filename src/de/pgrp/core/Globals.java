@@ -37,7 +37,7 @@ import net.sbbi.upnp.impls.InternetGatewayDevice;
 public class Globals {
 
 	public final static String PROGNAME = "Peergroup";
-	public final static String VERSION = "v0.1-beta1";
+	public final static String VERSION = "v0.1-beta2";
 	public static String config = "config.xml";
 
 	public final static Logger log = new Logger(false);
