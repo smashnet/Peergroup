@@ -457,9 +457,9 @@ public class Storage {
 			myNetwork.sendMUCReannounceFile(fh.getPath(), fh.getSize(),	fh.getByteHash());
 		}
 		// Handle incomplete files
-		for (FileHandle fh : incompleteFiles) {
+		/*for (FileHandle fh : incompleteFiles) {
 			// TODO
-		}
+		}*/
 	}
 
 	public  FileHandle getFileHandle(String name) {

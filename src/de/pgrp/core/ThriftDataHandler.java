@@ -30,7 +30,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import javax.crypto.*;
 import javax.crypto.spec.*;
-import java.security.spec.*;
 import java.security.AlgorithmParameters;
 
 /**

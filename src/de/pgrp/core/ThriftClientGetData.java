@@ -23,7 +23,6 @@ package de.pgrp.core;
 
 import javax.crypto.*;
 import javax.crypto.spec.*;
-import java.security.spec.*;
 
 /**
  * This thread requests blocks or FileList information from other peers.
@@ -51,9 +50,7 @@ public class ThriftClientGetData implements Runnable {
 			if (device == null) {
 				return;
 			}
-			Globals.log.addMsg("DOWNLOAD_BLOCK: " + chunk.getName()
-					+ " - Block " + chunk.getID() + " from " + device.getUsedIP()
-					+ ":" + device.getPort());
+			//Globals.log.addMsg("DOWNLOAD_BLOCK: " + chunk.getName() + " - Block " + chunk.getID() + " from " + device.getUsedIP() + ":" + device.getPort());
 
 			if (!tmp.getTimeBool()) {
 				tmp.setDLTime(System.currentTimeMillis());
@@ -90,7 +87,10 @@ public class ThriftClientGetData implements Runnable {
 							return;
 						}
 
-						Globals.log.addMsg(chunk.getName() + " Block " + chunk.getID() + ": Hash OK!");
+						//Globals.log.addMsg(chunk.getName() + " Block " + chunk.getID() + ": Hash OK!");
+						Globals.log.addMsg("DOWNLOADED_BLOCK: " + chunk.getName()
+								+ " - Block " + chunk.getID() + " from " + device.getUsedIP()
+								+ ":" + device.getPort() + " - Hash OK!");
 
 						chunk.setDownloading(false);
 						chunk.setComplete(true);

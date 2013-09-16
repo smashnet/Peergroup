@@ -40,7 +40,6 @@ public class Network {
 	private Connection xmppCon;
 	private MultiUserChat muc;
 	private boolean joinedAChannel = false;
-	private boolean owner = false;
 	private long lamportTime;
 
 	/**
@@ -169,7 +168,6 @@ public class Network {
 				this.muc = new MultiUserChat(getConnection(), roomAndServer);
 				Form form, submitForm;
 				muc.create(user);
-				this.owner = true;
 				form = this.muc.getConfigurationForm();
 				if(form == null)
 					System.out.println("ConfForm null");
@@ -181,7 +179,7 @@ public class Network {
 				}*/
 					
 				// Add default answers to the form to submit
-				for (Iterator fields = form.getFields(); fields.hasNext();) {
+				for (Iterator<FormField> fields = form.getFields(); fields.hasNext();) {
 					FormField field = (FormField) fields.next();
 					if (!FormField.TYPE_HIDDEN.equals(field.getType()) && field.getVariable() != null) {
 						// Sets the default value as the answer
