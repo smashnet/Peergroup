@@ -53,8 +53,16 @@ struct ThriftStorage {
 	2: list<ThriftFileHandle> files 
 }
 
+struct ThriftHashList {
+	1: string filename,
+	2: i32 fileVersion,
+	3: i64 fileSize,
+	4: list<binary> chunkHashes
+}
+
 service DataTransfer {
 	string getLocalIP(1:string hash),
 	ThriftStorage getStorage(),
+	ThriftHashList getChunkHashes(1:binary fileHash),
 	binary getDataBlock(1:string filename, 2:i32 blockID, 3:string hash)
 }

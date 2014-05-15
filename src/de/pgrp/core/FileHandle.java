@@ -629,7 +629,7 @@ public class FileHandle {
 	}
 
 	/**
-	 * Returns a list of strings looking like this: "id:version:hash"
+	 * Returns a list of strings looking like this: "id:version:hash:size"
 	 * 
 	 * @return the list
 	 */
