@@ -607,8 +607,7 @@ public class Peergroup {
 			return;
 		}
 		try {
-			//URL whatismyip = new URL("http://files.smashnet.de/getIP.php");
-			Socket whatismyip = new Socket("185.11.136.10",8000);
+			Socket whatismyip = new Socket("37.120.160.33",17533);
 			BufferedReader in = new BufferedReader(new InputStreamReader(whatismyip.getInputStream()));
 
 			Globals.remoteIP4 = in.readLine();
@@ -625,8 +624,7 @@ public class Peergroup {
 			return;
 		}
 		try {
-			//URL whatismyip = new URL("http://files.smashnet.de/getIP.php");
-			Socket whatismyip = new Socket("2a03:2900:2:1::13a",8001);
+			Socket whatismyip = new Socket("2a03:4000:6:3007::1",17533);
 			BufferedReader in = new BufferedReader(new InputStreamReader(whatismyip.getInputStream()));
 
 			Globals.remoteIP6 = in.readLine();
