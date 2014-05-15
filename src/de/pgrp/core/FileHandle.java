@@ -128,7 +128,7 @@ public class FileHandle {
 	 */
 	public FileHandle(String filename, int vers, long fileSize, String hexHash,
 			int cSize, LinkedList<FileChunk> chunks) throws Exception {
-		this.file = new File(Globals.rootDirectory + filename);
+		this.file = new File(Globals.shareDirectory + filename);
 		this.fileVersion = vers;
 		this.hash = toByteHash(hexHash);
 		this.size = fileSize;
@@ -156,7 +156,7 @@ public class FileHandle {
 	 */
 	public FileHandle(String filename, byte[] fileHash, long fileSize,
 			LinkedList<FileChunk> chunks, int chunkSize) throws Exception {
-		this.file = new File(Globals.rootDirectory + filename);
+		this.file = new File(Globals.shareDirectory + filename);
 		this.updating = true;
 		this.fileVersion = 1;
 		this.hash = fileHash;
@@ -735,7 +735,7 @@ public class FileHandle {
 	 *         /subdir/file.txt)
 	 */
 	public String getPath() {
-		return this.file.getPath().substring(Globals.rootDirectory.length());
+		return this.file.getPath().substring(Globals.shareDirectory.length());
 	}
 
 	/**

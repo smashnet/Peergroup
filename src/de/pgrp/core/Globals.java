@@ -38,7 +38,7 @@ public class Globals {
 
 	public final static String PROGNAME = "Peergroup";
 	public final static String VERSION = "v0.1-beta2_build2";
-	public static String config = "config.xml";
+	public static String configFile = "peergroup.cfg";
 
 	public final static Logger log = new Logger(false);
 
@@ -94,17 +94,17 @@ public class Globals {
 	/*
 	 * Storage constants
 	 */
-	public static String rootDirectory = "./Peergroup/";
+	public static String shareDirectory = "./Peergroup/";
 	public static InternetGatewayDevice igd;
 
 	/*
 	 * XMPP information
 	 */
-	public static String user = "";
-	public static String pass = "";
-	public static String resource = "peergroup";
-	public static String server = "";
-	public static int port = 5222;
+	public static String xmpp_user = "";
+	public static String xmpp_pass = "";
+	public static String xmpp_resource = "peergroup";
+	public static String xmpp_server = "";
+	public static int xmpp_port = 5222;
 	public static String conference_channel = "";
 	public static String conference_server = "";
 	public static String conference_pass = "";
@@ -149,9 +149,9 @@ public class Globals {
 	public static boolean useGUI = false;
 	public static boolean doUPnP = true;
 	public static boolean enableModQueue = true;
-	public static String remoteIP4 = "";
-	public static String localIP4 = "";
-	public static String remoteIP6 = "";
+	public static String externalIP6 = "";
+	public static String externalIP4 = "";
+	public static String internalIP4 = "";
 	public static int p2pPort = 50000 + new Random(System.currentTimeMillis()).nextInt(10000);
 	public static int chunkSize = 512000; // In bytes
 	public static boolean syncingFileList = false;
@@ -161,11 +161,11 @@ public class Globals {
 	public static int guiRefreshRate = 1000; //In milliseconds
 
 	public static String getJID() {
-		return user + "@" + server + "/" + resource;
+		return xmpp_user + "@" + xmpp_server + "/" + xmpp_resource;
 	}
 	
 	public static String getAbsoluteShareFolderPath(){
-		File folder = new File(Globals.rootDirectory);
+		File folder = new File(Globals.shareDirectory);
 		return folder.getAbsolutePath();
 	}
 }

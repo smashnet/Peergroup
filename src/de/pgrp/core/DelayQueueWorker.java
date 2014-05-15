@@ -67,7 +67,7 @@ public class DelayQueueWorker extends Thread {
 						tmp.trimFile();
 						tmp.setUpdating(false);
 						
-						P2Pdevice me = P2Pdevice.getDevice(Globals.getJID(), Globals.remoteIP4, Globals.localIP4, Globals.p2pPort);
+						P2Pdevice me = P2Pdevice.getDevice(Globals.getJID(), Globals.externalIP4, Globals.internalIP4, Globals.p2pPort);
 						Storage.getInstance().addP2PdeviceToFile(blockInfo.getName(), blockInfo.getVersion(), me);
 						//Debug:
 						//Globals.log.addMsg(tmp.toString());

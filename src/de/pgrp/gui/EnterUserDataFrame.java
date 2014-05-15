@@ -131,8 +131,8 @@ public class EnterUserDataFrame extends JFrame {
 					JOptionPane.showMessageDialog(new JFrame(), "Not a valid Jabber ID!", "Input Error", JOptionPane.WARNING_MESSAGE);
 					return;
 				}else{
-					Globals.user = jid[0];
-					Globals.server = jid[1];
+					Globals.xmpp_user = jid[0];
+					Globals.xmpp_server = jid[1];
 				}
 				
 				//Get Conference Channel
@@ -146,7 +146,7 @@ public class EnterUserDataFrame extends JFrame {
 				}
 				
 				//Get Passwords
-				Globals.pass = String.valueOf(pwdJID.getPassword());
+				Globals.xmpp_pass = String.valueOf(pwdJID.getPassword());
 				Globals.conference_pass = String.valueOf(pwdConference.getPassword());
 				
 				try {

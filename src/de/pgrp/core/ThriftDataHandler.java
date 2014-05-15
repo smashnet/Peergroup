@@ -46,7 +46,7 @@ public class ThriftDataHandler implements DataTransfer.Iface {
 	@Override
 	public String getLocalIP(String otherHash)	throws org.apache.thrift.TException {
 		String res = null;
-		String localIP[] = Globals.localIP4.split("\\.");
+		String localIP[] = Globals.internalIP4.split("\\.");
 		String toBeHashed = Globals.conference_pass + localIP[0] + localIP[1];
 		
 		try{
@@ -55,7 +55,7 @@ public class ThriftDataHandler implements DataTransfer.Iface {
 			
 			//Should be enough security check if peer is authorized to request local IP
 			if(otherHash.equals(hash.toString())){
-				res = Globals.localIP4;
+				res = Globals.internalIP4;
 			}
 		} catch (NoSuchAlgorithmException na) {
 			Globals.log.addMsg("Hash error: " + na, 1);

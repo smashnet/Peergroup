@@ -42,7 +42,7 @@ public class Storage {
 	public Storage() {
 		this.fileListVersion = 0;
 		this.files = new LinkedList<FileHandle>();
-		this.sharedDir = new File(Globals.rootDirectory);
+		this.sharedDir = new File(Globals.shareDirectory);
 		this.sharedDir.mkdirs();
 	}
 
@@ -64,7 +64,7 @@ public class Storage {
 	 */
 	public FileHandle newFileFromLocal(String filename) {
 		try {
-			FileHandle newFile = new FileHandle(Globals.rootDirectory + filename);
+			FileHandle newFile = new FileHandle(Globals.shareDirectory + filename);
 			if (newFile.isValid()) {
 				getFileList().add(newFile);
 				this.fileListVersion++;
@@ -105,7 +105,7 @@ public class Storage {
 	 *            the filename+path (e.g. subdir/file.txt)
 	 */
 	public void remoteRemoveItem(String file) {
-		File delItem = new File(Globals.rootDirectory + file);
+		File delItem = new File(Globals.shareDirectory + file);
 		if (delItem.isDirectory()) {
 			deleteDirectory(delItem);
 			Globals.log.addMsg("Deleted directory: " + file, 4);
@@ -243,8 +243,8 @@ public class Storage {
 	 *            The name of the directory (relative to share folder)
 	 */
 	public void newDirFromXMPP(String name) {
-		Globals.folders.add(Globals.rootDirectory + name);
-		File newDir = new File(Globals.rootDirectory + name);
+		Globals.folders.add(Globals.shareDirectory + name);
+		File newDir = new File(Globals.shareDirectory + name);
 		newDir.mkdirs();
 	}
 

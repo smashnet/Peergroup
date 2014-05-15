@@ -389,6 +389,16 @@ public class MainWorker extends Thread {
 		myNetwork.sendMUCFileListVersion();
 	}
 
+	/**
+	 * Initializes and starts worker threads:
+	 * <ul>
+	 * 	<li>StorageWorker (handles IO events)</li>
+	 * 	<li>NetworkWorker (handles XMPP events)</li>
+	 * 	<li>ThriftServerWorker (handles incoming Thrift connections)</li>
+	 * 	<li>ThriftClientWorker (handles outgoing Thrift connections)</li>
+	 * 	<li>DelayQueueWorker (Combines and unifies IO events for platform independence)</li>
+	 * </ul>
+	 */
 	private void handleStartThreads() {
 		if (!Globals.serverMode)
 			Globals.storage = new StorageWorker();
@@ -409,6 +419,7 @@ public class MainWorker extends Thread {
 			Globals.modQueue.start();
 		}
 
+		//Signal that all threads are started
 		try {
 			Globals.bootupBarrier.await();
 		} catch (InterruptedException ie) {
@@ -425,10 +436,9 @@ public class MainWorker extends Thread {
 	 *            The request containing the new filename
 	 */
 	private void handleLocalFileInitScan(FSRequest request) {
-		String newEntry = StorageWorker.getPurePath(request.getContent());
+		String newEntry = Helper.getPurePath(request.getContent());
 		if (myStorage.fileExists(newEntry) != null) {
-			Globals.log.addMsg("MainWorker: File already exists, ignoring!",
-					4);
+			Globals.log.addMsg("MainWorker: File already exists, ignoring!", 4);
 			return;
 		}
 		this.myStorage.newFileFromLocal(newEntry);
@@ -438,12 +448,10 @@ public class MainWorker extends Thread {
 	 * This one is invoked, if something reeeaallly evil happened. The program
 	 * is shut down.
 	 * 
-	 * @param request
-	 *            The request containing error information
+	 * @param request the request containing error information
 	 */
 	private void handleEvilEvents(FSRequest request) {
-		Globals.log.addMsg(
-				"Something evil happened: " + request.getContent(), 1);
+		Globals.log.addMsg("Something evil happened: " + request.getContent(), 1);
 
 		if (Globals.storage != null)
 			Globals.storage.stopStorageWorker();

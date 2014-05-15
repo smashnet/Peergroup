@@ -73,7 +73,7 @@ public class StorageWorker extends Thread {
 		Globals.log.addMsg("Storage thread started...");
 
 		// Init WatchService
-		registerNewPath(Globals.rootDirectory);
+		registerNewPath(Globals.shareDirectory);
 
 		while (!isInterrupted()) {
 			WatchKey signaledKey;
@@ -115,7 +115,7 @@ public class StorageWorker extends Thread {
 					// For internal handling we use paths relative to the
 					// root-share folder
 					// Example ./share/file1 -> /file1
-					String pathWithoutRoot = getPurePath(dir.toString() + "/"
+					String pathWithoutRoot = Helper.getPurePath(dir.toString() + "/"
 							+ context.toString());
 					if (newEntry.isFile()) {
 						// System.out.println(" -- is a file!");
@@ -140,7 +140,7 @@ public class StorageWorker extends Thread {
 					File delEntry = new File(dir.toString() + "/"
 							+ context.toString());
 					// System.out.println("Deleted: " + delEntry.getPath());
-					String pathWithoutRoot = getPurePath(dir.toString() + "/"
+					String pathWithoutRoot = Helper.getPurePath(dir.toString() + "/"
 							+ context.toString());
 					if (!registeredFolder(delEntry.getPath())) {
 						// System.out.println("File: " + pathWithoutRoot);
@@ -162,7 +162,7 @@ public class StorageWorker extends Thread {
 							+ context.toString());
 					// System.out.println("Modified: " + modEntry.getPath());
 					if (modEntry.isFile()) {
-						String pathWithoutRoot = getPurePath(dir.toString()
+						String pathWithoutRoot = Helper.getPurePath(dir.toString()
 								+ "/" + context.toString());
 						insertElement(Globals.delayQueue, new FileEvent(
 								pathWithoutRoot));
@@ -175,21 +175,6 @@ public class StorageWorker extends Thread {
 			}
 		}
 		Globals.log.addMsg("Storage thread interrupted. Closing...", 4);
-	}
-
-	/**
-	 * Gets the path of a file including the shared folder, and returns the path
-	 * without the shared folder.
-	 * 
-	 * E.g. ./share/log/myLogFile123.log -> log/myLogFile123.log
-	 * 
-	 * @param entry
-	 *            The path to a file in the shared folder
-	 * @return The path to this file relative to the shared folder
-	 */
-	public static String getPurePath(String entry) {
-		int rootLength = Globals.rootDirectory.length();
-		return entry.substring(rootLength, entry.length());
 	}
 
 	private void insertElement(ConcurrentLinkedQueue<FileEvent> list,
@@ -223,14 +208,12 @@ public class StorageWorker extends Thread {
 			if (sub.isDirectory()) {
 				registerThisAndSubs(sub.getPath());
 				insertElement(Globals.delayQueue, new FileEvent(
-						Globals.LOCAL_DIR_CREATE, getPurePath(sub.getPath())));
+						Globals.LOCAL_DIR_CREATE, Helper.getPurePath(sub.getPath())));
 			} else if (sub.isFile()) {
 				if (sub.getName().charAt(0) == '.') {
 					continue;
 				}
-				insertElement(Globals.delayQueue,
-						new FileEvent(Globals.LOCAL_FILE_CREATE,
-								getPurePath(sub.getPath())));
+				insertElement(Globals.delayQueue, new FileEvent(Globals.LOCAL_FILE_CREATE, Helper.getPurePath(sub.getPath())));
 			}
 		}
 	}

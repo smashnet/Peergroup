@@ -34,6 +34,10 @@ import de.pgrp.gui.LogWindow;
 public class Logger {
 
 	public static Logger log = new Logger();
+	public static int RED = 1;
+	public static int GREEN = 2;
+	public static int BLUE = 3;
+	public static int YELLOW = 4;
 	private File output;
 	private FileWriter fw;
 	private BufferedWriter bw;

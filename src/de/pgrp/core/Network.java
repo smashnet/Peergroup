@@ -48,19 +48,8 @@ public class Network {
 	 * to establish a connection and logs in the user.
 	 */
 	private Network() {
-		this.xmppCon = new XMPPConnection(Globals.server);
+		this.xmppCon = new XMPPConnection(Globals.xmpp_server);
 		this.lamportTime = 0;
-		if (this.xmppConnect()) {
-			this.xmppLogin();
-		} else {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException ie) {
-
-			} finally {
-				Globals.requestQueue.offer(new FSRequest(Globals.STH_EVIL_HAPPENED, "Coudln't create Network object"));
-			}
-		}
 	}
 
 	/**
@@ -75,10 +64,10 @@ public class Network {
 	 * Once the connection is successfully established, this logs in the user
 	 * specified in the commandline arguments
 	 */
-	private void xmppLogin() {
+	protected void xmppLogin() {
 		try {
-			this.xmppCon.login(Globals.user, Globals.pass, Globals.resource);
-			Globals.log.addMsg("Successfully logged into XMPP Server as: " + Globals.user + "@" + Globals.server + "/" + Globals.resource);
+			this.xmppCon.login(Globals.xmpp_user, Globals.xmpp_pass, Globals.xmpp_resource);
+			Globals.log.addMsg("Successfully logged into XMPP Server as: " + Globals.xmpp_user + "@" + Globals.xmpp_server + "/" + Globals.xmpp_resource);
 		} catch (XMPPException xe) {
 			Globals.log.addMsg("Unable to log into XMPP Server: " + xe, 4);
 		}
@@ -90,10 +79,10 @@ public class Network {
 	 * @return Returns true, if the connection was successfully established,
 	 *         else false
 	 */
-	private boolean xmppConnect() {
+	protected boolean xmppConnect() {
 		try {
 			this.xmppCon.connect();
-			Globals.log.addMsg("Successfully established connection to XMPP Server: " + Globals.server);
+			Globals.log.addMsg("Successfully established connection to XMPP Server: " + Globals.xmpp_server);
 			if (this.xmppCon.isSecureConnection()) {
 				Globals.log.addMsg("XMPP connection is secure.", 2);
 			} else {
@@ -172,11 +161,6 @@ public class Network {
 				if(form == null)
 					System.out.println("ConfForm null");
 				submitForm = form.createAnswerForm();
-				/*Show room options
-				for(Iterator<FormField> fields = form.getFields(); fields.hasNext();) {
-					FormField field = fields.next();
-					System.out.println(field.getLabel() + " - " + field.getVariable());
-				}*/
 					
 				// Add default answers to the form to submit
 				for (Iterator<FormField> fields = form.getFields(); fields.hasNext();) {
@@ -195,16 +179,6 @@ public class Network {
 					submitForm.setAnswer("muc#roomconfig_roomsecret", pass);
 				}
 				submitForm.setAnswer("muc#roomconfig_allowinvites", false);
-				
-				/*Show room options
-				for(Iterator<FormField> fields = submitForm.getFields(); fields.hasNext();) {
-					FormField field = fields.next();
-					System.out.println(field.getLabel() + " - " + field.getVariable());
-					for(Iterator<String> strings = field.getValues(); strings.hasNext();){
-						String s = strings.next();
-						System.out.println("\t" + s);
-					}
-				}*/
 					
 				this.muc.sendConfigurationForm(submitForm);
 				this.joinedAChannel = true;
@@ -283,7 +257,7 @@ public class Network {
 			return;
 		Network.getInstance().xmppCon.disconnect();
 		Globals.log.addMsg("Disconnected from XMPP Server: "
-				+ Globals.server, 4);
+				+ Globals.xmpp_server, 4);
 	}
 
 	/**
@@ -296,8 +270,8 @@ public class Network {
 		Message newMessage = this.muc.createMessage();
 		newMessage.setType(Message.Type.groupchat);
 		newMessage.setProperty("LamportTime", this.lamportTime);
-		newMessage.setProperty("remoteIP", Globals.remoteIP4);
-		newMessage.setProperty("localIP", Globals.localIP4);
+		newMessage.setProperty("remoteIP", Globals.externalIP4);
+		newMessage.setProperty("localIP", Globals.internalIP4);
 		newMessage.setProperty("Port", Globals.p2pPort);
 
 		return newMessage;

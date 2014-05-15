@@ -91,7 +91,7 @@ public class FileChunk {
 		this.downloading = false;
 		this.failed = false;
 		this.peers = new LinkedList<P2Pdevice>();
-		this.peers.add(P2Pdevice.getDevice(Globals.getJID(), Globals.remoteIP4, Globals.localIP4, Globals.p2pPort));
+		this.peers.add(P2Pdevice.getDevice(Globals.getJID(), Globals.externalIP4, Globals.internalIP4, Globals.p2pPort));
 	}
 
 	public FileChunk(String name, int no, int vers, byte[] digest, int s,
@@ -106,7 +106,7 @@ public class FileChunk {
 		this.downloading = false;
 		this.failed = false;
 		this.peers = new LinkedList<P2Pdevice>();
-		this.peers.add(P2Pdevice.getDevice(Globals.getJID(), Globals.remoteIP4, Globals.localIP4, Globals.p2pPort));
+		this.peers.add(P2Pdevice.getDevice(Globals.getJID(), Globals.externalIP4, Globals.internalIP4, Globals.p2pPort));
 	}
 
 	/**
