@@ -1,7 +1,7 @@
 #Peergroup
 A P2P Shared Storage System based on XMPP
 
-Copyright (c) 2012,2013 Nicolas Inden
+Copyright (c) 2012, 2013, 2014 Nicolas Inden
 
 Peergroup empowers you to synchronize data across multiple computers. You can use it to share data with your friends, you can use it as a convenient way of distributing contents, or you can set it up across multiple of your own machines to automatically sync data between them. It is also possible to use it as a way to distribute your backup data across your servers. Peergroup distributes your data in P2P fashion without the need of a central storage facility. Thus, you can be sure that all your data is only distributed to the devices that are in the same Peergroup-Channel (which is basically a XMPP Multi-User-Chat).
 
@@ -10,9 +10,9 @@ Whatever your intention is, the first thing you need to do is to determine the c
 ##This is awesome! Where can I get it?
 If you are interested in the source-code, simply clone the git-repository and proceed with the "Build & Run" section.
 
-	git clone git@github.com:/smashnet/Peergroup.git Peergroup
+	git clone https://github.com/smashnet/Peergroup.git Peergroup
 	
-If you just want to use Peergroup, you can download a .zip file containing Peergroup and a startscript in the [Download section](https://github.com/smashnet/Peergroup/downloads).
+If you just want to use Peergroup, you can download a .zip file containing Peergroup and a startscript in the [Download section](https://github.com/smashnet/Peergroup/releases).
 
 ##Build & Run
 
@@ -29,17 +29,19 @@ To reduce the commandline stuff a bit, Peergroup now reads all necessary informa
 	pg-start
 	pg-start.bat
 	README.mdown
-	config.smp
+	sample.cfg
 	
 together in a directory. If you are on Linux or OSX, make the pg-start script runnable:
 
 	chmod +x pg-start
 	
-Now you can enter the information of your XMPP account and the conference channel in the _config.smp_ file.
+Now you can enter the information of your XMPP account and the conference channel in the _sample.cfg_ file.
 
 All preentered values in the sample config are required and need to be changed. Empty fields are optional.
 
-If you entered your information, rename the file from _config.smp_ to _config.xml_, then start _pg-start_. Have fun using Peergroup :)
+If you entered your information, rename the file from _sample.cfg_ to _peergroup.cfg_, then start _pg-start_. Have fun using Peergroup :)
+
+_Remember_: In order to sync between devices, all devices need to be in the same conference channel (have the same conference settings in peergroup.cfg)!
 
 ##Status
 
