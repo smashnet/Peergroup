@@ -37,7 +37,7 @@ import net.sbbi.upnp.impls.InternetGatewayDevice;
 public class Globals {
 
 	public final static String PROGNAME = "Peergroup";
-	public final static String VERSION = "v0.1-beta2_build2";
+	public final static String VERSION = "v0.1-beta3";
 	public static String configFile = "peergroup.cfg";
 
 	public final static Logger log = new Logger(false);
@@ -102,7 +102,7 @@ public class Globals {
 	 */
 	public static String xmpp_user = "";
 	public static String xmpp_pass = "";
-	public static String xmpp_resource = "peergroup";
+	public static String xmpp_resource = "peergroup" + (10000 + new Random(System.currentTimeMillis()).nextInt(90000));
 	public static String xmpp_server = "";
 	public static int xmpp_port = 5222;
 	public static String conference_channel = "";
@@ -162,6 +162,10 @@ public class Globals {
 
 	public static String getJID() {
 		return xmpp_user + "@" + xmpp_server + "/" + xmpp_resource;
+	}
+	
+	public static String getMUC() {
+		return conference_channel + "@" + conference_server;
 	}
 	
 	public static String getAbsoluteShareFolderPath(){

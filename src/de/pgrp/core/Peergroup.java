@@ -21,10 +21,7 @@
 
 package de.pgrp.core;
 
-import java.awt.EventQueue;
 import java.io.*;
-import java.net.*;
-import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.concurrent.BrokenBarrierException;
 
@@ -35,8 +32,6 @@ import javax.crypto.*;
 import javax.crypto.spec.*;
 
 import java.security.spec.*;
-
-import de.pgrp.gui.EnterUserDataFrame;
 
 /**
  * This processes cmd-line args, initializes all needed settings and starts
@@ -64,15 +59,13 @@ public class Peergroup {
 		
 		if(!Helper.readConfigFile()){
 			//In this case the config file either does not exist, or it has wrong format/missing values
-			handleMissingConfigFile();
+			Helper.handleMissingConfigFile();
 		}else{
 			//Here we have a valid config file, and can thus continue either with or without GUI
 			if(Globals.useGUI){
 				Helper.initGUI();
 			}
 		}
-		
-		Helper.saveProperties("test.cfg");
 		
 		//More initialization
 		detectInternalExternalIPs();
@@ -135,48 +128,6 @@ public class Peergroup {
 
 		} catch (BrokenBarrierException bbe) {
 			Globals.log.addMsg(bbe.toString(), 4);
-		}
-	}
-
-	/**
-	 * If there is no valid config file found on startup, we decide depending on
-	 * GUI or headless mode:
-	 * <ul>
-	 * 	<li>GUI: Open corresponding frame so that user can enter data.</li>
-	 * 	<li>Headless: Request user to fix config and quit.</li>
-	 * </ul>
-	 */
-	private static void handleMissingConfigFile() {
-		if(Globals.useGUI){
-			//If we use GUI, show EnterUserDataFrame
-			EventQueue.invokeLater(new Runnable() {
-				public void run() {
-					try {
-						EnterUserDataFrame.getInstance().setVisible(true);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			});
-			
-			//Wait until data is entered
-			try {
-				Globals.inputBarrier.await();
-			} catch (InterruptedException ie) {
-
-			} catch (BrokenBarrierException bbe) {
-				Globals.log.addMsg(bbe.toString(), 4);
-			}
-			
-			Globals.inputBarrier.reset();
-			
-			//Create config file from entered values to avoid reentering the data each start
-			Helper.saveProperties("peergroup.cfg");
-			
-			Helper.initGUI();
-		}else{
-			//In headless mode we shutdown Peergroup
-			quit(10);
 		}
 	}
 
@@ -256,85 +207,29 @@ public class Peergroup {
 	 */
 	private static void detectInternalExternalIPs() {
 		// Get local IP
-		try {
-			InetAddress local = null;
-			boolean foundIP = false;
-			Enumeration<NetworkInterface> ifaces = NetworkInterface.getNetworkInterfaces();
-			while (ifaces.hasMoreElements()) {
-				NetworkInterface iface = ifaces.nextElement();
-				Enumeration<InetAddress> addresses = iface.getInetAddresses();
-
-				while (addresses.hasMoreElements()) {
-					InetAddress addr = addresses.nextElement();
-					if (addr instanceof Inet4Address && !addr.isLoopbackAddress()) {
-						if(Globals.internalIP4.equals("")){
-							//If local IPv4 address is not explicitly set, use the first one you find
-							local = addr;
-							foundIP = true;
-						}else{
-							//If specific local IPv4 address is chosen, check if it exists
-							if(Globals.internalIP4.equals(addr.getHostAddress())){
-								local = addr;
-								foundIP = true;
-							}
-						}
-					}
-					if(foundIP)
-						break;
-				}
-				if(foundIP)
-					break;
-			}
-
-			if (local == null) {
-				Globals.log.addMsg("Could not determine local IP address!");
-				System.exit(0);
-			}
-
-			Globals.internalIP4 = local.getHostAddress();
-			Globals.log.addMsg("Detected local IPv4 as: " + Globals.internalIP4);
-		} catch (SocketException se) {
-			Globals.log.addMsg("Cannot get local IP: " + se, 4);
+		if(!Globals.internalIP4.equals("")) {
+			Globals.log.addMsg("Internal IPv4 was manually set, skip the guessing.");
+		} else {
+			Helper.getInternalIP4();
 		}
 
 		// Get external IPv4
 		if (!Globals.externalIP4.equals("")) {
-			Globals.log.addMsg("External IPv4 was manually set, skipping the guessing.");
-			return;
+			Globals.log.addMsg("External IPv4 was manually set, skip the guessing.");
+		} else {
+			Helper.getExternalIP4();
 		}
-		try {
-			Socket whatismyip = new Socket("37.120.160.33",17533);
-			BufferedReader in = new BufferedReader(new InputStreamReader(whatismyip.getInputStream()));
-
-			Globals.externalIP4 = in.readLine();
-			whatismyip.close();
-			Globals.log.addMsg("Found external IPv4 address: " + Globals.externalIP4);
-		} catch (Exception e) {
-			Globals.log.addMsg("Couldn't get external IPv4 address! " + e + " Try setting it manually!", 1);
-			quit(1);
-		}
+		
 		
 		// Get external IPv6
 		if (!Globals.externalIP6.equals("")) {
-			Globals.log.addMsg("External IPv6 was manually set, skipping the guessing.");
-			return;
-		}
-		try {
-			Socket whatismyip = new Socket("2a03:4000:6:3007::1",17533);
-			BufferedReader in = new BufferedReader(new InputStreamReader(whatismyip.getInputStream()));
-
-			Globals.externalIP6 = in.readLine();
-			whatismyip.close();
-			Globals.log.addMsg("Found external IPv6 address: " + Globals.externalIP6);
-		} catch (Exception e) {
-			if(!Globals.externalIP4.equals("")){
-				Globals.log.addMsg("Couldn't get external IPv6 address! Using IPv4 only...", 1);
-			}else{
-				Globals.log.addMsg("Couldn't get any external address! Try setting them manually!", 1);
-				quit(1);
-			}
+			Globals.log.addMsg("External IPv6 was manually set, skip the guessing.");
+		} else {
+			Helper.getExternalIP6();
 		}
 	}
+
+	
 
 	/**
 	 * This function forwards the chosen P2P port to the detected
@@ -348,13 +243,11 @@ public class Peergroup {
 		int discoveryTimeout = 5000; // 5 secs to receive a response from
 		// devices
 		try {
-			InternetGatewayDevice[] IGDs = InternetGatewayDevice
-					.getDevices(discoveryTimeout);
+			InternetGatewayDevice[] IGDs = InternetGatewayDevice.getDevices(discoveryTimeout);
 			if (IGDs != null) {
 				// let's the the first device found
 				Globals.igd = IGDs[0];
-				Globals.log.addMsg("Found device "
-						+ Globals.igd.getIGDRootDevice().getModelName());
+				Globals.log.addMsg("Found device " + Globals.igd.getIGDRootDevice().getModelName());
 
 				// now let's open the port
 				// we assume that localHostIP is something else than 127.0.0.1
