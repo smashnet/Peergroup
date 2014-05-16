@@ -16,7 +16,7 @@ GNU General Public License for more details.
 Author : Nicolas Inden
 Contact: nicolas.inden@rwth-aachen.de
 
-Copyright (c) 2013 Nicolas Inden
+Copyright (c) 2013, 2014 Nicolas Inden
 -->
 
 <project name="Peergroup" default="all" basedir=".">
@@ -165,7 +165,7 @@ Copyright (c) 2013 Nicolas Inden
 		<delete file="Peergroup.zip" />
 		<mkdir dir="${deploydir}/Peergroup/" />
 		<copy file="${dist}/peergroup.jar" todir="${deploydir}/Peergroup/" />
-		<copy file="config.smp" todir="${deploydir}/Peergroup/" />
+		<copy file="sample.cfg" todir="${deploydir}/Peergroup/" />
 		<copy file="README.mdown" todir="${deploydir}/Peergroup/" />
 		<copy file="license.txt" todir="${deploydir}/Peergroup/" />
 		<copy file="pg-start" todir="${deploydir}/Peergroup/" />
@@ -173,29 +173,5 @@ Copyright (c) 2013 Nicolas Inden
 		<zip basedir="${deploydir}" destfile="Peergroup.zip" />
 		<delete dir="${deploydir}" />
 	</target>
-	
-	<target name="umlgraph-doc"
-	        description="Create integrated Javadoc and class diagrams">
-	    <javadoc
-	                classpathref="build.classpath"
-	                verbose="false"
-	                >
-	        <doclet name="org.umlgraph.doclet.UmlGraphDoc"
-	                path="${lib}/UmlGraph.jar"
-	                >
-	            <param name="-d" value="${docdir}"/>
-	            <param name="-private"/>
-	            <param name="-all"/>
-	            <param name="-inferrel"/>
-	            <param name="-qualify"/>
-	            <param name="-postfixpackage"/>
-	            <param name="-useimports"/>
-	            <param name="-collpackages" value="java.util.*"/>
-	            <param name="-hide" value="java.lang.String"/>
-	            <param name="-link" value="http://java.sun.com/j2se/1.5/docs/api"/>
-	        </doclet>
-	        <packageset dir="${src}" defaultexcludes="yes"/>
-	    </javadoc>
-	</target>
-	
+
 </project>
